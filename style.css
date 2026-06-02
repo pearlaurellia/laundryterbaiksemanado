@@ -104,7 +104,7 @@ body {
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
 }
 
-.bulat-tengah {
+.bulat-ditengah {
     position: absolute;
     width: 110px;
     height: 110px;
@@ -264,7 +264,7 @@ body {
     z-index: 2;
 }
 
-.bulat-tengah {
+.bulat-tengah-satunya {
     position: absolute;
     width: 90px;
     height: 90px;
@@ -297,4 +297,22 @@ body {
     font-size: 3.5rem;
     color: #3f3e3a;
     margin-bottom: 10px;
+}
+
+.pesanan-aktif-kiri {
+    background: #DDEEFF;
+    color: #514F44;
+    padding: 80px 60px;
+    border-radius: 0 60px 60px 0; 
+}
+
+.keterangan1 {
+    background-color: var(--tealmuda);
+    color: #4a4a4a;
+    padding: 12px 28px;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    border-radius: 20px;
+    width: 100px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15); 
 }
