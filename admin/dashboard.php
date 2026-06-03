@@ -101,6 +101,58 @@
         <div class="pesanan-aktif-container">
             <div class="kartu-member-admin">
             <div class="member-kiri">
+                <p class="teks-kecil">Username : pearlnafeesa</p>
+                
+                <div class="baris-nama">
+                <div class="pill-nama">Nama : <strong>SASASASASASASA</strong></div>
+                <div class="pill-alamat">Lihat alamat lengkap</div>
+                </div>
+                
+                <p class="teks-info">Alamat : Jl. Sea </p>
+                <p class="teks-info">Nomor Telepon : 08115723906</p>
+                <p class="teks-info">Email : hxn.aurelle@gmail.com</p>
+            </div>
+
+            <div class="member-kanan">
+                <p class="teks-tanggal">Tanggal bergabung :<br>10-04-2025</p>
+                
+                <div class="baris-aksi">
+                <div class="pill-riwayat">Riwayat Pesanan</div>
+                <div class="pill-nonaktif">Nonaktifkan</div>
+                </div>
+
+                <div class="lingkaran-member-kecil"></div>
+                <div class="lingkaran-member-besar"></div>
+            </div>
+            </div>
+            <div class="kartu-member-admin">
+            <div class="member-kiri">
+                <p class="teks-kecil">Username : Liam999</p>
+                
+                <div class="baris-nama">
+                <div class="pill-nama">Nama : <strong>Ryan Liam</strong></div>
+                <div class="pill-alamat">Lihat alamat lengkap</div>
+                </div>
+                
+                <p class="teks-info">Alamat : Paal 4</p>
+                <p class="teks-info">Nomor Telepon : 0834545827</p>
+                <p class="teks-info">Email : @RyanL9@gmail.com</p>
+            </div>
+
+            <div class="member-kanan">
+                <p class="teks-tanggal">Tanggal bergabung :<br>10-04-2025</p>
+                
+                <div class="baris-aksi">
+                <div class="pill-riwayat">Riwayat Pesanan</div>
+                <div class="pill-nonaktif">Nonaktifkan</div>
+                </div>
+
+                <div class="lingkaran-member-kecil"></div>
+                <div class="lingkaran-member-besar"></div>
+            </div>
+            </div>
+            <div class="kartu-member-admin">
+            <div class="member-kiri">
                 <p class="teks-kecil">Username : Liam999</p>
                 
                 <div class="baris-nama">

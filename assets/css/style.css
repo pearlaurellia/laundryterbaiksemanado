@@ -171,6 +171,7 @@ body {
     font-family: "Bricolage Grotesque", sans-serif;
     text-align: center; 
     border-radius: 0px 20px 0px 20px;
+    z-index: 5;
 }
 
 .kartu-layanan-featured .kartu-header {
@@ -395,7 +396,7 @@ body {
     position: absolute;
     width: 60px;
     height: 60px;
-    background-color: #3b88db;
+    background-color: #318CBB;
     border-radius: 50%;
     right: 15%;
     top: 30%;
@@ -405,7 +406,7 @@ body {
     position: absolute;
     width: 200px;
     height: 200px;
-    background-color: #3b88db;
+    background-color: #318CBB;
     border-radius: 50%;
     right: -50px;
     bottom: -80px;
@@ -574,6 +575,7 @@ body {
     padding: 5px 20px 5px;
     flex-grow: 1;
     position: relative;
+    margin-top: -20px;
 }
 
 .kartu-body-admin p {
@@ -588,7 +590,7 @@ body {
     right: -10px;
     width: 80px;
     height: 80px;
-    background-color: var(--birutua);
+    background-color: #10567F;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -605,7 +607,7 @@ body {
     right: 80px;
     width: 30px;
     height: 30px;
-    background-color: var(--birutua);
+    background-color: #10567F;
     border-radius: 50%;
 }
 
