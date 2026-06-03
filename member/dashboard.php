@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
@@ -12,32 +12,7 @@
 </head>
 
 <body>
-    <header class="header">
-        <nav class="nav-left">
-            <ul>
-                <li>
-                    <a href="main.html" class="tombol-daun"> Beranda </a>
-                </li>
-                <li>
-                    <a href="layanan.html" class="tombol-daun"> Layanan </a>
-                </li>
-                <li>
-                    <a href="kontak.html" class="tombol-daun"> Kontak </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="nav-right">
-            <ul>
-                <li>
-                    <a href="login.html" class="tombol-daun"> Masuk </a>
-                </li>
-                <li>
-                    <a href="registrasi.html" class="tombol-daun"> Daftar </a>
-                </li>
-            </ul>
-        </div>
-    </header>
-    
+    <?php include '../includes/header-member.php'; ?>
     <section class="hero">
         <div class="konten-hero">
             <div class="teks-hero">
@@ -48,8 +23,7 @@
             </div>
 
             <div class="tombol-hero">
-                <a href="registrasi.html" class="tombol-daun"> Buat akun, jadi member </a>
-                <a href="login.html" class="tombol-daun"> Masuk Member </a>
+                <a href="pesan.html" class="tombol-daun"> Pesan Sekarang </a>
             </div>
         </div>
         
@@ -117,16 +91,75 @@
     <section class="preview-pesanan-aktif">
         <div class="kartu-pesanan-aktif">
             <div class="pesanan-aktif-kiri">
-                <p class="keterangan1">Cuci</p>
-                <p class="keterangan-layanan">Express</p>
-                <p class="keterangan-antarambil">Antar</p>
-                <p> Baju kamu lagi dicuci! </p>
-                <p> Estimasi pesanan selesai: <br> 17:00 Rabu, 04-12-2006 </p>
+                <div class="grup-keterangan">
+                    <span class="badge-hijau">Cuci</span>
+                    <span class="badge-biru">Express</span>
+                    <span class="badge-biru">Antar</span>
+                </div>
+                <p class="status-teks">Baju kamu lagi dicuci!</p>
+                <div class="estimasi-teks">
+                    <p><strong>Estimasi pesanan selesai :</strong><br>
+                    17:00 Rabu, 04-12-2026</p>
+                </div>
             </div>
             <div class="pesanan-aktif-kanan">
-                <p class="current-date"> 10:00 Rabu, 04-12-2026 </p>
-                <p> Biaya: <br> Berat = 2 kg = Rp35.000 <br> Antar = Rp5.000</p>
-                <br><p>Total Harga: <br> Rp40.000</p>
+                <p class="tanggal-atas">10:00 Rabu, 04-12-2026</p>
+                <div class="rincian-biaya">
+                    <p>Biaya :</p>
+                    <p>Berat = 2Kg : Rp 35,000</p>
+                    <p>Antar : Rp 5,000</p>
+                </div>
+                <div class="bawah-kanan">
+                    <div class="total-harga">
+                    <p>Total harga :<br>Rp 35,000</p>
+                    </div>
+                    <div class="note-area">
+                    <p>Note :</p>
+                    </div>
+                </div>
+                <div class="bulat-biru-kecil"></div>
+                <div class="bulat-biru-besar"></div>
+            </div>
+        </div>
+    </section>       
+    
+    <section class="sejarah-pesanan">
+        <div class="grup-filter">
+            <a href="pesanan.php?status=semua" class="tombol-filter aktif">Semua</a>
+            <a href="pesanan.php?status=baru" class="tombol-filter">Baru</a>
+            <a href="pesanan.php?status=proses" class="tombol-filter">Diproses</a>
+            <a href="pesanan.php?status=selesai" class="tombol-filter">Selesai</a>
+        </div>
+        <div class="kartu-sejarah-container">
+            <div class="kartu-sejarah">
+                <div class="sejarah-body">
+                    <div class="grup-keterangan">
+                        <span class="badge-biru">11:00 Senin, 04-09-2026</span>
+                        <span class="badge-biru">Reguler</span>
+                        <span class="badge-biru">Pickup</span>
+                        <span class="badge-biru">3kg</span>
+                    </div>
+                    <p> Pesanan selesai : 01:00 Selasa, 04-10-2026 </p>
+                    <p> Total harga : Rp 24,000 </p>
+                    <div class="tombol-detail"> Detail Pesanan </div>
+                    <div class="bulat-kecil"></div>
+                    <div class="bulat-harga"></div>
+                </div>
+            </div>
+            <div class="kartu-sejarah">
+                <div class="sejarah-body">
+                    <div class="grup-keterangan">
+                        <span class="badge-biru">11:00 Senin, 04-09-2026</span>
+                        <span class="badge-biru">Reguler</span>
+                        <span class="badge-biru">Pickup</span>
+                        <span class="badge-biru">3kg</span>
+                    </div>
+                    <p> Pesanan selesai : 01:00 Selasa, 04-10-2026 </p>
+                    <p> Total harga : Rp 24,000 </p>
+                    <div class="tombol-detail"> Detail Pesanan </div>
+                    <div class="bulat-kecil"></div>
+                    <div class="bulat-harga"></div>
+                </div>
             </div>
         </div>
     </section>
