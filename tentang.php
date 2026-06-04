@@ -13,50 +13,86 @@
 <body>
     <?php include 'includes/header.php'; ?>
 
-    <section class="layanan-overview" style="padding-top: 160px;">
-        <h1 class="judul-overview-layanan">Tim CleanCo</h1>
-        <p class="teks-overview-layanan">Empat pembuat website ini membawa peran berbeda untuk menghasilkan halaman yang bersih dan fungsional.</p>
+    <section class="hero-form" style="min-height: auto; padding-top: 160px; padding-bottom: 140px;">
+        <div class="bulat-atas-form"></div>
+        <div class="bulat-ditengah-form"></div>
+        <div class="bulat-besar-form"></div>
 
-        <div class="kartu-layanan-container">
-            <div class="kartu-layanan">
-                <img class="profil-foto" src="assets/images/sasha-foto.png" alt="Foto Ayesha">
-                <div class="kartu-header">Wonyoung IVE</div>
-                <div class="kartu-body">
-                    <p><strong>NIM:</strong> 123210001</p>
-                    <p><strong>Role:</strong> Desain UI & Front-end</p>
-                    <p><strong>Motto:</strong> "Desain yang ramah membuat layanan lebih dekat."</p>
+        <div class="konten-form" style="text-align: center;">
+            <h1 class="judul-form" style="margin-bottom: 16px; font-size: 3.5rem;">Tim CleanCo</h1>
+            <p style="color: rgba(255, 255, 255, 0.85); font-size: 1.1rem; max-width: 650px; line-height: 1.6;">
+                Empat pembuat website ini membawa peran berbeda untuk menghasilkan halaman yang bersih dan fungsional.
+            </p>
+        </div>
+    </section>
+
+    <section class="layanan-overview" style="padding-top: 0; margin-top: -60px; position: relative; z-index: 15; min-height: auto; padding-bottom: 100px;">
+        <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; padding: 0 20px;">
+            
+            <div class="kartu-pesanan-aktif" style="margin: 0; border-radius: 0px 20px 20px 20px; flex-wrap: wrap;">
+                <div style="flex: 1 1 250px; min-height: 250px; background-color: #DDEEFF;">
+                    <img src="assets/images/sasha-foto.png" alt="Foto Wonyoung" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
+                </div>
+                <div style="flex: 2 1 400px; padding: 30px 40px; display: flex; flex-direction: column; justify-content: center; background-color: white;">
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: var(--birutua); margin: 0 0 10px;">Wonyoung</h2>
+                    <div style="margin-bottom: 15px;">
+                        <span class="badge-status badge-status-baru" style="font-size: 0.9rem; padding: 8px 20px;">Desain UI & Front-end</span>
+                    </div>
+                    <p style="font-size: 1.1rem; color: #514F44; margin: 0 0 20px;"><strong>NIM:</strong> 123210001</p>
+                    <div class="detail-catatan-wrapper" style="margin: 0;">
+                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Desain yang ramah membuat layanan lebih dekat."</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="kartu-layanan">
-                <img class="profil-foto" src="assets/images/bima.jpg" alt="Foto Bima">
-                <div class="kartu-header">Bima</div>
-                <div class="kartu-body">
-                    <p><strong>NIM:</strong> 123210002</p>
-                    <p><strong>Role:</strong> Back-end & Database</p>
-                    <p><strong>Motto:</strong> "Kode yang bersih, hasil yang rapi."</p>
+            <div class="kartu-pesanan-aktif" style="margin: 0; border-radius: 0px 20px 20px 20px; flex-wrap: wrap;">
+                <div style="flex: 1 1 250px; min-height: 250px; background-color: #fffbea;">
+                    <img src="assets/images/bima.jpg" alt="Foto Bima" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
+                </div>
+                <div style="flex: 2 1 400px; padding: 30px 40px; display: flex; flex-direction: column; justify-content: center; background-color: white;">
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: var(--birutua); margin: 0 0 10px;">Bima</h2>
+                    <div style="margin-bottom: 15px;">
+                        <span class="badge-status badge-status-diproses" style="font-size: 0.9rem; padding: 8px 20px;">Back-end & Database</span>
+                    </div>
+                    <p style="font-size: 1.1rem; color: #514F44; margin: 0 0 20px;"><strong>NIM:</strong> 123210002</p>
+                    <div class="detail-catatan-wrapper" style="margin: 0;">
+                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Kode yang bersih, hasil yang rapi."</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="kartu-layanan">
-                <img class="profil-foto" src="assets/images/clara.jpg" alt="Foto Clara">
-                <div class="kartu-header">Clara</div>
-                <div class="kartu-body">
-                    <p><strong>NIM:</strong> 123210003</p>
-                    <p><strong>Role:</strong> Konten & Quality Assurance</p>
-                    <p><strong>Motto:</strong> "Setiap detail kecil menentukan kesan besar."</p>
+            <div class="kartu-pesanan-aktif" style="margin: 0; border-radius: 0px 20px 20px 20px; flex-wrap: wrap;">
+                <div style="flex: 1 1 250px; min-height: 250px; background-color: #d1fae5;">
+                    <img src="assets/images/clara.jpg" alt="Foto Clara" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
+                </div>
+                <div style="flex: 2 1 400px; padding: 30px 40px; display: flex; flex-direction: column; justify-content: center; background-color: white;">
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: var(--birutua); margin: 0 0 10px;">Clara</h2>
+                    <div style="margin-bottom: 15px;">
+                        <span class="badge-status badge-status-selesai" style="font-size: 0.9rem; padding: 8px 20px; color: #1a4d3a;">Konten & QA</span>
+                    </div>
+                    <p style="font-size: 1.1rem; color: #514F44; margin: 0 0 20px;"><strong>NIM:</strong> 123210003</p>
+                    <div class="detail-catatan-wrapper" style="margin: 0;">
+                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Setiap detail kecil menentukan kesan besar."</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="kartu-layanan">
-                <img class="profil-foto" src="assets/images/dimas.jpg" alt="Foto Dimas">
-                <div class="kartu-header">Dimas</div>
-                <div class="kartu-body">
-                    <p><strong>NIM:</strong> 123210004</p>
-                    <p><strong>Role:</strong> Project manager & Dokumentasi</p>
-                    <p><strong>Motto:</strong> "Kerja sama solid membawa hasil nyata."</p>
+            <div class="kartu-pesanan-aktif" style="margin: 0; border-radius: 0px 20px 20px 20px; flex-wrap: wrap;">
+                <div style="flex: 1 1 250px; min-height: 250px; background-color: #E6F0FA;">
+                    <img src="assets/images/dimas.jpg" alt="Foto Dimas" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
+                </div>
+                <div style="flex: 2 1 400px; padding: 30px 40px; display: flex; flex-direction: column; justify-content: center; background-color: white;">
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: var(--birutua); margin: 0 0 10px;">Dimas</h2>
+                    <div style="margin-bottom: 15px;">
+                        <span class="badge-status badge-status-baru" style="font-size: 0.9rem; padding: 8px 20px;">Project Manager</span>
+                    </div>
+                    <p style="font-size: 1.1rem; color: #514F44; margin: 0 0 20px;"><strong>NIM:</strong> 123210004</p>
+                    <div class="detail-catatan-wrapper" style="margin: 0;">
+                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Kerja sama solid membawa hasil nyata."</p>
+                    </div>
                 </div>
             </div>
+
         </div>
     </section>
 </body>

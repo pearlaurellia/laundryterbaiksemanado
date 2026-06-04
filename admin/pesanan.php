@@ -14,13 +14,15 @@
         .item-pesanan-kode {
             font-size: 1rem;
             font-weight: 700;
-            color: #0d3f8a;
+            color: #ffffff;
+            background: #346E9E;
             margin: 4px 0 2px;
             letter-spacing: 0.02em;
+            border-radius: 20px;
         }
         .item-pesanan-nama {
             font-size: 0.8rem;
-            color: #888;
+            color: #ffffff;
             margin: 0 0 6px;
         }
     </style>
