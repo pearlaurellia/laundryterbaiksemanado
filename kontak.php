@@ -20,10 +20,10 @@
                 <p>Butuh bantuan atau ingin pesan layanan? Kami siap membantu dengan cepat dan ramah.</p>
                 <ul>
                     <li>
-                        <a href="https://wa.me/6281234567890" target="_blank">Hubungi di WhatsApp</a>
+                        <a href="https://wa.me/6281234567890" target="_blank">▸ Hubungi di <u>WhatsApp</u></a>
                     </li>
                     <li>
-                        <a href="instagram.com/cleanco" target="_blank">Follow Instagram kami</a>
+                        <a href="https://instagram.com/cleanco" target="_blank">▸ <u>Follow</u> Instagram kami</a>
                     </li>
                 </ul>
             </div>
