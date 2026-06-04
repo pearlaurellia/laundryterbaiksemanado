@@ -165,13 +165,14 @@ function updateStatus(status) {
 
     setStatusUI(status);
     hitungBiaya();
-    
-    // Refresh list di sidebar supaya sinkron dengan status baru
+
+    // Re-render list supaya badge dan urutan di sidebar sinkron
     renderListPesanan('semua');
-    
-    // Pastikan status tombol filter "Semua" kembali aktif secara visual (opsional)
+
+    // Kembalikan tombol filter ke "Semua"
     document.querySelectorAll('.tombol-filter').forEach(b => b.classList.remove('aktif'));
-    document.querySelector('.tombol-filter').classList.add('aktif');
+    const btnSemua = document.querySelector('.tombol-filter');
+    if (btnSemua) btnSemua.classList.add('aktif');
 }
 // ── RENDER LIST PESANAN ───────────────────────────────────────
 function renderListPesanan(filterStatus) {

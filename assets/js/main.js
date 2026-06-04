@@ -172,10 +172,8 @@ function kembaliKeList() {
 function filterPesanan(status, btn) {
     document.querySelectorAll('.tombol-filter').forEach(b => b.classList.remove('aktif'));
     btn.classList.add('aktif');
-    document.querySelectorAll('.item-pesanan').forEach(item => {
-        item.style.display = (status === 'semua' || item.dataset.status === status)
-            ? 'block' : 'none';
-    });
+    // Gunakan renderListPesanan agar data dari localStorage selalu fresh
+    renderListPesanan(status);
 }
 
 // ── FILTER RIWAYAT (member/riwayat.php) ───────────────────
@@ -202,11 +200,19 @@ function batalkanPesananAdmin(id) {
     _idAkanDibatalAdmin = id;
     dataPesanan = _muatData();
     const p = dataPesanan[id];
+
     document.getElementById('popupBatalAdminTeks').textContent =
-        `Pesanan #${p.kode} (${p.layanan}) milik ${p.nama} akan dibatalkan. Masukkan alasan (opsional).`;
-    document.getElementById('inputAlasanLainnya').value = '';
-    document.getElementById('overlayBatalAdmin').style.display  = 'block';
-    document.getElementById('popupBatalAdmin').style.display    = 'block';
+        `Pesanan #${p.kode} (${p.layanan}) milik ${p.nama} akan dibatalkan.`;
+
+    // Reset semua pilihan radio & sembunyikan input lainnya
+    document.querySelectorAll('input[name="alasanBatal"]').forEach(r => r.checked = false);
+    const wrapperLainnya = document.getElementById('wrapperAlasanLainnya');
+    if (wrapperLainnya) wrapperLainnya.style.display = 'none';
+    const inputLainnya = document.getElementById('inputAlasanLainnya');
+    if (inputLainnya) inputLainnya.value = '';
+
+    document.getElementById('overlayBatalAdmin').style.display = 'block';
+    document.getElementById('popupBatalAdmin').style.display   = 'block';
 }
 
 function tutupPopupBatalAdmin() {

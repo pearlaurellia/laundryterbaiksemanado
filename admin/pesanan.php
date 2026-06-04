@@ -158,42 +158,110 @@
 
             </div>
         </div>
-    <!-- Popup konfirmasi batal -->
-    <div id="overlayBatalAdmin" class="overlay-popup" style="display:none;"></div>
-    
-    <div id="popupBatalAdmin" class="popup-konfirmasi" style="display:none;">
-        <h3 class="popup-judul">Konfirmasi Pembatalan</h3>
-        <p id="popupBatalAdminTeks" class="popup-teks">Teks konfirmasi...</p>
+        <!-- Popup konfirmasi batal -->
+        <div id="overlayBatalAdmin" class="overlay-popup"
+            style="display:none;" onclick="tutupPopupBatalAdmin()"></div>
 
-        <div style="margin-top:12px;">
-            <label style="display:block; margin-bottom:6px;">
-                <input type="radio" name="alasanBatal" value="gagal_pengantaran"> Gagal pengantaran
-            </label>
-            <label style="display:block; margin-bottom:6px;">
-                <input type="radio" name="alasanBatal" value="stok_kosong"> Stok/alat tidak tersedia
-            </label>
-            <label style="display:block; margin-bottom:6px;">
-                <input type="radio" name="alasanBatal" value="lainnya"> Lainnya
-            </label>
-            <input id="inputAlasanLainnya" type="text" placeholder="Tuliskan alasan lain..." style="width:100%; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #ddd;">
+        <div id="popupBatalAdmin" class="popup-konfirmasi"
+            style="display:none; width:440px; max-width:92vw;">
+
+            <h3 class="popup-judul">Batalkan Pesanan?</h3>
+            <p id="popupBatalAdminTeks" class="popup-teks"></p>
+
+            <div style="margin-bottom:20px;">
+                <p class="detail-label" style="margin-bottom:12px;">
+                    Pilih Alasan Pembatalan
+                </p>
+
+                <div style="display:flex; flex-direction:column; gap:8px;">
+
+                    <label class="kartu-alasan">
+                        <input type="radio" name="alasanBatal"
+                            value="Kuota laundry hari ini penuh, silakan pesan kembali besok.">
+                        <div class="kartu-alasan-isi">
+                            <span class="kartu-alasan-ikon">📦</span>
+                            <div>
+                                <p class="kartu-alasan-judul">Laundry Penuh</p>
+                                <p class="kartu-alasan-sub">Kuota hari ini sudah penuh</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="kartu-alasan">
+                        <input type="radio" name="alasanBatal"
+                            value="Pesanan terindikasi fiktif / pengguna tidak dapat dihubungi.">
+                        <div class="kartu-alasan-isi">
+                            <span class="kartu-alasan-ikon">⚠️</span>
+                            <div>
+                                <p class="kartu-alasan-judul">Pesanan Fiktif</p>
+                                <p class="kartu-alasan-sub">Pengguna tidak dapat dihubungi</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="kartu-alasan">
+                        <input type="radio" name="alasanBatal"
+                            value="Alamat pengantaran tidak valid atau di luar jangkauan kurir.">
+                        <div class="kartu-alasan-isi">
+                            <span class="kartu-alasan-ikon">📍</span>
+                            <div>
+                                <p class="kartu-alasan-judul">Alamat Tidak Valid</p>
+                                <p class="kartu-alasan-sub">Di luar jangkauan atau tidak ditemukan</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="kartu-alasan">
+                        <input type="radio" name="alasanBatal" value="lainnya">
+                        <div class="kartu-alasan-isi">
+                            <span class="kartu-alasan-ikon">📝</span>
+                            <div>
+                                <p class="kartu-alasan-judul">Lainnya</p>
+                                <p class="kartu-alasan-sub">Alasan lain dari admin</p>
+                            </div>
+                        </div>
+                    </label>
+
+                </div>
+
+                <!-- Input teks: hanya muncul jika pilih "Lainnya" -->
+                <div id="wrapperAlasanLainnya" style="display:none; margin-top:10px;">
+                    <input type="text"
+                        id="inputAlasanLainnya"
+                        placeholder="Tulis alasan di sini..."
+                        style="width:100%; padding:10px 14px; font-size:0.88rem;
+                                border:1.5px solid #e0e0e0; border-radius:20px 0 20px 0;
+                                font-family:'DM Sans',sans-serif; outline:none;">
+                </div>
+            </div>
+
+            <div class="popup-tombol-group">
+                <button class="popup-tombol-batal" onclick="tutupPopupBatalAdmin()">
+                    Tidak
+                </button>
+                <button class="popup-tombol-konfirm" onclick="eksekusiBatalAdmin()">
+                    Ya, Batalkan
+                </button>
+            </div>
         </div>
 
-        <div class="popup-tombol-group" style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
-            <button class="popup-tombol-batal" onclick="tutupPopupBatalAdmin()">Batal</button>
-            <button class="popup-tombol-konfirm" onclick="eksekusiBatalAdmin()">Konfirmasi Batal</button>
-        </div>
-    </div>
+        <script src="../assets/js/main.js"></script>
+        <script src="../assets/js/status.refresh.js"></script>
+        <script src="../assets/js/kalkulasi-harga.js"></script>
+        <script src="../assets/js/form-validation.js"></script>
 
-    <script src="../assets/js/main.js"></script>
-    <script src="../assets/js/status.refresh.js"></script>
-    <script src="../assets/js/kalkulasi-harga.js"></script>
-    <script src="../assets/js/form-validation.js"></script>
-    
-    <script>
-        // Render pesanan list on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            renderListPesanan('semua');
-        });
-    </script>
+        <script>
+            // Toggle input "Lainnya"
+            document.addEventListener('change', function(e) {
+                if (e.target.name !== 'alasanBatal') return;
+                const wrapper = document.getElementById('wrapperAlasanLainnya');
+                wrapper.style.display = e.target.value === 'lainnya' ? 'block' : 'none';
+            });
+
+            // Render list saat halaman dimuat
+            document.addEventListener('DOMContentLoaded', function() {
+                renderListPesanan('semua');
+            });
+        </script>
 </body>
 </html>

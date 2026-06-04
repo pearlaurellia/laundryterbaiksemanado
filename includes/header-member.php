@@ -12,39 +12,54 @@ if (isset($_SESSION['id_user'])) {
     $jumlahBadge = $stmtBadge->fetchColumn();
 }
 ?>
+
 <header class="header">
-        <nav class="nav-left">
-            <ul>
-                <li>
-                    <a href="dashboard.php" class="tombol-daun"> Beranda </a>
-                </li>
-                <li>
-                    <a href="pesan.php" class="tombol-daun"> Pesan </a>
-                </li>
-                <li>
-                    <a href="status.php" class="tombol-daun">
-                        Status Pesanan
-                        <?php if ($jumlahBadge > 0): ?>
-                            <span class="badge-notif"><?= $jumlahBadge ?></span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-                <li>
-                    <a href="riwayat.php" class="tombol-daun"> Riwayat </a>
-                </li>
-                <li>
-                    <a href="kontak.php" class="tombol-daun"> Kontak </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="nav-right">
-            <ul>
-                <li>
-                    <a href="profil.php" class="tombol-daun"> Profile </a>
-                </li>
-                <li>
-                    <a href="../logout.php" class="tombol-daun"> Logout </a>
-                </li>
-            </ul>
-        </div>
+    <nav class="nav-left">
+        <ul>
+            <li>
+                <a href="dashboard.php" class="tombol-daun">Beranda</a>
+            </li>
+            <li>
+                <a href="status.php" class="tombol-daun" style="position:relative;">
+                    Status Pesanan
+                    <span id="badgeNotifStatus"
+                          style="
+                            position:absolute;
+                            top:-8px; right:-10px;
+                            background:#f87171;
+                            color:white;
+                            font-size:0.65rem;
+                            font-weight:700;
+                            min-width:18px;
+                            height:18px;
+                            border-radius:50%;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            padding:0 4px;
+                            line-height:1;
+                            box-shadow:0 1px 4px rgba(0,0,0,0.2);
+                          ">
+                        1
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="riwayat.php" class="tombol-daun">Riwayat</a>
+            </li>
+            <li>
+                <a href="kontak.php" class="tombol-daun">Kontak</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="nav-right">
+        <ul>
+            <li>
+                <a href="profil.php" class="tombol-daun">Profil</a>
+            </li>
+            <li>
+                <a href="../logout.php" class="tombol-daun">Logout</a>
+            </li>
+        </ul>
+    </div>
 </header>
