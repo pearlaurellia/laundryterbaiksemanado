@@ -1,3 +1,65 @@
+<?php
+require_once 'config/session.php';
+require_once 'config/database.php';
+require_once 'config/functions.php';
+
+// Kalau sudah login, tidak perlu ke halaman register
+if (isset($_SESSION['id_user'])) {
+    if ($_SESSION['role'] === 'admin') {
+        redirect('admin/dashboard.php');
+    } else {
+        redirect('member/dashboard.php');
+    }
+}
+
+$error  = [];
+$sukses = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nama     = bersihkan($_POST['nama'] ?? '');
+    $email    = bersihkan($_POST['email'] ?? '');
+    $no_hp    = bersihkan($_POST['no_hp'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $konfirm  = $_POST['konfirmasi_password'] ?? '';
+
+    // Validasi
+    if (empty($nama)) {
+        $error[] = 'Nama wajib diisi.';
+    }
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error[] = 'Email tidak valid.';
+    }
+    if (empty($no_hp)) {
+        $error[] = 'Nomor HP wajib diisi.';
+    }
+    if (strlen($password) < 6) {
+        $error[] = 'Password minimal 6 karakter.';
+    }
+    if ($password !== $konfirm) {
+        $error[] = 'Konfirmasi password tidak cocok.';
+    }
+
+    // Cek email sudah terdaftar
+    if (empty($error)) {
+        $cek = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->fetch()) {
+            $error[] = 'Email sudah terdaftar, gunakan email lain.';
+        }
+    }
+
+    // Simpan ke database
+    if (empty($error)) {
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $stmt = $pdo->prepare("
+            INSERT INTO users (nama, email, password, no_hp, role)
+            VALUES (?, ?, ?, ?, 'member')
+        ");
+        $stmt->execute([$nama, $email, $hash, $no_hp]);
+        $sukses = true;
+    }
+}
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
