@@ -14,19 +14,7 @@
 
     <?php include '../includes/header-member.php'; ?>
 
-    <!--
-    ============================================================
-     BACKEND OVERVIEW — member/pesan.php
-     POST ke: proses/proses-pesanan.php (atau pesan.php sendiri)
-     Field yang dikirim:
-       layanan_id, opsi_pengantaran, kecamatan, alamat_pengantaran,
-       estimasi_berat, catatan
-     Status awal yang di-set backend:
-       status_pesanan   = 'menunggu'
-       status_pembayaran = 'belum_bayar'
-       berat_aktual     = 0
-    ============================================================
-    -->
+
 
     <section class="hero-form pesan-hero">
 
@@ -254,5 +242,7 @@
     </div>
 
     <script src="../assets/js/pesan-member.js"></script>
+    <script src="../assets/js/kalkulasi-harga.js"></script>
+    <script src="../assets/js/form-validation.js"></script>
 </body>
 </html>

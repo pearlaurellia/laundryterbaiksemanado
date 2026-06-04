@@ -5,16 +5,13 @@
                     <a href="dashboard.php" class="tombol-daun"> Beranda </a>
                 </li>
                 <li>
-                    <a href="layanan.php" class="tombol-daun"> Layanan </a>
-                </li>
-                <li>
-                    <a href="kontak.php" class="tombol-daun"> Kontak </a>
-                </li>
-                <li>
-                    <a href="pesan.php" class="tombol-daun"> Pesanan </a>
+                    <a href="status.php" class="tombol-daun"> Status Pesanan </a>
                 </li>
                 <li>
                     <a href="riwayat.php" class="tombol-daun"> Riwayat </a>
+                </li>
+                <li>
+                    <a href="kontak.php" class="tombol-daun"> Kontak </a>
                 </li>
             </ul>
         </nav>

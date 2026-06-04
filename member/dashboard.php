@@ -23,7 +23,7 @@
             </div>
 
             <div class="tombol-hero">
-                <a href="pesan.html" class="tombol-daun"> Pesan Sekarang </a>
+                <a href="pesan.php" class="tombol-daun"> Pesan Sekarang </a>
             </div>
         </div>
         

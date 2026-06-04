@@ -2601,3 +2601,269 @@ body {
     font-weight: 600;
     margin: 6px 0 0;
 }
+
+/* ================================
+   STATUS.PHP — HALAMAN STATUS MEMBER
+   ================================ */
+
+.status-section {
+    padding: 100px 60px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* Header */
+.status-header {
+    margin-bottom: 30px;
+}
+
+.status-judul {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 2rem;
+    color: var(--birutua);
+    margin: 0 0 6px;
+}
+
+.status-subjudul {
+    color: #aaa;
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+/* List kartu */
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── KARTU PESANAN AKTIF ── */
+.kartu-status-pesanan {
+    background-color: white;
+    border-radius: 0px 20px 20px 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+}
+
+.kartu-status-pesanan:hover {
+    border-color: #DDEEFF;
+}
+
+/* Header kartu */
+.kartu-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.kartu-status-header-kiri { flex: 1; }
+
+.kartu-status-kode {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.3rem;
+    color: var(--birutua);
+    margin: 0 0 4px;
+}
+
+.kartu-status-meta {
+    font-size: 0.82rem;
+    color: #aaa;
+    margin: 0;
+}
+
+.kartu-status-header-kanan {
+    display: flex;
+    align-items: center;
+}
+
+/* Progress bar di dalam kartu */
+.kartu-status-pesanan .progress-bar-wrapper {
+    border-radius: 0;
+    margin-bottom: 0;
+    background-color: #f4f7fb;
+    padding: 20px 24px;
+    box-shadow: none;
+}
+
+/* Body kartu */
+.kartu-status-body {
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    flex-wrap: wrap;
+    align-items: stretch;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Kotak belum timbang */
+.kotak-belum-timbang {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background-color: #DDEEFF;
+    border-radius: 0px 14px 14px 14px;
+    padding: 14px 18px;
+    min-width: 200px;
+}
+
+.belum-timbang-ikon { font-size: 1.8rem; flex-shrink: 0; }
+
+.belum-timbang-judul {
+    font-weight: 600;
+    color: var(--birutua);
+    font-size: 0.9rem;
+    margin: 0 0 3px;
+}
+
+.belum-timbang-sub {
+    font-size: 0.78rem;
+    color: #7a9ab5;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Kotak harga final */
+.kotak-harga-final-status {
+    flex: 1;
+    background-color: #DDEEFF;
+    border-radius: 0px 14px 14px 14px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+}
+
+.harga-final-baris {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.harga-final-label {
+    font-size: 0.82rem;
+    color: #7a9ab5;
+}
+
+.harga-final-nilai {
+    font-size: 0.95rem;
+    color: var(--birutua);
+    font-weight: 600;
+    text-align: right;
+}
+
+.harga-final-besar {
+    font-size: 1.1rem;
+    color: var(--birutua);
+}
+
+/* Info kurir / outlet */
+.kartu-status-info-kurir {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #f4f7fb;
+    border-radius: 0px 14px 14px 14px;
+    padding: 14px 18px;
+    min-width: 180px;
+}
+
+.info-kurir-ikon  { font-size: 1.6rem; flex-shrink: 0; }
+
+.info-kurir-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #333;
+    margin: 0 0 3px;
+}
+
+.info-kurir-alamat {
+    font-size: 0.78rem;
+    color: #888;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Aksi kartu */
+.kartu-status-aksi {
+    display: flex;
+    gap: 12px;
+    padding: 14px 24px;
+    border-top: 1px solid #f0f0f0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.tombol-detail-status {
+    padding: 10px 28px;
+    background-color: #DDEEFF;
+    color: var(--birutua);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 20px 0px 20px 0px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.tombol-detail-status:hover { background-color: #b5d5f5; }
+
+.tombol-batalkan-status {
+    padding: 10px 24px;
+    background-color: #FFD1D1;
+    color: #D32F2F;
+    border: none;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 20px 0px 20px 0px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+}
+
+.tombol-batalkan-status:hover { background-color: #ffb3b3; }
+
+/* Banner di dalam kartu */
+.kartu-status-pesanan .banner-status {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* ── STATE KOSONG ── */
+.status-kosong {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.status-kosong-ikon  { font-size: 4rem; margin-bottom: 16px; }
+
+.status-kosong-judul {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.5rem;
+    color: var(--birutua);
+    margin: 0 0 8px;
+}
+
+.status-kosong-sub {
+    color: #aaa;
+    font-size: 0.95rem;
+    margin: 0 0 20px;
+}
