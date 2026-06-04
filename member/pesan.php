@@ -47,11 +47,11 @@
                     </div>
 
                     <div class="kartu-pilih-layanan dipilih"
-                         data-id="2"
-                         data-nama="Express"
-                         data-tarif="15000"
-                         data-satuan="kg"
-                         onclick="pilihLayanan(this)">
+                        data-id="2"
+                        data-nama="Express"
+                        data-tarif="15000"
+                        data-satuan="kg"
+                        onclick="pilihLayanan(this)">
                         <div class="kartu-pilih-header kartu-pilih-header-biru">Express</div>
                         <div class="kartu-pilih-body">
                             <p class="kartu-pilih-tarif">Rp 15.000 / kg</p>
@@ -60,11 +60,11 @@
                     </div>
 
                     <div class="kartu-pilih-layanan"
-                         data-id="3"
-                         data-nama="Dry Cleaning"
-                         data-tarif="25000"
-                         data-satuan="item"
-                         onclick="pilihLayanan(this)">
+                        data-id="3"
+                        data-nama="Dry Cleaning"
+                        data-tarif="25000"
+                        data-satuan="item"
+                        onclick="pilihLayanan(this)">
                         <div class="kartu-pilih-header">Dry Cleaning</div>
                         <div class="kartu-pilih-body">
                             <p class="kartu-pilih-tarif">Rp 25.000 / item</p>
@@ -89,8 +89,8 @@
 
                     <label class="kartu-opsi-pengantaran">
                         <input type="radio" name="opsi_pengantaran"
-                               value="ambil_sendiri"
-                               onchange="gantiOpsiPengantaran('ambil_sendiri')">
+                            value="ambil_sendiri"
+                            onchange="gantiOpsiPengantaran('ambil_sendiri')">
                         <div class="kartu-opsi-isi">
                             <span class="kartu-opsi-ikon">🏬</span>
                             <span class="kartu-opsi-label">Ambil Sendiri</span>
@@ -100,9 +100,9 @@
 
                     <label class="kartu-opsi-pengantaran dipilih-opsi">
                         <input type="radio" name="opsi_pengantaran"
-                               value="kurir"
-                               checked
-                               onchange="gantiOpsiPengantaran('kurir')">
+                            value="kurir"
+                            checked
+                            onchange="gantiOpsiPengantaran('kurir')">
                         <div class="kartu-opsi-isi">
                             <span class="kartu-opsi-ikon">🛵</span>
                             <span class="kartu-opsi-label">Kurir Laundry</span>
@@ -142,8 +142,8 @@
                 <div class="grup-input-form">
                     <label class="label-form">Alamat Lengkap</label>
                     <input type="text" class="input-form"
-                           id="inputAlamat" name="alamat_pengantaran"
-                           placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan...">
+                        id="inputAlamat" name="alamat_pengantaran"
+                        placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan...">
                 </div>
             </div>
 
@@ -174,8 +174,8 @@
             <div class="grup-input-form">
                 <label class="label-form">Catatan Khusus <span class="label-opsional">(opsional)</span></label>
                 <textarea class="input-form input-textarea"
-                          id="inputCatatan" name="catatan"
-                          placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."></textarea>
+                    id="inputCatatan" name="catatan"
+                    placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."></textarea>
             </div>
 
             <!-- ── TOMBOL SUBMIT ── -->

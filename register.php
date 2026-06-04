@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sukses = true;
     }
 }
-
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -79,58 +79,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <section class="hero-form">
         <div class="konten-form konten-form-daftar">
             <h1 class="judul-form judul-form-kiri">Daftar Akun</h1>
-            <div class="grid-form-daftar">
 
-                <div class="grup-input-form">
-                    <label class="label-form">Username :</label>
-                    <input type="text" class="input-form">
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-error" style="background: #ffe3e3; color: #cc0000; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <?php foreach ($error as $e): ?>
+                            <li><?= $e ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
+            <?php endif; ?>
 
-                <div class="grup-input-form">
-                    <label class="label-form">Nomor Whatsapp :</label>
-                    <input type="text" class="input-form">
+            <form method="POST" action="register.php" id="formRegister">
+                <div class="grid-form-daftar">
+
+                    <div class="grup-input-form">
+                        <label for="nama" class="label-form">Nama Lengkap :</label>
+                        <input type="text" 
+                                id="nama" 
+                                name="nama" 
+                                class="input-form" 
+                                value="<?= bersihkan($_POST['nama'] ?? '') ?>" 
+                                placeholder="Masukkan nama lengkap" 
+                                required>
+                    </div>
+
+                    <div class="grup-input-form">
+                        <label for="no_hp" class="label-form">Nomor Whatsapp :</label>
+                        <input type="text" 
+                                id="no_hp" 
+                                name="no_hp" 
+                                class="input-form" 
+                                value="<?= bersihkan($_POST['no_hp'] ?? '') ?>" 
+                                placeholder="08xxxxxxxxxx" 
+                                required>
+                    </div>
+
+                    <div class="grup-input-form">
+                        <label for="email" class="label-form">Email :</label>
+                        <input type="email" 
+                                id="email" 
+                                name="email" 
+                                class="input-form" 
+                                value="<?= bersihkan($_POST['email'] ?? '') ?>" 
+                                placeholder="contoh@email.com" 
+                                required>
+                    </div>
+
+                    <div class="grup-input-form">
+                        <label for="password" class="label-form">Password :</label>
+                        <input type="password" 
+                                id="password" 
+                                name="password" 
+                                class="input-form" 
+                                placeholder="Minimal 6 karakter" 
+                                required>
+                    </div>
+
+                    <div class="grup-input-form">
+                        <label for="konfirmasi_password" class="label-form">Verifikasi Password :</label>
+                        <input type="password" 
+                                id="konfirmasi_password" 
+                                name="konfirmasi_password" 
+                                class="input-form" 
+                                placeholder="Ulangi password" 
+                                required>
+                    </div>
+
                 </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Nama depan :</label>
-                    <input type="text" class="input-form">
-                </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Alamat lengkap :</label>
-                    <input type="text" class="input-form">
-                </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Nama belakang :</label>
-                    <input type="text" class="input-form">
-                </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Password :</label>
-                    <input type="password" class="input-form">
-                </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Email :</label>
-                    <input type="email" class="input-form">
-                </div>
-
-                <div class="grup-input-form">
-                    <label class="label-form">Verifikasi Password :</label>
-                    <input type="password" class="input-form">
-                </div>
-
-            </div>
-            <button class="tombol-submit-form">Selesai</button>
+                <button type="submit" class="tombol-submit-form">Selesai</button>
+            </form>
         </div>
 
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
         <div class="bulat-besar-form"><h2>CleanCo</h2></div>
-
     </section>
+
+    <?php if ($sukses): ?>
+    <div class="overlay" id="overlay" style="display: block;"></div>
+    <div class="popup" id="popupSukses" style="display: block;">
+        <div class="popup-icon">✅</div>
+        <h3>Pendaftaran Berhasil!</h3>
+        <p>Akun kamu sudah dibuat. Silakan masuk untuk mulai memesan.</p>
+        <a href="login.php" class="tombol-submit-form" style="display: inline-block; text-decoration: none; text-align: center;">Masuk Sekarang</a>
+    </div>
+    <?php endif; ?>
     
-<script src="assets/js/form-validation.js"></script>
+    <script src="assets/js/form-validation.js"></script>
 </body>
 </html>
