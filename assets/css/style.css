@@ -936,7 +936,7 @@ body {
     font-size: 0.95rem;
     font-family: "DM Sans", sans-serif;
     color: #333;
-    width: 100%;
+    width: 300px;
     box-shadow: var(--shadow);
     outline: none;
     margin: 0 auto;
@@ -979,7 +979,7 @@ body {
 
 .konten-form-daftar {
     align-items: flex-start;
-    max-width: 700px;
+    max-width: 500px;
 }
 
 .grid-form-daftar {
@@ -1031,7 +1031,13 @@ body {
     flex-direction: column;
     gap: 6px;
     margin-bottom: 18px;
-    width: 50%;
+    width: 100%;
+}
+
+.form-login-wrapper {
+    width: 100%;
+    max-width: 400px;
+    justify-self: center;
 }
 
 .label-form-login {

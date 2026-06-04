@@ -157,12 +157,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <?php if ($sukses): ?>
-    <div class="overlay" id="overlay" style="display: block;"></div>
-    <div class="popup" id="popupSukses" style="display: block;">
-        <div class="popup-icon">✅</div>
-        <h3>Pendaftaran Berhasil!</h3>
-        <p>Akun kamu sudah dibuat. Silakan masuk untuk mulai memesan.</p>
-        <a href="login.php" class="tombol-submit-form" style="display: inline-block; text-decoration: none; text-align: center;">Masuk Sekarang</a>
+    <div class="overlay-popup" id="overlay"></div>
+
+    <div class="popup-sukses-pesanan" id="popupSukses">
+        
+        <div class="popup-sukses-atas">
+            <div class="popup-sukses-ikon">✨</div>
+            <h3 class="popup-sukses-judul">Pendaftaran Berhasil!</h3>
+            <p class="popup-sukses-sub">Akun kamu sudah dibuat. Silakan masuk untuk mulai memesan.</p>
+        </div>
+
+        <div class="popup-tombol-group" style="justify-content: center; padding-top: 28px;">
+            <a href="login.php" class="tombol-daun" style="display: inline-block; text-align: center; background-color: var(--tealmuda); color: white;">
+                Masuk Sekarang
+            </a>
+        </div>
+
     </div>
     <?php endif; ?>
     

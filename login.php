@@ -87,8 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="login.php" id="formLogin">
-                
+            <form class="form-login-wrapper" method="POST" action="login.php" id="formLogin">
                 <div class="grup-input-form-login">
                     <label for="email" class="label-form-login">Email :</label>
                     <input type="email" 
@@ -114,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="tombol-submit-form">Masuk</button>
             </form>
 
-            <p style="margin-top: 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: center; color: #555;">
-                Belum punya akun? <a href="register.php" style="color: #457B9D; text-decoration: none; font-weight: bold;">Daftar di sini</a>
+            <p style="margin-top: 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: center; color: var(--tealmuda);">
+                Belum punya akun? <a href="register.php" style="color: var(--tealmudabanget); text-decoration: none; font-weight: bold;">Daftar di sini</a>
             </p>
         </div>
         
