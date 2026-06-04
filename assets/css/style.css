@@ -28,6 +28,7 @@ body {
     z-index: 10;
     width: 100%;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);
+
 }
 
 .nav-left ul, .nav-right ul {
@@ -1038,4 +1039,319 @@ body {
 
 .input-form-login:focus {
     box-shadow: 0 0 0 2px var(--tealmuda);
+}
+
+.halaman-pesanan {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+.pesanan-sidebar {
+    flex: 0 0 340px;
+    background: linear-gradient(var(--birutua), var(--tealtua));  /* ← gradient hero */
+    padding: 30px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+}
+
+.judul-sidebar {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.4rem;
+    color: white;            
+    margin: 0 0 4px 0;
+    filter: drop-shadow(var(--shadow));
+}
+
+.pesanan-sidebar .grup-filter {
+    margin-bottom: 8px;
+}
+
+.pesanan-sidebar .tombol-filter {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.pesanan-sidebar .tombol-filter:hover {
+    background-color: rgba(255,255,255,0.35);
+    color: white;
+}
+
+.pesanan-sidebar .tombol-filter.aktif {
+    background-color: white;
+    color: var(--birutua);
+    box-shadow: var(--shadow);
+}
+
+.list-pesanan {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-pesanan {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 0px 16px 16px 16px;
+    padding: 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.item-pesanan:hover {
+    background-color: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.item-pesanan.aktif-dipilih {
+    background-color: white;
+    border-color: white;
+    box-shadow: var(--shadow);
+}
+
+.item-pesanan.aktif-dipilih .item-pesanan-nama {
+    color: var(--birutua);
+}
+
+.item-pesanan.aktif-dipilih .item-pesanan-waktu {
+    color: #666;
+}
+
+.item-pesanan-atas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.item-pesanan-waktu {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+}
+
+.item-pesanan-nama {
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    margin: 4px 0 10px 0;
+}
+
+.item-pesanan-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ── DETAIL PANEL ── */
+.pesanan-detail {
+    flex: 1;
+    background-color: white;
+    padding: 40px 50px;
+    overflow-y: auto;
+}
+
+.detail-kosong {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.detail-nama {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.8rem;
+    color: var(--birutua);
+    margin: 0;
+}
+
+.detail-username {
+    color: #888;
+    margin: 4px 0 0 0;
+    font-size: 0.9rem;
+}
+
+.detail-waktu-badge {
+    background-color: var(--tealmudabanget);
+    color: #4a4a4a;
+    padding: 8px 20px;
+    border-radius: 20px 0px 20px 0px; 
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+}
+
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 40px;
+    background-color: #DDEEFF;      
+    border-radius: 0px 20px 20px 20px;  
+    padding: 24px 30px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.detail-info-blok {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    color: #7a9ab5;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-nilai {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    margin: 0;
+}
+
+.detail-berat-biaya {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.kartu-berat {
+    flex: 0 0 180px;
+    background-color: #52c49c;
+    border-radius: 0px 20px 20px 20px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+}
+
+.kartu-berat .detail-label {
+    color: #1a4d3a;
+}
+
+.kartu-biaya {
+    flex: 1;
+    background-color: #DDEEFF;
+    border-radius: 0px 20px 20px 20px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+}
+
+.kartu-biaya .detail-label {
+    color: #7a9ab5;
+}
+
+.input-berat-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.input-berat {
+    width: 90px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 20px 0px 20px 0px;   /* ← daun */
+    font-size: 1.2rem;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 600;
+    color: var(--birutua);
+    outline: none;
+    box-shadow: var(--shadow);
+    background-color: white;
+}
+
+.input-berat:focus {
+    box-shadow: 0 0 0 2px var(--tealmuda);
+}
+
+.satuan-berat {
+    font-size: 1rem;
+    color: #1a4d3a;
+    font-weight: 600;
+}
+
+.rincian-baris {
+    color: #555;
+    font-size: 0.95rem;
+    margin: 4px 0;
+}
+
+.rincian-total {
+    color: var(--birutua);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 10px 0 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(13, 63, 138, 0.15);
+}
+
+.detail-status-section {
+    background: linear-gradient(135deg, #DDEEFF, #e8f5ff);
+    border-radius: 0px 20px 20px 20px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.tombol-status-group {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0 10px 0;
+    flex-wrap: wrap;
+}
+
+.tombol-status {
+    padding: 10px 28px;
+    border: none;
+    border-radius: 20px 0px 20px 0px; 
+    background-color: rgba(255,255,255,0.7);
+    color: #555;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+.tombol-status:hover {
+    background-color: white;
+    color: #333;
+}
+
+.tombol-status[data-status="baru"].tombol-status-aktif {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.tombol-status[data-status="diproses"].tombol-status-aktif {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.tombol-status[data-status="selesai"].tombol-status-aktif {
+    background-color: #52c49c;
+    color: #1a4d3a;
+}
+
+.status-aktif-teks {
+    font-size: 0.9rem;
+    color: #7a9ab5;
+    margin: 0;
 }
