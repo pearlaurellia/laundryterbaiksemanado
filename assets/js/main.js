@@ -84,7 +84,6 @@ function bukaPesanan(id, el) {
         `<span class="badge-${t.tipe}">${t.label}</span>`
     ).join('');
 
-    // Memanggil fungsi dari file JS lain
     setStatusUI(p.status);
     hitungBiaya();
 }
