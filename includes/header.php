@@ -10,6 +10,9 @@
                 <li>
                     <a href="kontak.php" class="tombol-daun"> Kontak </a>
                 </li>
+                <li>
+                    <a href="tentang.php" class="tombol-daun"> Tentang </a>
+                </li>
             </ul>
         </nav>
         <div class="nav-right">
