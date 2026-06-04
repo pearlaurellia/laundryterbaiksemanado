@@ -11,17 +11,20 @@
                     <a href="member.php" class="tombol-daun"><b> Member </b></a>
                 </li>
                 <li>
-                    <a href="rekap.php" class="tombol-daun"><b> Rekap </b></a>
+                    <a href="laporan.php" class="tombol-daun"><b> Laporan </b></a>
                 </li>
                 <li>
                     <a href="layanan.php" class="tombol-daun"><b> Layanan </b></a>
+                </li>
+                <li>
+                    <a href="edit-info.php" class="tombol-daun"><b> Info Website </b></a>
                 </li>
             </ul>
         </nav>
         <div class="nav-right">
             <ul>
                 <li>
-                    <a href="register.php" class="tombol-daun"><b> Logout </b></a>
+                    <a href="../logout.php" class="tombol-daun"><b> Logout </b></a>
                 </li>
             </ul>
         </div>
