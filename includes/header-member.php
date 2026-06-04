@@ -2,7 +2,7 @@
         <nav class="nav-left">
             <ul>
                 <li>
-                    <a href="index.php" class="tombol-daun"> Beranda </a>
+                    <a href="dashboard.php" class="tombol-daun"> Beranda </a>
                 </li>
                 <li>
                     <a href="layanan.php" class="tombol-daun"> Layanan </a>
@@ -11,7 +11,7 @@
                     <a href="kontak.php" class="tombol-daun"> Kontak </a>
                 </li>
                 <li>
-                    <a href="pesanan.php" class="tombol-daun"> Pesanan </a>
+                    <a href="pesan.php" class="tombol-daun"> Pesanan </a>
                 </li>
                 <li>
                     <a href="riwayat.php" class="tombol-daun"> Riwayat </a>

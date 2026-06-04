@@ -13,6 +13,9 @@
                 <li>
                     <a href="rekap.php" class="tombol-daun"><b> Rekap </b></a>
                 </li>
+                <li>
+                    <a href="layanan.php" class="tombol-daun"><b> Layanan </b></a>
+                </li>
             </ul>
         </nav>
         <div class="nav-right">

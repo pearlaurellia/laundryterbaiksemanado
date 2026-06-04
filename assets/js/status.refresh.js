@@ -1,27 +1,26 @@
+// ── UPDATE STATUS ──────────────────────────────────────────
 function updateStatus(status) {
-    dataPesanan[indexAktif].status = status;
+    if (!idAktif) return;
+    
+    // Mengubah data di main.js
+    dataPesanan[idAktif].status = status;
     setStatusUI(status);
+
+    // Update badge di sidebar
+    const itemEl  = document.querySelector(`.item-pesanan[data-id="${idAktif}"]`);
+    const badgeEl = itemEl.querySelector('.badge-status');
     
-    const items = document.querySelectorAll('.item-pesanan');
-    const badgeEl = items[indexAktif].querySelector('.badge-biru');
-    const labelMap = { baru: 'Baru', diproses: 'Diproses', selesai: 'Selesai' };
-    const warnMap  = {
-        baru:     '#3b82f6',
-        diproses: '#f59e0b',
-        selesai:  '#52c49c'
-    };
-    
+    badgeEl.className = `badge-status badge-status-${status}`;
+    const labelMap = { baru:'Baru', diproses:'Diproses', selesai:'Selesai' };
     badgeEl.textContent = labelMap[status];
-    badgeEl.style.backgroundColor = warnMap[status];
-    badgeEl.style.color = status === 'selesai' ? '#1a4d3a' : 'white';
-    
-    items[indexAktif].dataset.status = status;
+    itemEl.dataset.status = status;
 }
 
 function setStatusUI(status) {
     document.querySelectorAll('.tombol-status').forEach(btn => {
         btn.classList.toggle('tombol-status-aktif', btn.dataset.status === status);
     });
-    const labelMap = { baru: 'Baru', diproses: 'Diproses', selesai: 'Selesai' };
-    document.getElementById('statusAktifTeks').textContent = labelMap[status];
+    
+    const labelMap = { baru:'Baru', diproses:'Diproses', selesai:'Selesai' };
+    document.getElementById('statusAktifTeks').textContent = labelMap[status] || '—';
 }
