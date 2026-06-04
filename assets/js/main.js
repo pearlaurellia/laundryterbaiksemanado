@@ -104,3 +104,22 @@ function filterPesanan(status, btn) {
             ? 'block' : 'none';
     });
 }
+
+
+// ── FILTER RIWAYAT (member/riwayat.php) ──────────────────────
+function filterRiwayat(filter, btn) {
+    document.querySelectorAll('#grupFilterRiwayat .tombol-filter')
+            .forEach(b => b.classList.remove('aktif'));
+    btn.classList.add('aktif');
+
+    document.querySelectorAll('.kartu-riwayat').forEach(item => {
+        const cocok = filter === 'semua' || item.dataset.filter === filter;
+        item.style.display = cocok ? 'flex' : 'none';
+    });
+
+    // Cek apakah ada kartu yang tampil
+    const adaYangTampil = [...document.querySelectorAll('.kartu-riwayat')]
+        .some(item => item.style.display !== 'none');
+    const kosongEl = document.getElementById('riwayatKosong');
+    if (kosongEl) kosongEl.style.display = adaYangTampil ? 'none' : 'flex';
+}

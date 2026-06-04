@@ -2867,3 +2867,278 @@ body {
     font-size: 0.95rem;
     margin: 0 0 20px;
 }
+
+/* ================================
+   RIWAYAT.PHP
+   ================================ */
+
+.riwayat-section {
+    padding: 100px 60px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.riwayat-header { margin-bottom: 24px; }
+
+.riwayat-filter { margin-bottom: 24px; }
+
+.riwayat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Kartu riwayat */
+.kartu-riwayat {
+    display: flex;
+    background-color: white;
+    border-radius: 0px 20px 20px 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.kartu-riwayat:hover { border-color: #DDEEFF; }
+
+.kartu-riwayat-batal { opacity: 0.75; }
+.kartu-riwayat-batal:hover { opacity: 1; }
+
+/* Kiri */
+.kartu-riwayat-kiri {
+    flex: 1;
+    padding: 20px 24px;
+    border-right: 1px solid #f0f0f0;
+}
+
+.kartu-riwayat-atas {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.kartu-riwayat-tanggal {
+    font-size: 0.78rem;
+    color: #aaa;
+}
+
+.kartu-riwayat-kode {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.2rem;
+    color: var(--birutua);
+    margin: 0 0 10px;
+}
+
+.kartu-riwayat-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Kanan */
+.kartu-riwayat-kanan {
+    flex: 0 0 260px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    background-color: #f9fbff;
+}
+
+.kartu-riwayat-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.riwayat-detail-baris {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+}
+
+.riwayat-detail-label { color: #aaa; }
+
+.riwayat-detail-nilai {
+    font-weight: 600;
+    color: #333;
+}
+
+.riwayat-total {
+    color: var(--birutua);
+    font-size: 1rem;
+}
+
+/* ================================
+   EDIT-INFO.PHP
+   ================================ */
+
+.edit-info-sidebar {
+    padding-bottom: 160px;
+}
+
+.edit-info-sidebar-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.82rem;
+    margin: -10px 0 20px;
+    line-height: 1.5;
+    position: relative;
+    z-index: 2;
+}
+
+/* Nav sidebar */
+.edit-info-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 24px;
+}
+
+.edit-info-nav-item {
+    display: block;
+    padding: 10px 16px;
+    border-radius: 20px 0px 20px 0px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    background-color: rgba(255,255,255,0.1);
+}
+
+.edit-info-nav-item:hover {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.edit-info-nav-item.aktif-nav {
+    background-color: white;
+    color: var(--birutua);
+    font-weight: 700;
+    box-shadow: var(--shadow);
+}
+
+/* Dampak perubahan */
+.edit-info-dampak {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 0px 14px 14px 14px;
+    padding: 14px 16px;
+    position: relative;
+    z-index: 2;
+}
+
+.edit-info-dampak-judul {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 8px;
+}
+
+.edit-info-dampak-list {
+    margin: 0;
+    padding-left: 16px;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.82rem;
+    line-height: 1.8;
+}
+
+/* Kanan */
+.edit-info-kanan {
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Seksi */
+.edit-info-seksi { padding: 32px 0; }
+
+.edit-info-seksi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 16px;
+}
+
+.edit-info-divider {
+    height: 1px;
+    background-color: #f0f0f0;
+    width: 100%;
+}
+
+.edit-info-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+}
+
+.edit-info-hint {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin: 5px 0 0;
+    line-height: 1.4;
+}
+
+.edit-info-tombol-simpan {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* Pills kecamatan */
+.kecamatan-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.pill-kecamatan {
+    background-color: #DDEEFF;
+    color: var(--birutua);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+/* Checkboxes kecamatan */
+.kecamatan-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.checkbox-kecamatan {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #f4f7fb;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.checkbox-kecamatan:hover { background-color: #DDEEFF; }
+
+.checkbox-kecamatan input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--birutua);
+    cursor: pointer;
+}
