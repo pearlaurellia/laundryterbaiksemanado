@@ -9,7 +9,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-
+    <style>
+        /* Kode pesanan sebagai penanda utama di list sidebar admin */
+        .item-pesanan-kode {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0d3f8a;
+            margin: 4px 0 2px;
+            letter-spacing: 0.02em;
+        }
+        .item-pesanan-nama {
+            font-size: 0.8rem;
+            color: #888;
+            margin: 0 0 6px;
+        }
+    </style>
 </head>
 <body>
 
@@ -22,80 +36,16 @@
 
             <div class="grup-filter">
                 <button class="tombol-filter aktif" onclick="filterPesanan('semua', this)">Semua</button>
-                <button class="tombol-filter" onclick="filterPesanan('baru', this)">Baru</button>
-                <button class="tombol-filter" onclick="filterPesanan('diproses', this)">Diproses</button>
+                <button class="tombol-filter" onclick="filterPesanan('menunggu_konfirmasi', this)">Menunggu</button>
+                <button class="tombol-filter" onclick="filterPesanan('dikonfirmasi', this)">Dikonfirmasi</button>
+                <button class="tombol-filter" onclick="filterPesanan('sedang_dicuci', this)">Diproses</button>
                 <button class="tombol-filter" onclick="filterPesanan('selesai', this)">Selesai</button>
             </div>
 
-            <div class="list-pesanan" id="listPesanan">
-
-
-                <div class="item-pesanan aktif-dipilih"
-                     data-id="1"
-                     data-status="baru"
-                     onclick="bukaPesanan(1, this)">
-                    <div class="item-pesanan-atas">
-                        <span class="badge-status badge-status-baru">Baru</span>
-                        <span class="item-pesanan-waktu">10:00 Rabu, 04-12-2026</span>
-                    </div>
-                    <p class="item-pesanan-nama">Ryan Liam</p>
-                    <div class="item-pesanan-tags">
-                        <span class="badge-hijau">Cuci</span>
-                        <span class="badge-biru">Express</span>
-                        <span class="badge-biru">Antar</span>
-                    </div>
-                </div>
-
-                <div class="item-pesanan"
-                     data-id="2"
-                     data-status="diproses"
-                     onclick="bukaPesanan(2, this)">
-                    <div class="item-pesanan-atas">
-                        <span class="badge-status badge-status-diproses">Diproses</span>
-                        <span class="item-pesanan-waktu">08:30 Rabu, 04-12-2026</span>
-                    </div>
-                    <p class="item-pesanan-nama">Sinta Dewi</p>
-                    <div class="item-pesanan-tags">
-                        <span class="badge-hijau">Cuci</span>
-                        <span class="badge-biru">Reguler</span>
-                        <span class="badge-biru">Pickup</span>
-                    </div>
-                </div>
-
-                <div class="item-pesanan"
-                     data-id="3"
-                     data-status="selesai"
-                     onclick="bukaPesanan(3, this)">
-                    <div class="item-pesanan-atas">
-                        <span class="badge-status badge-status-selesai">Selesai</span>
-                        <span class="item-pesanan-waktu">07:00 Rabu, 04-12-2026</span>
-                    </div>
-                    <p class="item-pesanan-nama">Budi Santoso</p>
-                    <div class="item-pesanan-tags">
-                        <span class="badge-hijau">Dry Cleaning</span>
-                        <span class="badge-biru">Reguler</span>
-                        <span class="badge-biru">Antar</span>
-                    </div>
-                </div>
-
-                <div class="item-pesanan"
-                     data-id="4"
-                     data-status="baru"
-                     onclick="bukaPesanan(4, this)">
-                    <div class="item-pesanan-atas">
-                        <span class="badge-status badge-status-baru">Baru</span>
-                        <span class="item-pesanan-waktu">06:15 Rabu, 04-12-2026</span>
-                    </div>
-                    <p class="item-pesanan-nama">Mega Putri</p>
-                    <div class="item-pesanan-tags">
-                        <span class="badge-hijau">Cuci</span>
-                        <span class="badge-biru">Express</span>
-                        <span class="badge-biru">Pickup</span>
-                    </div>
-                </div>
-
-            </div>
+        <div class="list-pesanan" id="listPesanan">
         </div>
+
+        </div><!-- /pesanan-sidebar -->
 
         <div class="pesanan-detail" id="pesananDetail">
 
@@ -178,22 +128,70 @@
 
                 </div>
                 <div class="detail-status-section">
-                    <p class="detail-label" style="margin-bottom:12px;">Update Status Pesanan</p>
-                    <div class="tombol-status-group" id="tombolStatusGroup">
-                        <button class="tombol-status" data-status="baru"     onclick="updateStatus('baru')">Baru</button>
-                        <button class="tombol-status" data-status="diproses" onclick="updateStatus('diproses')">Diproses</button>
-                        <button class="tombol-status" data-status="selesai"  onclick="updateStatus('selesai')">Selesai</button>
+                    <p class="detail-label" style="margin-bottom:12px;">Aksi Pesanan</p>
+
+                    <!-- Tombol aksi bertahap (diisi oleh status.refresh.js) -->
+                    <div id="grupAksiAdmin" class="tombol-status-group"></div>
+
+                    <p class="status-aktif-teks" style="margin-top:10px;">
+                        Status saat ini: <strong id="statusAktifTeks">—</strong>
+                    </p>
+
+                    <!-- Batalkan (selalu tampil kecuali sudah selesai/dibatalkan) -->
+                    <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(13,63,138,0.1);">
+                        <button
+                            class="tombol-batalkan-status"
+                            id="tombolBatalkanAdmin"
+                            onclick="batalkanPesananAdmin(idAktif)"
+                            style="display:none;">
+                            Batalkan Pesanan Ini
+                        </button>
+                        <p class="status-aktif-teks"
+                        id="infoSudahDibatalkan"
+                        style="display:none; color:#f87171; font-weight:600;">
+                            ✕ Pesanan ini sudah dibatalkan
+                        </p>
                     </div>
-                    <p class="status-aktif-teks">Status saat ini: <strong id="statusAktifTeks">—</strong></p>
                 </div>
 
             </div>
         </div>
-    </section>
+    <!-- Popup konfirmasi batal -->
+    <div id="overlayBatalAdmin" class="overlay-popup" style="display:none;"></div>
+    
+    <div id="popupBatalAdmin" class="popup-konfirmasi" style="display:none;">
+        <h3 class="popup-judul">Konfirmasi Pembatalan</h3>
+        <p id="popupBatalAdminTeks" class="popup-teks">Teks konfirmasi...</p>
+
+        <div style="margin-top:12px;">
+            <label style="display:block; margin-bottom:6px;">
+                <input type="radio" name="alasanBatal" value="gagal_pengantaran"> Gagal pengantaran
+            </label>
+            <label style="display:block; margin-bottom:6px;">
+                <input type="radio" name="alasanBatal" value="stok_kosong"> Stok/alat tidak tersedia
+            </label>
+            <label style="display:block; margin-bottom:6px;">
+                <input type="radio" name="alasanBatal" value="lainnya"> Lainnya
+            </label>
+            <input id="inputAlasanLainnya" type="text" placeholder="Tuliskan alasan lain..." style="width:100%; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #ddd;">
+        </div>
+
+        <div class="popup-tombol-group" style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
+            <button class="popup-tombol-batal" onclick="tutupPopupBatalAdmin()">Batal</button>
+            <button class="popup-tombol-konfirm" onclick="eksekusiBatalAdmin()">Konfirmasi Batal</button>
+        </div>
+    </div>
+
     <script src="../assets/js/main.js"></script>
     <script src="../assets/js/status.refresh.js"></script>
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>
     
+    <script>
+        // Render pesanan list on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderListPesanan('semua');
+        });
+    </script>
 </body>
 </html>

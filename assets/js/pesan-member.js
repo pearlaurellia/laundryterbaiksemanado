@@ -1,8 +1,8 @@
-        let layananAktif    = { id: 2, nama: 'Express', tarif: 15000, satuan: 'kg' };
+let layananAktif    = { id: 2, nama: 'Express', tarif: 15000, satuan: 'kg' };
         let opsiPengantaran = 'kurir';
         const BIAYA_KURIR   = 10000;
 
-        const WA_ADMIN      = '6281234567890';
+        const WA_ADMIN      = '6282172567295';
 
         function pilihLayanan(el) {
             document.querySelectorAll('.kartu-pilih-layanan')
@@ -82,23 +82,81 @@
             }
 
             const kecamatan = document.getElementById('inputKecamatan').value;
-            const pesan     = encodeURIComponent(
+
+            // ── Buat kode pesanan SEKALI di sini, pakai ulang ke WA & localStorage ──
+            // Format: LDR-YYYYMMDD-XXXX (tanggal + 4 digit acak) → unik & terbaca
+            const now       = new Date();
+            const tglStr    = now.getFullYear().toString() +
+                              String(now.getMonth() + 1).padStart(2, '0') +
+                              String(now.getDate()).padStart(2, '0');
+            const acak      = Math.floor(1000 + Math.random() * 9000); // 4 digit acak
+            const kodePesanan = `LDR-${tglStr}-${acak}`;               // contoh: LDR-20261204-3847
+            const noPesanan   = '#' + kodePesanan;
+
+            const pesan = encodeURIComponent(
                 `Halo Admin CleanCo! 🧺\n\n` +
                 `Saya baru saja membuat pesanan baru:\n` +
-                `• ID Pesanan  : #LDR-${Date.now().toString().slice(-4)}\n` +
+                `• ID Pesanan  : ${noPesanan}\n` +
                 `• Layanan     : ${layananAktif.nama}\n` +
                 `• Pengantaran : ${opsiPengantaran === 'kurir' ? 'Kurir' : 'Ambil Sendiri'}\n` +
                 (opsiPengantaran === 'kurir' ? `• Kecamatan   : ${kecamatan}\n` : '') +
                 `\nMohon konfirmasinya. Terima kasih!`
             );
             window.open(`https://wa.me/${WA_ADMIN}?text=${pesan}`, '_blank');
-
-            const noPesanan   = '#LDR-' + Date.now().toString().slice(-4);
             const berat        = parseFloat(document.getElementById('inputEstimasiBerat').value) || 0;
             const biayaKurir   = opsiPengantaran === 'kurir' ? BIAYA_KURIR : 0;
             const totalEstimasi= berat > 0
                 ? 'Rp ' + (berat * layananAktif.tarif + biayaKurir).toLocaleString('id-ID')
                 : 'Akan dihitung setelah ditimbang';
+
+            // ── Simpan pesanan baru ke localStorage ──────────────────
+            const rawStorage    = localStorage.getItem('cleanco_pesanan');
+            const dataTersimpan = rawStorage ? JSON.parse(rawStorage) : {};
+            const idBaru         = now.getTime(); // pakai timestamp yang sama dengan kode
+            const kodeBersih     = kodePesanan; // sudah tanpa #
+            const alamatInput    = opsiPengantaran === 'kurir'
+                ? (document.getElementById('inputAlamat')?.value.trim() || '')
+                : '';
+            const kecamatanInput = opsiPengantaran === 'kurir' ? kecamatan : '';
+
+            // Ambil nama dari session PHP yang di-output ke JS global sessionMember
+            // Fallback ke 'Member' kalau sessionMember belum tersedia (dev mode)
+            const sesi = (typeof sessionMember !== 'undefined') ? sessionMember : {
+                nama: 'Member', username: '@member', namaLengkap: '', noHP: '', id: 0
+            };
+
+            dataTersimpan[idBaru] = {
+                id           : idBaru,
+                kode         : kodeBersih,
+                nama         : sesi.nama,
+                username     : sesi.username,
+                waktu        : new Date().toLocaleString('id-ID'),
+                namaLengkap  : sesi.namaLengkap,
+                alamat       : alamatInput,
+                kecamatan    : kecamatanInput,
+                telpon       : sesi.noHP,
+                layanan      : layananAktif.nama,
+                pengiriman   : opsiPengantaran === 'kurir' ? 'Antar' : 'Pickup',
+                tarifLayanan : layananAktif.tarif,
+                tarifKirim   : opsiPengantaran === 'kurir' ? BIAYA_KURIR : 0,
+                tags         : [
+                    { label: 'Cuci', tipe: 'hijau' },
+                    { label: layananAktif.nama, tipe: 'biru' },
+                    { label: opsiPengantaran === 'kurir' ? 'Antar' : 'Pickup', tipe: 'biru' }
+                ],
+                status       : 'menunggu_konfirmasi',
+                statusMember : 'menunggu_konfirmasi',
+                berat        : null,
+                note         : document.getElementById('inputCatatan')?.value.trim() || null,
+                opsi         : opsiPengantaran,
+                metaWaktu    : layananAktif.nama + ' · ' +
+                               (opsiPengantaran === 'kurir' ? 'Kurir' : 'Ambil Sendiri') +
+                               ' · ' + new Date().toLocaleString('id-ID'),
+                alasanBatal  : null,
+                dibatalkanOleh: null
+            };
+            localStorage.setItem('cleanco_pesanan', JSON.stringify(dataTersimpan));
+            // ─────────────────────────────────────────────────────────
 
             document.getElementById('popupNoPesanan').textContent   = noPesanan;
             document.getElementById('popupLayanan').textContent     = layananAktif.nama;

@@ -1,6 +1,6 @@
 const BIAYA_KURIR = 10000;
 
-function hitungEstimasi(layananAktif, opsiPengantaran) {
+function hitungEstimasiAdmin(layananAktif, opsiPengantaran) {
     const berat      = parseFloat(document.getElementById('inputEstimasiBerat').value) || 0;
     const kotakEl    = document.getElementById('kotakEstimasi');
     const teksEl     = document.getElementById('teksEstimasiHarga');

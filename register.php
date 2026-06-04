@@ -68,6 +68,7 @@
         <div class="bulat-besar-form"><h2>CleanCo</h2></div>
 
     </section>
-
+    
+<script src="assets/js/form-validation.js"></script>
 </body>
 </html>

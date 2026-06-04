@@ -241,6 +241,17 @@
 
     </div>
 
+    <script>
+        // Data session member — di-output oleh PHP
+        // Nanti backend isi dengan: $_SESSION['nama'], $_SESSION['username'], dst.
+        const sessionMember = {
+            nama        : '<?= htmlspecialchars($_SESSION["nama"] ?? "Member") ?>',
+            username    : '<?= htmlspecialchars($_SESSION["username"] ?? "@member") ?>',
+            namaLengkap : '<?= htmlspecialchars($_SESSION["nama_lengkap"] ?? $_SESSION["nama"] ?? "") ?>',
+            noHP        : '<?= htmlspecialchars($_SESSION["no_hp"] ?? "") ?>',
+            id          : <?= intval($_SESSION["user_id"] ?? 0) ?>
+        };
+    </script>
     <script src="../assets/js/pesan-member.js"></script>
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>

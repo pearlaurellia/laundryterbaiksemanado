@@ -24,134 +24,35 @@
             WHERE p.id = ? AND p.member_id = $_SESSION['user_id']
 
      Variabel PHP yang dibutuhkan di halaman ini:
-       $pesanan     → row data pesanan
+       $pesanan        → row data pesanan
        $sudahDitimbang → $pesanan['berat_aktual'] > 0
        $statusPesanan  → $pesanan['status_pesanan']
        $opsiKurir      → $pesanan['opsi_pengantaran'] === 'kurir'
     ============================================================
     -->
 
-    <section class="detail-pesanan-section">
+    <section class="detail-pesanan-section" id="detailSection" style="display:none;">
 
         <!-- Tombol kembali -->
         <a href="status.php" class="tombol-kembali-member">← Kembali ke Status</a>
 
         <!-- ── BANNER STATUS KONDISIONAL ── -->
-        <!--
-            BACKEND NOTE:
-            Tampilkan banner yang sesuai berdasarkan $statusPesanan.
-            Hanya satu banner yang muncul dalam satu waktu.
-            Gunakan PHP if/elseif untuk mengontrol mana yang ditampilkan.
-        -->
-
-        <!-- Banner: Siap Diambil (status = 'siap_diambil') -->
-        <div class="banner-status banner-hijau" id="bannerSiapDiambil">
-            <span class="banner-ikon">✓</span>
-            <p>Cucian kamu siap diambil! Datang ke outlet dan bayar saat pengambilan.</p>
-        </div>
-
-        <!-- Banner: Sedang Diantar (status = 'sedang_diantar') -->
-        <div class="banner-status banner-biru" id="bannerSedangDiantar"
-             style="display:none;">
-            <span class="banner-ikon">🛵</span>
-            <p>Cucian kamu sedang dalam perjalanan ke alamat kamu!</p>
-        </div>
+        <!-- Diisi oleh JS berdasarkan status pesanan di localStorage -->
+        <div id="bannerContainer"></div>
 
         <!-- ── HEADER PESANAN ── -->
         <div class="detail-pesanan-header">
             <div>
-                <!--
-                    BACKEND: <?= $pesanan['kode_pesanan'] ?>
-                             <?= $pesanan['nama_layanan'] ?>
-                -->
-                <h1 class="detail-pesanan-judul">#LDR-0042</h1>
-                <p class="detail-pesanan-sub">Express · Dibuat 10:00 Rabu, 04-12-2026</p>
+                <h1 class="detail-pesanan-judul" id="headerKode">—</h1>
+                <p class="detail-pesanan-sub" id="headerSub">—</p>
             </div>
-            <!--
-                BACKEND: class badge sesuai status:
-                menunggu → badge-status-baru
-                sedang_dicuci / sedang_diantar → badge-status-diproses
-                siap_diambil / selesai → badge-status-selesai
-                dibatalkan → badge-status-batal
-            -->
-            <span class="badge-status badge-status-diproses">Sedang Dicuci</span>
+            <span class="badge-status" id="headerBadge">—</span>
         </div>
 
         <!-- ── PROGRESS BAR ── -->
-        <!--
-            BACKEND NOTE:
-            Progress bar memiliki dua versi: ambil_sendiri dan kurir.
-            Tampilkan yang sesuai berdasarkan $pesanan['opsi_pengantaran'].
-            Step yang aktif ditentukan dari $statusPesanan.
-            Gunakan PHP untuk menambahkan class 'step-aktif' dan 'step-selesai'
-            pada .step-progress yang sesuai.
-        -->
-
-        <!-- Jalur Kurir -->
-        <div class="progress-bar-wrapper" id="progressKurir">
-            <div class="progress-bar-track">
-
-                <div class="step-progress step-selesai">
-                    <div class="step-lingkaran">✓</div>
-                    <p class="step-label">Menunggu</p>
-                </div>
-
-                <div class="garis-progress garis-selesai"></div>
-
-                <div class="step-progress step-aktif">
-                    <div class="step-lingkaran">2</div>
-                    <p class="step-label">Sedang Dicuci</p>
-                </div>
-
-                <div class="garis-progress"></div>
-
-                <div class="step-progress">
-                    <div class="step-lingkaran">3</div>
-                    <p class="step-label">Sedang Diantar</p>
-                </div>
-
-                <div class="garis-progress"></div>
-
-                <div class="step-progress">
-                    <div class="step-lingkaran">4</div>
-                    <p class="step-label">Selesai</p>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Jalur Ambil Sendiri (sembunyikan jika kurir) -->
-        <div class="progress-bar-wrapper" id="progressAmbilSendiri"
-             style="display:none;">
-            <div class="progress-bar-track">
-
-                <div class="step-progress step-selesai">
-                    <div class="step-lingkaran">✓</div>
-                    <p class="step-label">Menunggu</p>
-                </div>
-
-                <div class="garis-progress garis-selesai"></div>
-
-                <div class="step-progress step-aktif">
-                    <div class="step-lingkaran">2</div>
-                    <p class="step-label">Sedang Dicuci</p>
-                </div>
-
-                <div class="garis-progress"></div>
-
-                <div class="step-progress">
-                    <div class="step-lingkaran">3</div>
-                    <p class="step-label">Siap Diambil</p>
-                </div>
-
-                <div class="garis-progress"></div>
-
-                <div class="step-progress">
-                    <div class="step-lingkaran">4</div>
-                    <p class="step-label">Selesai</p>
-                </div>
-
-            </div>
+        <!-- Diisi oleh JS sesuai opsi pengantaran dan status saat ini -->
+        <div class="progress-bar-wrapper" id="progressBarWrapper">
+            <div class="progress-bar-track" id="progressBarTrack"></div>
         </div>
 
         <!-- ── INFO GRID ── -->
@@ -159,66 +60,44 @@
 
             <!-- Kiri: Info pesanan -->
             <div class="detail-pesanan-kiri">
-
                 <div class="detail-info-grid" style="margin-bottom:20px;">
                     <div class="detail-info-blok">
                         <p class="detail-label">Layanan</p>
-                        <!-- BACKEND: <?= $pesanan['nama_layanan'] ?> -->
-                        <p class="detail-nilai">Express</p>
+                        <p class="detail-nilai" id="infoLayanan">—</p>
                     </div>
                     <div class="detail-info-blok">
                         <p class="detail-label">Pengantaran</p>
-                        <!-- BACKEND: Kurir / Ambil Sendiri -->
-                        <p class="detail-nilai">Kurir Laundry</p>
+                        <p class="detail-nilai" id="infoPengantaran">—</p>
                     </div>
-                    <div class="detail-info-blok">
+                    <div class="detail-info-blok" id="blokKecamatan">
                         <p class="detail-label">Kecamatan Tujuan</p>
-                        <!-- BACKEND: <?= $pesanan['kecamatan'] ?> -->
-                        <p class="detail-nilai">Wanea</p>
+                        <p class="detail-nilai" id="infoKecamatan">—</p>
                     </div>
-                    <div class="detail-info-blok">
+                    <div class="detail-info-blok" id="blokAlamat">
                         <p class="detail-label">Alamat Lengkap</p>
-                        <!-- BACKEND: <?= $pesanan['alamat_pengantaran'] ?> -->
-                        <p class="detail-nilai">Jl. Paal 4 No. 12, Ling. III</p>
+                        <p class="detail-nilai" id="infoAlamat">—</p>
                     </div>
                     <div class="detail-info-blok">
                         <p class="detail-label">Estimasi Berat</p>
-                        <!-- BACKEND: $pesanan['estimasi_berat'] ?? 'Tidak diisi' -->
-                        <p class="detail-nilai">2 kg (estimasi)</p>
+                        <p class="detail-nilai" id="infoEstimasiBerat">—</p>
                     </div>
                     <div class="detail-info-blok">
                         <p class="detail-label">Status Pembayaran</p>
-                        <!-- BACKEND: Belum Bayar / Lunas -->
-                        <p class="detail-nilai" style="color:#f59e0b; font-weight:700;">
-                            Belum Bayar
-                        </p>
+                        <p class="detail-nilai" id="infoPembayaran">—</p>
                     </div>
                 </div>
 
-                <!-- Catatan member -->
                 <div class="detail-catatan-wrapper">
                     <p class="detail-label">Catatan Kamu</p>
-                    <!--
-                        BACKEND: tampilkan $pesanan['catatan']
-                        Jika kosong: "Tidak ada catatan."
-                    -->
-                    <p class="detail-catatan-isi">Tolong pisahkan baju putih.</p>
+                    <p class="detail-catatan-isi" id="infoCatatan">—</p>
                 </div>
-
             </div>
 
-            <!-- Kanan: Berat & Biaya -->
+            <!-- Kanan: Berat & Biaya + Timeline -->
             <div class="detail-pesanan-kanan">
 
-                <!--
-                    BACKEND NOTE:
-                    Blok ini tampil KONDISIONAL:
-                    - Jika $sudahDitimbang = false → tampilkan .kotak-menunggu-timbang
-                    - Jika $sudahDitimbang = true  → tampilkan .kotak-harga-final
-                -->
-
                 <!-- Belum ditimbang -->
-                <div class="kotak-menunggu-timbang" id="kotakMenunggu">
+                <div class="kotak-menunggu-timbang" id="kotakMenunggu" style="display:none;">
                     <div class="menunggu-ikon">⚖️</div>
                     <p class="menunggu-judul">Menunggu Penimbangan Admin</p>
                     <p class="menunggu-sub">
@@ -226,24 +105,15 @@
                     </p>
                 </div>
 
-                <!-- Sudah ditimbang (sembunyikan jika belum) -->
-                <div class="kotak-harga-final" id="kotakHargaFinal"
-                     style="display:none;">
+                <!-- Sudah ditimbang -->
+                <div class="kotak-harga-final" id="kotakHargaFinal" style="display:none;">
                     <p class="detail-label" style="margin-bottom:12px;">Rincian Biaya Final</p>
-                    <!--
-                        BACKEND:
-                        $beratAktual = $pesanan['berat_aktual']
-                        $tarifPaket  = $pesanan['tarif_per_kg']
-                        $biayaKurir  = $pesanan['biaya_kurir']
-                        $totalHarga  = $pesanan['total_harga']
-                    -->
-                    <p class="rincian-baris">Express (4.2 kg × Rp 15.000) : Rp 63.000</p>
-                    <p class="rincian-baris">Kurir : Rp 10.000</p>
-                    <p class="rincian-total">Total : Rp 73.000 <span class="label-final">(Harga Final)</span></p>
-
+                    <p class="rincian-baris" id="rincianLayananFinal">—</p>
+                    <p class="rincian-baris" id="rincianKurirFinal">—</p>
+                    <p class="rincian-total" id="rincianTotalFinal">—</p>
                     <div class="berat-aktual-badge">
                         <span>⚖️ Berat Aktual</span>
-                        <strong>4.2 kg</strong>
+                        <strong id="beratAktualBadge">—</strong>
                     </div>
                 </div>
 
@@ -253,50 +123,11 @@
                     Query: SELECT * FROM riwayat_status
                            WHERE pesanan_id = ? ORDER BY created_at ASC
                     Ulangi .timeline-item dengan foreach($riwayat as $r)
+                    Untuk sementara, timeline dibangun dari data localStorage.
                 -->
-                <div class="timeline-status">
+                <div class="timeline-status" id="timelineContainer">
                     <p class="detail-label" style="margin-bottom:14px;">Riwayat Status</p>
-
-                    <div class="timeline-item timeline-item-selesai">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-konten">
-                            <p class="timeline-status-teks">Pesanan Dibuat</p>
-                            <p class="timeline-waktu">10:00 — Rabu, 04-12-2026</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item timeline-item-selesai">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-konten">
-                            <p class="timeline-status-teks">Pakaian Diterima Outlet</p>
-                            <p class="timeline-waktu">11:30 — Rabu, 04-12-2026</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item timeline-item-aktif">
-                        <div class="timeline-dot timeline-dot-aktif"></div>
-                        <div class="timeline-konten">
-                            <p class="timeline-status-teks">Sedang Dicuci</p>
-                            <p class="timeline-waktu">12:00 — Rabu, 04-12-2026</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-dot timeline-dot-kosong"></div>
-                        <div class="timeline-konten">
-                            <p class="timeline-status-teks" style="color:#ccc;">
-                                Sedang Diantar
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" style="border-left:none;">
-                        <div class="timeline-dot timeline-dot-kosong"></div>
-                        <div class="timeline-konten">
-                            <p class="timeline-status-teks" style="color:#ccc;">Selesai</p>
-                        </div>
-                    </div>
-
+                    <div id="timelineIsi"></div>
                 </div>
 
             </div>
@@ -304,6 +135,236 @@
         </div>
 
     </section>
+
+    <!-- Tampilan saat data tidak ditemukan -->
+    <section class="detail-pesanan-section" id="sectionTidakDitemukan" style="display:none;">
+        <a href="status.php" class="tombol-kembali-member">← Kembali ke Status</a>
+        <div style="text-align:center; padding:60px 20px; color:#aaa;">
+            <p style="font-size:3rem;">🔍</p>
+            <h2 style="color:#555; margin-bottom:8px;">Pesanan tidak ditemukan</h2>
+            <p>Kode pesanan ini tidak ada di riwayat kamu.</p>
+        </div>
+    </section>
+
+    <script src="../assets/js/main.js"></script>
+
+    <script>
+    (function renderDetailPesanan() {
+
+        // ── Ambil kode dari URL: ?id=LDR-20261204-3847 ──────────
+        const params     = new URLSearchParams(window.location.search);
+        const kodeDiUrl  = params.get('id') || '';
+        const semua      = _muatData(); // dari main.js
+
+        // Cari pesanan yang kodenya cocok
+        const p = Object.values(semua).find(item =>
+            item.kode === kodeDiUrl || item.kode === kodeDiUrl.replace('#', '')
+        );
+
+        if (!p) {
+            document.getElementById('sectionTidakDitemukan').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('detailSection').style.display = 'block';
+
+        const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
+
+        // ── LABEL & KELAS BADGE ──────────────────────────────────
+        const labelStatus = {
+            menunggu_konfirmasi : 'Menunggu Konfirmasi',
+            dikonfirmasi        : 'Dikonfirmasi',
+            sedang_dicuci       : 'Sedang Dicuci',
+            siap_diambil        : 'Siap Diambil',
+            sedang_diantar      : 'Sedang Diantar',
+            selesai             : 'Selesai & Lunas',
+            dibatalkan          : 'Dibatalkan'
+        };
+        const kelasStatus = {
+            menunggu_konfirmasi : 'badge-status-baru',
+            dikonfirmasi        : 'badge-status-dikonfirmasi',
+            sedang_dicuci       : 'badge-status-diproses',
+            siap_diambil        : 'badge-status-selesai',
+            sedang_diantar      : 'badge-status-diproses',
+            selesai             : 'badge-status-selesai',
+            dibatalkan          : 'badge-status-batal'
+        };
+
+        // ── HEADER ───────────────────────────────────────────────
+        document.getElementById('headerKode').textContent = '#' + p.kode;
+        document.getElementById('headerSub').textContent  =
+            p.layanan + ' · Dibuat ' + p.waktu;
+
+        const badgeEl = document.getElementById('headerBadge');
+        badgeEl.textContent  = labelStatus[p.status] || p.status;
+        badgeEl.className    = 'badge-status ' + (kelasStatus[p.status] || '');
+
+        // ── BANNER ───────────────────────────────────────────────
+        const bannerEl = document.getElementById('bannerContainer');
+        if (p.status === 'siap_diambil') {
+            bannerEl.innerHTML = `
+                <div class="banner-status banner-hijau">
+                    <span class="banner-ikon">✓</span>
+                    <p>Cucian kamu siap diambil! Datang ke outlet dan bayar saat pengambilan.</p>
+                </div>`;
+        } else if (p.status === 'sedang_diantar') {
+            bannerEl.innerHTML = `
+                <div class="banner-status banner-biru">
+                    <span class="banner-ikon">🛵</span>
+                    <p>Cucian kamu sedang dalam perjalanan ke alamat kamu!</p>
+                </div>`;
+        } else if (p.status === 'dibatalkan') {
+            bannerEl.innerHTML = `
+                <div class="banner-status" style="background:#fff5f5; border:1px solid #f87171;">
+                    <span class="banner-ikon">✕</span>
+                    <p style="color:#D32F2F;">Pesanan ini telah dibatalkan.
+                        ${p.alasanBatal ? '<br><strong>Alasan:</strong> ' + p.alasanBatal : ''}
+                    </p>
+                </div>`;
+        }
+
+        // ── PROGRESS BAR ─────────────────────────────────────────
+        // Dua jalur berbeda sesuai opsi pengantaran, 5 step masing-masing
+        const stepsKurir = [
+            { key: 'menunggu_konfirmasi', label: 'Menunggu' },
+            { key: 'dikonfirmasi',        label: 'Dikonfirmasi' },
+            { key: 'sedang_dicuci',       label: 'Sedang Dicuci' },
+            { key: 'sedang_diantar',      label: 'Sedang Diantar' },
+            { key: 'selesai',             label: 'Selesai' }
+        ];
+        const stepsAmbil = [
+            { key: 'menunggu_konfirmasi', label: 'Menunggu' },
+            { key: 'dikonfirmasi',        label: 'Dikonfirmasi' },
+            { key: 'sedang_dicuci',       label: 'Sedang Dicuci' },
+            { key: 'siap_diambil',        label: 'Siap Diambil' },
+            { key: 'selesai',             label: 'Selesai' }
+        ];
+        const steps    = p.opsi === 'kurir' ? stepsKurir : stepsAmbil;
+        const aktifIdx = steps.findIndex(s => s.key === p.status);
+        const posAktif = aktifIdx >= 0 ? aktifIdx : 0;
+
+        document.getElementById('progressBarTrack').innerHTML = steps.map((step, i) => {
+            let kelas = 'step-progress';
+            let isi   = i + 1;
+            if (i < posAktif)        { kelas += ' step-selesai'; isi = '✓'; }
+            else if (i === posAktif) { kelas += ' step-aktif'; }
+            const garis = i < steps.length - 1
+                ? `<div class="garis-progress ${i < posAktif ? 'garis-selesai' : ''}"></div>`
+                : '';
+            return `<div class="${kelas}">
+                        <div class="step-lingkaran">${isi}</div>
+                        <p class="step-label">${step.label}</p>
+                    </div>${garis}`;
+        }).join('');
+
+        // ── INFO GRID ────────────────────────────────────────────
+        document.getElementById('infoLayanan').textContent     = p.layanan || '—';
+        document.getElementById('infoPengantaran').textContent =
+            p.opsi === 'kurir' ? 'Kurir Laundry' : 'Ambil Sendiri';
+
+        // Kecamatan & alamat: hanya tampil jika kurir
+        if (p.opsi === 'kurir') {
+            document.getElementById('infoKecamatan').textContent = p.kecamatan || '—';
+            document.getElementById('infoAlamat').textContent    = p.alamat || '—';
+        } else {
+            document.getElementById('blokKecamatan').style.display = 'none';
+            document.getElementById('blokAlamat').style.display    = 'none';
+        }
+
+        // Estimasi berat (opsional saat pesan)
+        const estimasi = p.estimasiBerat || null;
+        document.getElementById('infoEstimasiBerat').textContent =
+            estimasi ? estimasi + ' kg (estimasi)' : 'Tidak diisi';
+
+        // Status pembayaran
+        const sudahLunas   = p.status === 'selesai';
+        const pembayaranEl = document.getElementById('infoPembayaran');
+        pembayaranEl.textContent  = sudahLunas ? 'Lunas' : 'Belum Bayar';
+        pembayaranEl.style.color  = sudahLunas ? '#52c49c' : '#f59e0b';
+        pembayaranEl.style.fontWeight = '700';
+
+        // Catatan
+        document.getElementById('infoCatatan').textContent =
+            p.note || 'Tidak ada catatan.';
+
+        // ── KOTAK BERAT & BIAYA ──────────────────────────────────
+        if (p.berat && p.berat > 0) {
+            const biayaLayanan = p.berat * p.tarifLayanan;
+            const total        = biayaLayanan + (p.tarifKirim || 0);
+
+            document.getElementById('rincianLayananFinal').textContent =
+                `${p.layanan} (${p.berat} kg × ${fmt(p.tarifLayanan)}) : ${fmt(biayaLayanan)}`;
+            document.getElementById('rincianKurirFinal').textContent =
+                p.opsi === 'kurir' ? `Kurir : ${fmt(p.tarifKirim)}` : '';
+            document.getElementById('rincianTotalFinal').innerHTML =
+                `Total : ${fmt(total)} <span class="label-final">(Harga Final)</span>`;
+            document.getElementById('beratAktualBadge').textContent = p.berat + ' kg';
+
+            document.getElementById('kotakHargaFinal').style.display  = 'block';
+            document.getElementById('kotakMenunggu').style.display    = 'none';
+        } else {
+            document.getElementById('kotakMenunggu').style.display    = 'block';
+            document.getElementById('kotakHargaFinal').style.display  = 'none';
+        }
+
+        // ── TIMELINE ─────────────────────────────────────────────
+        // Bangun dari data status yang ada di localStorage.
+        // Backend nanti ganti ini dengan query riwayat_status dari DB.
+        const urutanLabel = {
+            menunggu_konfirmasi : 'Pesanan Dibuat',
+            dikonfirmasi        : 'Pesanan Dikonfirmasi Admin',
+            sedang_dicuci       : 'Sedang Dicuci',
+            siap_diambil        : 'Siap Diambil — Datang ke Outlet',
+            sedang_diantar      : 'Sedang Diantar ke Alamat Kamu',
+            selesai             : 'Selesai & Lunas',
+            dibatalkan          : 'Pesanan Dibatalkan'
+        };
+
+        // Urutan kronologis semua status
+        const urutanKronoKurir  = ['menunggu_konfirmasi','dikonfirmasi','sedang_dicuci','sedang_diantar','selesai','dibatalkan'];
+        const urutanKronoAmbil  = ['menunggu_konfirmasi','dikonfirmasi','sedang_dicuci','siap_diambil','selesai','dibatalkan'];
+        const urutanKrono       = p.opsi === 'kurir' ? urutanKronoKurir : urutanKronoAmbil;
+
+        const idxSaatIni = urutanKrono.indexOf(p.status);
+        const timelineEl = document.getElementById('timelineIsi');
+
+        timelineEl.innerHTML = urutanKrono.map((key, i) => {
+            const sudahLewat = i < idxSaatIni;
+            const iniAktif   = i === idxSaatIni;
+            const belumTiba  = i > idxSaatIni;
+
+            // Jangan tampilkan status yang tidak relevan setelah dibatalkan/selesai
+            if (key === 'dibatalkan' && p.status !== 'dibatalkan') return '';
+            if (key === 'selesai'    && p.status === 'dibatalkan') return '';
+
+            let kelasItem = 'timeline-item';
+            let kelasDot  = 'timeline-dot';
+            let warnaLabel = '';
+
+            if (sudahLewat)    { kelasItem += ' timeline-item-selesai'; }
+            else if (iniAktif) { kelasItem += ' timeline-item-aktif'; kelasDot += ' timeline-dot-aktif'; }
+            else               { kelasDot += ' timeline-dot-kosong'; warnaLabel = 'color:#ccc;'; }
+
+            // Garis kiri: hilangkan pada item terakhir yang visible
+            const isLast = (i === idxSaatIni && (p.status === 'selesai' || p.status === 'dibatalkan'))
+                        || (i === urutanKrono.length - 1);
+            if (isLast) kelasItem += ' timeline-item-terakhir';
+
+            const waktuTeks = (sudahLewat || iniAktif) ? p.waktu : '';
+
+            return `<div class="${kelasItem}" style="${isLast ? 'border-left:none;' : ''}">
+                        <div class="${kelasDot}"></div>
+                        <div class="timeline-konten">
+                            <p class="timeline-status-teks" style="${warnaLabel}">
+                                ${urutanLabel[key] || key}
+                            </p>
+                            ${waktuTeks ? `<p class="timeline-waktu">${waktuTeks}</p>` : ''}
+                        </div>
+                    </div>`;
+        }).join('');
+
+    })();
+    </script>
 
 </body>
 </html>
