@@ -1,49 +1,47 @@
 <?php
-require_once '../config/session.php';
+require_once '../includes/auth-check.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'member') {
-    redirect('../login.php');
-}
-
 $id_member = $_SESSION['id_user'];
 
-// ── Pesanan aktif (yang sedang berjalan) ────────────────────
-$stmt = $pdo->prepare("
-    SELECT p.*, l.nama_layanan
-    FROM pesanan p
-    JOIN layanan l ON p.id_layanan = l.id
-    WHERE p.id_member = ? 
-      AND p.status_pesanan NOT IN ('selesai','dibatalkan')
-    ORDER BY p.created_at DESC
-    LIMIT 1
+// ── Query COUNT pesanan aktif ────────────────────────────────
+$stmtCount = $pdo->prepare("
+    SELECT COUNT(*) FROM pesanan
+    WHERE id_member = ?
+      AND status_pesanan NOT IN ('selesai', 'dibatalkan')
 ");
-$stmt->execute([$id_member]);
-$pesanan_aktif = $stmt->fetch();
+$stmtCount->execute([$id_member]);
+$jumlah_aktif = $stmtCount->fetchColumn();
 
-// ── Sejarah pesanan (selesai/dibatalkan) ────────────────────
-$status_filter = $_GET['status'] ?? 'semua';
-$query_riwayat = "
+// ── Pesanan aktif terbaru (untuk kartu preview) ─────────────
+$stmtAktif = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
     JOIN layanan l ON p.id_layanan = l.id
     WHERE p.id_member = ?
-      AND p.status_pesanan IN ('selesai','dibatalkan')
-";
-$params = [$id_member];
-if ($status_filter !== 'semua') {
-    $query_riwayat .= " AND p.status_pesanan = ?";
-    $params[] = $status_filter;
-}
-$query_riwayat .= " ORDER BY p.updated_at DESC";
-$stmt = $pdo->prepare($query_riwayat);
-$stmt->execute($params);
-$riwayat = $stmt->fetchAll() ?: [];
+      AND p.status_pesanan NOT IN ('selesai', 'dibatalkan')
+    ORDER BY p.created_at DESC
+    LIMIT 1
+");
+$stmtAktif->execute([$id_member]);
+$pesanan_aktif = $stmtAktif->fetch();
+
+// ── 3 pesanan terbaru (apapun statusnya) ────────────────────
+$stmtTerbaru = $pdo->prepare("
+    SELECT p.*, l.nama_layanan
+    FROM pesanan p
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE p.id_member = ?
+    ORDER BY p.created_at DESC
+    LIMIT 3
+");
+$stmtTerbaru->execute([$id_member]);
+$pesanan_terbaru = $stmtTerbaru->fetchAll() ?: [];
 
 // ── Info website untuk kontak ───────────────────────────────
-$stmt = $pdo->query("SELECT * FROM info_website LIMIT 1");
-$info = $stmt->fetch();
+$stmtInfo = $pdo->query("SELECT * FROM info_website LIMIT 1");
+$info = $stmtInfo->fetch();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -64,17 +62,26 @@ $info = $stmt->fetch();
     <section class="hero">
         <div class="konten-hero">
             <div class="teks-hero">
-                <h1>Laundry Mudah, <br><span>Kapan Saja</span></h1>
+                <h1>Halo, <span><?= htmlspecialchars($_SESSION['nama']) ?>!</span></h1>
                 <p>Pesan layanan laundry kapan saja, pantau status cucian secara real-time,
                    dan ambil pakaian bersih, siap pakai.</p>
             </div>
             <div class="tombol-hero">
                 <a href="pesan.php" class="tombol-daun">Pesan Sekarang</a>
+                <a href="status.php" class="tombol-daun">Cek Status</a>
             </div>
         </div>
         <div class="bulat-atas"></div>
         <div class="bulat-ditengah"></div>
         <div class="bulat-besar"><h2>CleanCo</h2></div>
+    </section>
+
+    <!-- KARTU JUMLAH PESANAN AKTIF -->
+    <section class="kartu-stat-section">
+        <div class="kartu-stat">
+            <span class="kartu-stat-angka"><?= $jumlah_aktif ?></span>
+            <span class="kartu-stat-label">Pesanan Aktif</span>
+        </div>
     </section>
 
     <!-- LAYANAN OVERVIEW — dari database -->
@@ -83,10 +90,10 @@ $info = $stmt->fetch();
         <p class="teks-overview-layanan">Layanan tersedia dari reguler sampai dry cleaning</p>
         <div class="kartu-layanan-container">
             <?php
-            $stmt_l = $pdo->query("SELECT * FROM layanan WHERE status = 'aktif' ORDER BY tarif_per_kg ASC");
-            $layanan_list = $stmt_l->fetchAll() ?: [];
+            $stmtLayanan = $pdo->query("SELECT * FROM layanan WHERE status = 'aktif' ORDER BY tarif_per_kg ASC");
+            $layanan_list = $stmtLayanan->fetchAll() ?: [];
             foreach ($layanan_list as $i => $lyn):
-                $featured = $i === 1; // kartu tengah jadi featured
+                $featured = ($i === 1);
             ?>
                 <div class="<?= $featured ? 'kartu-layanan-featured' : 'kartu-layanan' ?>">
                     <div class="kartu-header"><?= htmlspecialchars($lyn['nama_layanan']) ?></div>
@@ -169,18 +176,24 @@ $info = $stmt->fetch();
         <?php endif; ?>
     </section>
 
-    <!-- SEJARAH PESANAN -->
+    <!-- PREVIEW 3 PESANAN TERBARU -->
     <section class="sejarah-pesanan">
-        <div class="grup-filter">
-            <a href="?status=semua"      class="tombol-filter <?= $status_filter === 'semua'      ? 'aktif' : '' ?>">Semua</a>
-            <a href="?status=selesai"    class="tombol-filter <?= $status_filter === 'selesai'    ? 'aktif' : '' ?>">Selesai</a>
-            <a href="?status=dibatalkan" class="tombol-filter <?= $status_filter === 'dibatalkan' ? 'aktif' : '' ?>">Dibatalkan</a>
-        </div>
+        <h3 style="padding:0 24px 12px;">Pesanan Terbaru</h3>
         <div class="kartu-sejarah-container">
-            <?php if (empty($riwayat)): ?>
-                <p style="color:#aaa; padding:20px;">Belum ada riwayat pesanan.</p>
+            <?php if (empty($pesanan_terbaru)): ?>
+                <p style="color:#aaa; padding:20px;">Belum ada pesanan.</p>
             <?php else: ?>
-                <?php foreach ($riwayat as $r): ?>
+                <?php foreach ($pesanan_terbaru as $r):
+                    $badge_status = [
+                        'menunggu_konfirmasi' => 'Menunggu',
+                        'dikonfirmasi'        => 'Dikonfirmasi',
+                        'sedang_dicuci'       => 'Sedang Dicuci',
+                        'siap_diambil'        => 'Siap Diambil',
+                        'sedang_diantar'      => 'Sedang Diantar',
+                        'selesai'             => 'Selesai',
+                        'dibatalkan'          => 'Dibatalkan',
+                    ][$r['status_pesanan']] ?? $r['status_pesanan'];
+                ?>
                     <div class="kartu-sejarah">
                         <div class="sejarah-body">
                             <div class="grup-keterangan">
@@ -194,8 +207,8 @@ $info = $stmt->fetch();
                                 <?php if ($r['berat_aktual'] > 0): ?>
                                     <span class="badge-biru"><?= $r['berat_aktual'] ?>kg</span>
                                 <?php endif; ?>
+                                <span class="badge-biru"><?= $badge_status ?></span>
                             </div>
-                            <p>Pesanan selesai: <?= date('H:i l, d-m-Y', strtotime($r['updated_at'])) ?></p>
                             <p>Total harga: Rp <?= number_format($r['total_harga'], 0, ',', '.') ?></p>
                             <a href="detail-pesanan.php?id=<?= $r['id'] ?>" class="tombol-detail">
                                 Detail Pesanan
@@ -228,5 +241,6 @@ $info = $stmt->fetch();
         </div>
     </section>
 
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

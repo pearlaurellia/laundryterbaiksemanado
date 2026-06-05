@@ -1,3 +1,125 @@
+<?php
+require_once '../includes/auth-check.php';
+require_once '../config/database.php';
+require_once '../config/functions.php';
+
+$id_member = $_SESSION['id_user'];
+
+// ── Handler POST: batalkan pesanan oleh member ───────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'batalkan') {
+
+    $id_pesanan = (int) ($_POST['id_pesanan'] ?? 0);
+
+    // Validasi: pesanan milik member ini dan masih menunggu konfirmasi
+    $stmtCek = $pdo->prepare("
+        SELECT id FROM pesanan
+        WHERE id = ? AND id_member = ? AND status_pesanan = 'menunggu_konfirmasi'
+    ");
+    $stmtCek->execute([$id_pesanan, $id_member]);
+    $valid = $stmtCek->fetch();
+
+    if ($valid) {
+        // UPDATE status pesanan
+        $stmtBatal = $pdo->prepare("
+            UPDATE pesanan
+            SET status_pesanan      = 'dibatalkan',
+                dibatalkan_oleh     = 'member',
+                sudah_dilihat_member = 0,
+                updated_at          = NOW()
+            WHERE id = ?
+        ");
+        $stmtBatal->execute([$id_pesanan]);
+
+        // INSERT riwayat_status
+        $stmtRiwayat = $pdo->prepare("
+            INSERT INTO riwayat_status (
+                id_pesanan, status_lama, status_baru,
+                dilakukan_oleh, changed_at
+            ) VALUES (?, 'menunggu_konfirmasi', 'dibatalkan', 'member', NOW())
+        ");
+        $stmtRiwayat->execute([$id_pesanan]);
+    }
+
+    // Redirect agar tidak resubmit saat refresh
+    redirect('status.php');
+}
+
+// ── Reset badge: tandai semua pesanan sudah dilihat ─────────
+$stmtReset = $pdo->prepare("
+    UPDATE pesanan
+    SET sudah_dilihat_member = 1
+    WHERE id_member = ?
+");
+$stmtReset->execute([$id_member]);
+
+// ── Query pesanan aktif dari DB ──────────────────────────────
+$stmtAktif = $pdo->prepare("
+    SELECT p.*, l.nama_layanan, l.tarif_per_kg
+    FROM pesanan p
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE p.id_member = ?
+      AND p.status_pesanan NOT IN ('selesai', 'dibatalkan')
+    ORDER BY p.created_at DESC
+");
+$stmtAktif->execute([$id_member]);
+$pesanan_aktif = $stmtAktif->fetchAll() ?: [];
+
+// ── Cek notifikasi pesanan dibatalkan admin ──────────────────
+// Pesanan yang dibatalkan admin dan belum dilihat member
+$stmtNotif = $pdo->prepare("
+    SELECT p.*, l.nama_layanan
+    FROM pesanan p
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE p.id_member = ?
+      AND p.status_pesanan = 'dibatalkan'
+      AND p.dibatalkan_oleh = 'admin'
+      AND p.sudah_dilihat_member = 0
+    ORDER BY p.updated_at DESC
+    LIMIT 1
+");
+$stmtNotif->execute([$id_member]);
+$notif_batal = $stmtNotif->fetch();
+
+// Jika ada notif, reset flag-nya setelah diambil
+if ($notif_batal) {
+    $stmtResetNotif = $pdo->prepare("
+        UPDATE pesanan SET sudah_dilihat_member = 1 WHERE id = ?
+    ");
+    $stmtResetNotif->execute([$notif_batal['id']]);
+}
+
+// ── Helper: label dan kelas badge status ─────────────────────
+$label_status = [
+    'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
+    'dikonfirmasi'        => 'Dikonfirmasi',
+    'sedang_dicuci'       => 'Sedang Dicuci',
+    'sedang_diantar'      => 'Sedang Diantar',
+    'siap_diambil'        => 'Siap Diambil',
+];
+$kelas_badge = [
+    'menunggu_konfirmasi' => 'badge-status-baru',
+    'dikonfirmasi'        => 'badge-status-dikonfirmasi',
+    'sedang_dicuci'       => 'badge-status-diproses',
+    'sedang_diantar'      => 'badge-status-diproses',
+    'siap_diambil'        => 'badge-status-selesai',
+];
+
+// ── Helper: steps progress bar ───────────────────────────────
+$steps_kurir = [
+    ['key' => 'menunggu_konfirmasi', 'label' => 'Menunggu'],
+    ['key' => 'dikonfirmasi',        'label' => 'Dikonfirmasi'],
+    ['key' => 'sedang_dicuci',       'label' => 'Sedang Dicuci'],
+    ['key' => 'sedang_diantar',      'label' => 'Sedang Diantar'],
+    ['key' => 'selesai',             'label' => 'Selesai'],
+];
+$steps_ambil = [
+    ['key' => 'menunggu_konfirmasi', 'label' => 'Menunggu'],
+    ['key' => 'dikonfirmasi',        'label' => 'Dikonfirmasi'],
+    ['key' => 'sedang_dicuci',       'label' => 'Sedang Dicuci'],
+    ['key' => 'siap_diambil',        'label' => 'Siap Diambil'],
+    ['key' => 'selesai',             'label' => 'Selesai'],
+];
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,27 +136,6 @@
 
     <?php include '../includes/header-member.php'; ?>
 
-    <!--
-    ============================================================
-     BACKEND OVERVIEW — member/status.php
-     Query utama:
-       SELECT p.*, l.nama_layanan, l.tarif_per_kg
-       FROM pesanan p
-       JOIN layanan l ON p.layanan_id = l.id
-       WHERE p.member_id = $_SESSION['user_id']
-         AND p.status_pesanan NOT IN ('selesai', 'dibatalkan')
-       ORDER BY p.created_at DESC
-
-     Jika tidak ada pesanan aktif → tampilkan .status-kosong
-     Jika ada → ulangi .kartu-status-pesanan dengan foreach
-
-     Untuk badge notifikasi navbar:
-       SELECT COUNT(*) FROM pesanan
-       WHERE member_id = ? AND status_updated_at > last_seen_at
-       (simpan last_seen_at ke session saat halaman ini dibuka)
-    ============================================================
-    -->
-
     <section class="status-section">
 
         <div class="status-header">
@@ -44,56 +145,194 @@
             </p>
         </div>
 
-        <!-- =====================================================
-             KARTU PESANAN AKTIF
-             BACKEND: foreach($pesananAktif as $p) { ... }
-        ====================================================== -->
-        <div class="status-list" id="statusList">
-        </div>
+        <div class="status-list">
 
-        <div class="status-kosong" id="statusKosong" style="display:none;">
-            <div class="status-kosong-ikon">🧺</div>
-            <h2 class="status-kosong-judul">Tidak ada pesanan aktif</h2>
-            <p class="status-kosong-sub">
-                Semua pesanan kamu sudah selesai atau belum ada yang dipesan.
-            </p>
-            <a href="pesan.php" class="tombol-submit-form"
-               style="text-decoration:none; display:inline-block; margin-top:10px;">
-                Buat Pesanan Baru
-            </a>
+            <?php if (empty($pesanan_aktif)): ?>
+                <div class="status-kosong">
+                    <div class="status-kosong-ikon">🧺</div>
+                    <h2 class="status-kosong-judul">Tidak ada pesanan aktif</h2>
+                    <p class="status-kosong-sub">
+                        Semua pesanan kamu sudah selesai atau belum ada yang dipesan.
+                    </p>
+                    <a href="pesan.php" class="tombol-submit-form"
+                       style="text-decoration:none; display:inline-block; margin-top:10px;">
+                        Buat Pesanan Baru
+                    </a>
+                </div>
+
+            <?php else: ?>
+
+                <?php foreach ($pesanan_aktif as $p):
+
+                    $status   = $p['status_pesanan'];
+                    $is_kurir = ($p['opsi_pengantaran'] === 'kurir');
+                    $steps    = $is_kurir ? $steps_kurir : $steps_ambil;
+
+                    // Cari index step aktif
+                    $aktif_idx = 0;
+                    foreach ($steps as $idx => $step) {
+                        if ($step['key'] === $status) {
+                            $aktif_idx = $idx;
+                            break;
+                        }
+                    }
+                ?>
+
+                    <div class="kartu-status-pesanan">
+
+                        <!-- Header kartu -->
+                        <div class="kartu-status-header">
+                            <div class="kartu-status-header-kiri">
+                                <h3 class="kartu-status-kode">#<?= htmlspecialchars($p['kode_pesanan']) ?></h3>
+                                <p class="kartu-status-meta">
+                                    <?= htmlspecialchars($p['nama_layanan']) ?> ·
+                                    <?= date('d M Y, H:i', strtotime($p['created_at'])) ?>
+                                </p>
+                            </div>
+                            <div class="kartu-status-header-kanan">
+                                <span class="badge-status <?= $kelas_badge[$status] ?? 'badge-status-baru' ?>">
+                                    <?= $label_status[$status] ?? $status ?>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Banner kondisional -->
+                        <?php if ($status === 'siap_diambil'): ?>
+                            <div class="banner-status banner-hijau" style="margin:0; border-radius:0;">
+                                <span class="banner-ikon">✓</span>
+                                <p>Cucian kamu siap diambil! Datang ke outlet dan bayar saat pengambilan.</p>
+                            </div>
+                        <?php elseif ($status === 'sedang_diantar'): ?>
+                            <div class="banner-status banner-biru" style="margin:0; border-radius:0;">
+                                <span class="banner-ikon">🛵</span>
+                                <p>Cucian kamu sedang dalam perjalanan ke alamat kamu!</p>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Progress bar -->
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-track">
+                                <?php foreach ($steps as $idx => $step):
+                                    if ($idx < $aktif_idx) {
+                                        $kelas_step = 'step-progress step-selesai';
+                                        $isi_step   = '✓';
+                                    } elseif ($idx === $aktif_idx) {
+                                        $kelas_step = 'step-progress step-aktif';
+                                        $isi_step   = $idx + 1;
+                                    } else {
+                                        $kelas_step = 'step-progress';
+                                        $isi_step   = $idx + 1;
+                                    }
+                                    $ada_garis = ($idx < count($steps) - 1);
+                                ?>
+                                    <div class="<?= $kelas_step ?>">
+                                        <div class="step-lingkaran"><?= $isi_step ?></div>
+                                        <p class="step-label"><?= $step['label'] ?></p>
+                                    </div>
+                                    <?php if ($ada_garis): ?>
+                                        <div class="garis-progress <?= $idx < $aktif_idx ? 'garis-selesai' : '' ?>"></div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Body: harga dan info lokasi -->
+                        <div class="kartu-status-body">
+
+                            <!-- Berat & harga kondisional -->
+                            <?php if ($p['berat_aktual'] > 0): ?>
+                                <div class="kotak-harga-final-status">
+                                    <div class="harga-final-baris">
+                                        <span class="harga-final-label">Berat Aktual</span>
+                                        <strong class="harga-final-nilai"><?= $p['berat_aktual'] ?> kg</strong>
+                                    </div>
+                                    <div class="harga-final-baris">
+                                        <span class="harga-final-label">Total Harga</span>
+                                        <strong class="harga-final-nilai harga-final-besar">
+                                            <?= formatRupiah($p['total_harga']) ?>
+                                            <span class="label-final">(Final)</span>
+                                        </strong>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="kotak-belum-timbang">
+                                    <span class="belum-timbang-ikon">⚖️</span>
+                                    <div>
+                                        <p class="belum-timbang-judul">Menunggu Penimbangan Admin</p>
+                                        <p class="belum-timbang-sub">Harga final akan muncul setelah pakaian ditimbang.</p>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Info lokasi -->
+                            <div class="kartu-status-info-kurir">
+                                <span class="info-kurir-ikon"><?= $is_kurir ? '🛵' : '🏬' ?></span>
+                                <div>
+                                    <p class="info-kurir-label">
+                                        <?= $is_kurir ? 'Kurir ke ' . htmlspecialchars($p['kecamatan']) : 'Ambil di Outlet' ?>
+                                    </p>
+                                    <p class="info-kurir-alamat">
+                                        <?= $is_kurir ? htmlspecialchars($p['alamat_pengantaran']) : '—' ?>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Aksi -->
+                        <div class="kartu-status-aksi">
+                            <a href="detail-pesanan.php?id=<?= $p['id'] ?>"
+                               class="tombol-detail-status">Lihat Detail</a>
+
+                            <?php if ($status === 'menunggu_konfirmasi'): ?>
+                                <button class="tombol-batalkan-status"
+                                        onclick="konfirmasiBatal(<?= $p['id'] ?>, '<?= htmlspecialchars($p['kode_pesanan']) ?>', '<?= htmlspecialchars($p['nama_layanan']) ?>')">
+                                    Batalkan
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            <?php endif; ?>
+
         </div>
 
     </section>
 
-
+    <!-- ── OVERLAY ── -->
     <div class="overlay-popup" id="overlayPopup"
          style="display:none;" onclick="tutupPopupBatal()"></div>
 
+    <!-- ── POPUP KONFIRMASI BATALKAN ── -->
     <div class="popup-konfirmasi" id="popupBatal" style="display:none;">
         <h3 class="popup-judul">Batalkan Pesanan?</h3>
         <p class="popup-teks" id="popupBatalTeks">
             Pesanan ini akan dibatalkan dan tidak dapat dikembalikan.
         </p>
         <div class="popup-tombol-group">
-            <button class="popup-tombol-batal"
-                    onclick="tutupPopupBatal()">
+            <button class="popup-tombol-batal" onclick="tutupPopupBatal()">
                 Tidak
             </button>
-
-            <button class="popup-tombol-konfirm"
-                    id="tombolKonfirmasiYa"
-                    style="background-color:#f87171; color:white;"
-                    onclick="eksekusiBatal()">
-                Ya, Batalkan
-            </button>
+            <form id="formBatalkan" method="POST" action="status.php" style="display:inline;">
+                <input type="hidden" name="action" value="batalkan">
+                <input type="hidden" name="id_pesanan" id="inputIdPesananBatal" value="">
+                <button type="submit"
+                        class="popup-tombol-konfirm"
+                        style="background-color:#f87171; color:white;">
+                    Ya, Batalkan
+                </button>
+            </form>
         </div>
     </div>
 
-        <!-- POPUP NOTIFIKASI: Pesanan dibatalkan oleh admin -->
-    <div class="overlay-popup" id="overlayNotifBatal" style="display:none;"></div>
-
+    <!-- ── POPUP NOTIFIKASI DIBATALKAN ADMIN ── -->
+    <?php if ($notif_batal): ?>
+    <div class="overlay-popup" id="overlayNotifBatal" style="display:block;"></div>
     <div class="popup-konfirmasi" id="popupNotifBatal"
-        style="display:none; text-align:center; padding:40px 36px;">
+         style="display:block; text-align:center; padding:40px 36px;">
 
         <div style="width:60px; height:60px; border-radius:50%;
                     background:#FFD1D1; color:#D32F2F;
@@ -107,20 +346,21 @@
             Pesanan Dibatalkan
         </h3>
 
-        <p class="popup-teks" id="popupNotifBatalTeks"
-        style="text-align:center; margin-bottom:8px;">
-            Salah satu pesanan kamu telah dibatalkan oleh admin.
+        <p class="popup-teks" style="text-align:center; margin-bottom:8px;">
+            Pesanan <strong>#<?= htmlspecialchars($notif_batal['kode_pesanan']) ?></strong>
+            (<?= htmlspecialchars($notif_batal['nama_layanan']) ?>)
+            kamu telah dibatalkan oleh admin.
         </p>
 
-        <!-- Alasan dari admin -->
-        <div id="popupNotifBatalAlasan"
-            style="display:none; margin:0 0 20px;
-                    background:#fff5f5; border-left:3px solid #f87171;
-                    border-radius:0 8px 8px 0; padding:10px 14px;
-                    text-align:left; font-size:0.88rem; color:#555;">
-            <strong style="color:#D32F2F;">Alasan:</strong>
-            <span id="popupNotifBatalAlasanTeks"></span>
-        </div>
+        <?php if (!empty($notif_batal['alasan_pembatalan'])): ?>
+            <div style="margin:0 0 20px;
+                        background:#fff5f5; border-left:3px solid #f87171;
+                        border-radius:0 8px 8px 0; padding:10px 14px;
+                        text-align:left; font-size:0.88rem; color:#555;">
+                <strong style="color:#D32F2F;">Alasan:</strong>
+                <?= htmlspecialchars($notif_batal['alasan_pembatalan']) ?>
+            </div>
+        <?php endif; ?>
 
         <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
             <button class="tombol-submit-form"
@@ -129,272 +369,41 @@
                 Mengerti
             </button>
             <a href="riwayat.php"
-            class="tombol-submit-form"
-            style="text-decoration:none; margin-top:0;">
+               class="tombol-submit-form"
+               style="text-decoration:none; margin-top:0;">
                 Lihat Riwayat
             </a>
         </div>
     </div>
+    <?php endif; ?>
 
     <script src="../assets/js/main.js"></script>
-    <script src="../assets/js/status_refresh.js"></script>
+    <script src="../assets/js/status-refresh.js"></script>
 
     <script>
-    (function renderStatusAktif() {
-        const raw   = localStorage.getItem('cleanco_pesanan');
-        const semua = raw ? JSON.parse(raw) : {};
-        const list  = document.getElementById('statusList');
-        const kosong = document.getElementById('statusKosong');
-        list.innerHTML = '';
-
-        // Pesanan aktif = belum selesai & belum dibatalkan
-        const aktif = Object.values(semua).filter(p =>
-            !['selesai', 'dibatalkan'].includes(p.statusMember)
-        );
-
-        if (aktif.length === 0) { kosong.style.display = 'flex'; return; }
-        kosong.style.display = 'none';
-
-        aktif.forEach(p => {
-            const totalHarga = p.berat
-                ? 'Rp ' + ((p.berat * p.tarifLayanan) + p.tarifKirim).toLocaleString('id-ID')
-                : null;
-
-            // ── Progress steps sesuai dokumen ──
-            // Jalur kurir:         menunggu → dikonfirmasi → sedang_dicuci → sedang_diantar → selesai
-            // Jalur ambil_sendiri: menunggu → dikonfirmasi → sedang_dicuci → siap_diambil   → selesai
-            const stepsKurir = [
-                { key: 'menunggu_konfirmasi', label: 'Menunggu' },
-                { key: 'dikonfirmasi',        label: 'Dikonfirmasi' },
-                { key: 'sedang_dicuci',       label: 'Sedang Dicuci' },
-                { key: 'sedang_diantar',      label: 'Sedang Diantar' },
-                { key: 'selesai',             label: 'Selesai' }
-            ];
-            const stepsAmbil = [
-                { key: 'menunggu_konfirmasi', label: 'Menunggu' },
-                { key: 'dikonfirmasi',        label: 'Dikonfirmasi' },
-                { key: 'sedang_dicuci',       label: 'Sedang Dicuci' },
-                { key: 'siap_diambil',        label: 'Siap Diambil' },
-                { key: 'selesai',             label: 'Selesai' }
-            ];
-            const steps = p.opsi === 'kurir' ? stepsKurir : stepsAmbil;
-
-            const urutanStatus = [
-                'menunggu_konfirmasi','dikonfirmasi',
-                'sedang_dicuci','siap_diambil','sedang_diantar','selesai'
-            ];
-            const aktifIdx = steps.findIndex(s => s.key === p.statusMember);
-
-            const stepsHTML = steps.map((step, i) => {
-                let kelas = 'step-progress';
-                let isi   = i + 1;
-                const posAktif = aktifIdx >= 0 ? aktifIdx : 0;
-                if (i < posAktif)       { kelas += ' step-selesai'; isi = '✓'; }
-                else if (i === posAktif) { kelas += ' step-aktif'; }
-
-                const garis = i < steps.length - 1
-                    ? `<div class="garis-progress ${i < posAktif ? 'garis-selesai' : ''}"></div>`
-                    : '';
-                return `<div class="${kelas}">
-                            <div class="step-lingkaran">${isi}</div>
-                            <p class="step-label">${step.label}</p>
-                        </div>${garis}`;
-            }).join('');
-
-            // Banner sesuai status
-            let bannerHTML = '';
-            if (p.statusMember === 'siap_diambil') {
-                bannerHTML = `<div class="banner-status banner-hijau" style="margin:0;border-radius:0;">
-                    <span class="banner-ikon">✓</span>
-                    <p>Cucian kamu siap diambil! Datang ke outlet dan bayar saat pengambilan.</p>
-                </div>`;
-            } else if (p.statusMember === 'sedang_diantar') {
-                bannerHTML = `<div class="banner-status banner-biru" style="margin:0;border-radius:0;">
-                    <span class="banner-ikon">🛵</span>
-                    <p>Cucian kamu sedang dalam perjalanan ke alamat kamu!</p>
-                </div>`;
-            }
-
-            // Harga / menunggu timbang
-            const hargaHTML = totalHarga ? `
-                <div class="kotak-harga-final-status">
-                    <div class="harga-final-baris">
-                        <span class="harga-final-label">Berat Aktual</span>
-                        <strong class="harga-final-nilai">${p.berat} kg</strong>
-                    </div>
-                    <div class="harga-final-baris">
-                        <span class="harga-final-label">Total Harga</span>
-                        <strong class="harga-final-nilai harga-final-besar">
-                            ${totalHarga} <span class="label-final">(Final)</span>
-                        </strong>
-                    </div>
-                </div>` : `
-                <div class="kotak-belum-timbang">
-                    <span class="belum-timbang-ikon">⚖️</span>
-                    <div>
-                        <p class="belum-timbang-judul">Menunggu Penimbangan Admin</p>
-                        <p class="belum-timbang-sub">Harga final akan muncul setelah pakaian ditimbang.</p>
-                    </div>
-                </div>`;
-
-            // Info lokasi
-            const ikonLokasi  = p.opsi === 'kurir' ? '🛵' : '🏬';
-            const labelLokasi = p.opsi === 'kurir' ? `Kurir ke ${p.kecamatan}` : 'Ambil di Outlet';
-            const alamatLokasi = p.opsi === 'kurir' ? p.alamat : 'Wanea, Teling Atas, Jln. Manado';
-
-            // Badge status member
-            const badgeKelas = {
-                menunggu_konfirmasi : 'badge-status-baru',
-                dikonfirmasi        : 'badge-status-dikonfirmasi',
-                sedang_dicuci       : 'badge-status-diproses',
-                sedang_diantar      : 'badge-status-diproses',
-                siap_diambil        : 'badge-status-selesai'
-            };
-            const badgeLabel = {
-                menunggu_konfirmasi : 'Menunggu Konfirmasi',
-                dikonfirmasi        : 'Dikonfirmasi',
-                sedang_dicuci       : 'Sedang Dicuci',
-                sedang_diantar      : 'Sedang Diantar',
-                siap_diambil        : 'Siap Diambil'
-            };
-
-            // Tombol batalkan: HANYA saat menunggu_konfirmasi (dokumen: sebelum admin proses)
-            const tombolBatalHTML = p.statusMember === 'menunggu_konfirmasi' ? `
-                <button class="tombol-batalkan-status"
-                        onclick="konfirmasiBatal('${p.kode}', '${p.layanan}', ${p.id})">
-                    Batalkan
-                </button>` : '';
-
-            list.insertAdjacentHTML('beforeend', `
-                <div class="kartu-status-pesanan"
-                    data-id="${p.kode}"
-                    data-status="${p.statusMember}"
-                    data-opsi="${p.opsi}">
-                    <div class="kartu-status-header">
-                        <div class="kartu-status-header-kiri">
-                            <h3 class="kartu-status-kode">#${p.kode}</h3>
-                            <p class="kartu-status-meta">${p.metaWaktu}</p>
-                        </div>
-                        <div class="kartu-status-header-kanan">
-                            <span class="badge-status ${badgeKelas[p.statusMember] || 'badge-status-baru'}">
-                                ${badgeLabel[p.statusMember] || p.statusMember}
-                            </span>
-                        </div>
-                    </div>
-                    ${bannerHTML}
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar-track">${stepsHTML}</div>
-                    </div>
-                    <div class="kartu-status-body">
-                        ${hargaHTML}
-                        <div class="kartu-status-info-kurir">
-                            <span class="info-kurir-ikon">${ikonLokasi}</span>
-                            <div>
-                                <p class="info-kurir-label">${labelLokasi}</p>
-                                <p class="info-kurir-alamat">${alamatLokasi}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="kartu-status-aksi">
-                        <a href="detail-pesanan.php?id=${p.kode}"
-                        class="tombol-detail-status">Lihat Detail</a>
-                        ${tombolBatalHTML}
-                    </div>
-                </div>
-            `);
-        });
-    })();
-
-    // ── Batalkan dari member ────────────────────────────────────
-    let idPesananAkanDibatal  = null;
-    let idInternalAkanDibatal = null;
-
-    function konfirmasiBatal(kodePesanan, namaLayanan, idInternal) {
-        idPesananAkanDibatal  = kodePesanan;
-        idInternalAkanDibatal = idInternal;
+    // ── Popup batalkan ───────────────────────────────────────
+    function konfirmasiBatal(idPesanan, kodePesanan, namaLayanan) {
         document.getElementById('popupBatalTeks').textContent =
-            `Pesanan #${kodePesanan} (${namaLayanan}) akan dibatalkan dan tidak dapat dikembalikan.`;
+            'Pesanan #' + kodePesanan + ' (' + namaLayanan + ') akan dibatalkan dan tidak dapat dikembalikan.';
+        document.getElementById('inputIdPesananBatal').value = idPesanan;
         document.getElementById('overlayPopup').style.display = 'block';
         document.getElementById('popupBatal').style.display   = 'block';
     }
 
     function tutupPopupBatal() {
-        idPesananAkanDibatal  = null;
-        idInternalAkanDibatal = null;
         document.getElementById('overlayPopup').style.display = 'none';
         document.getElementById('popupBatal').style.display   = 'none';
     }
 
-    function eksekusiBatal() {
-        if (!idPesananAkanDibatal) return;
-
-        if (idInternalAkanDibatal !== null) {
-            _updateStatusPesanan(idInternalAkanDibatal, 'dibatalkan', null, 'member');
-        }
-
-        const kartuEl = document.querySelector(
-            `.kartu-status-pesanan[data-id="${idPesananAkanDibatal}"]`
-        );
-        if (kartuEl) {
-            kartuEl.style.transition = 'opacity 0.3s, transform 0.3s';
-            kartuEl.style.opacity    = '0';
-            kartuEl.style.transform  = 'translateY(-10px)';
-            setTimeout(() => { kartuEl.remove(); cekKosong(); }, 300);
-        }
-
-        tutupPopupBatal();
-    }
-
-    function cekKosong() {
-        const ada = document.querySelectorAll('.kartu-status-pesanan').length > 0;
-        document.getElementById('statusKosong').style.display = ada ? 'none' : 'flex';
-    }
-
-    startAutoRefresh();
-
-    // ── Cek & tampilkan notifikasi pesanan dibatalkan admin ────
-    (function cekNotifikasiBatal() {
-        const notifIds = _ambilNotifikasiBatal();
-        if (notifIds.length === 0) return;
-
-        // Ambil data pesanan pertama yang dibatalkan admin
-        const data = _muatData();
-        const idStr = notifIds[0];
-        const p = data[idStr];
-        if (!p) { _hapusNotifikasiBatal(idStr); return; }
-
-        // Isi popup
-        document.getElementById('popupNotifBatalTeks').textContent =
-            `Pesanan #${p.kode} (${p.layanan}) kamu telah dibatalkan oleh admin.`;
-
-        const alasanEl = document.getElementById('popupNotifBatalAlasan');
-        const alasanTeksEl = document.getElementById('popupNotifBatalAlasanTeks');
-        if (p.alasanBatal) {
-            alasanEl.style.display    = 'block';
-            alasanTeksEl.textContent  = p.alasanBatal;
-        } else {
-            alasanEl.style.display    = 'none';
-        }
-
-        // Simpan id yang sedang ditampilkan untuk dihapus saat tutup
-        window._notifBatalIdAktif = idStr;
-
-        // Tampilkan popup
-        document.getElementById('overlayNotifBatal').style.display = 'block';
-        document.getElementById('popupNotifBatal').style.display   = 'block';
-    })();
-
+    // ── Popup notif batal admin ──────────────────────────────
     function tutupNotifBatal() {
-        document.getElementById('overlayNotifBatal').style.display = 'none';
-        document.getElementById('popupNotifBatal').style.display   = 'none';
-
-        // Hapus notifikasi dari queue
-        if (window._notifBatalIdAktif) {
-            _hapusNotifikasiBatal(window._notifBatalIdAktif);
-            window._notifBatalIdAktif = null;
-        }
+        const overlay = document.getElementById('overlayNotifBatal');
+        const popup   = document.getElementById('popupNotifBatal');
+        if (overlay) overlay.style.display = 'none';
+        if (popup)   popup.style.display   = 'none';
     }
     </script>
 
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>
