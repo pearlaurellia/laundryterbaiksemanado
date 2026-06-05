@@ -1,48 +1,24 @@
 /**
  * ============================================================
  * kalkulasi-harga.js — CleanCo Laundry
- * Digunakan di: admin/pesanan.php, member/pesan.php
- *
- * Berisi:
- *   - hitungBiaya()          → hitung dan tampilkan rincian biaya di panel admin
- *   - hitungEstimasiAdmin()  → versi admin (tidak dipakai di pesan.php)
- *
- * CATATAN:
- * - hitungBiaya() bergantung pada dataPesanan dan idAktif dari main.js
- * - Konstanta BIAYA_KURIR didefinisikan di pesan-member.js (untuk form member)
- *   dan di sini hanya digunakan sebagai fallback
  * ============================================================
  */
 
 'use strict';
 
-/**
- * Hitung dan render rincian biaya di panel detail admin (admin/pesanan.php).
- * Dipanggil oleh oninput pada #inputBerat dan setelah bukaPesanan().
- *
- * Membaca:
- *   - dataPesanan[idAktif].tarifLayanan : tarif per kg layanan
- *   - dataPesanan[idAktif].tarifKirim   : biaya kurir (0 jika ambil sendiri)
- *   - dataPesanan[idAktif].layanan      : nama layanan (untuk label)
- *   - dataPesanan[idAktif].pengiriman   : label pengiriman
- *
- * CATATAN BACKEND:
- * tarifLayanan dan tarifKirim sudah ada di objek pesanan yang di-return
- * oleh GET /api/pesanan — pastikan PHP menyertakan kedua field ini.
- */
 function hitungBiaya() {
     if (typeof idAktif === 'undefined' || !idAktif) return;
     if (!dataPesanan || !dataPesanan[idAktif]) return;
 
     const p     = dataPesanan[idAktif];
-    const berat = parseFloat(document.getElementById('inputBerat')?.value) || 0;
+    const berat = parseFloat(document.getElementById('inputBerat')?.value) || parseFloat(p.berat_aktual) || 0;
     const fmt   = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
-    // Update cache lokal (dipakai oleh prosesTimbang untuk dikirim ke server)
-    dataPesanan[idAktif].berat = berat || null;
+    // Sinkronisasi data lokal dari properti PHP database query
+    dataPesanan[idAktif].berat_aktual = berat || null;
 
-    const biayaLayanan = berat * (p.tarifLayanan || 0);
-    const total        = biayaLayanan + (p.tarifKirim || 0);
+    const biayaLayanan = berat * (parseFloat(p.tarif_per_kg) || 0);
+    const total        = biayaLayanan + (parseFloat(p.biaya_kurir) || 0);
 
     const rincianLayananEl = document.getElementById('rincianLayanan');
     const rincianKirimEl   = document.getElementById('rincianKirim');
@@ -50,30 +26,17 @@ function hitungBiaya() {
 
     if (rincianLayananEl) {
         rincianLayananEl.textContent =
-            `${p.layanan} (${berat} kg × ${fmt(p.tarifLayanan)}) : ${fmt(biayaLayanan)}`;
+            `${p.nama_layanan} (${berat} kg × ${fmt(p.tarif_per_kg)}) : ${fmt(biayaLayanan)}`;
     }
     if (rincianKirimEl) {
-        rincianKirimEl.textContent =
-            `Pengiriman (${p.pengiriman}) : ${fmt(p.tarifKirim)}`;
+        const labelKirim = p.opsi_pengantaran === 'kurir' ? 'Kurir Antar-Jemput' : 'Ambil Mandiri';
+        rincianKirimEl.textContent = `Pengiriman (${labelKirim}) : ${fmt(p.biaya_kurir)}`;
     }
     if (rincianTotalEl) {
         rincianTotalEl.textContent = `Total : ${fmt(total)}`;
     }
 }
 
-
-/**
- * Versi estimasi untuk form member (opsional — bisa juga pakai hitungEstimasi()
- * di pesan-member.js langsung). Disediakan di sini untuk konsistensi jika
- * kalkulasi-harga.js di-include di halaman lain.
- *
- * PARAMETER:
- *   layananAktif    : { nama, tarif }
- *   opsiPengantaran : 'kurir'|'ambil_sendiri'
- *
- * CATATAN BACKEND:
- * BIAYA_KURIR sebaiknya di-output dari DB oleh PHP — lihat pesan-member.js.
- */
 function hitungEstimasiAdmin(layananAktif, opsiPengantaran) {
     const beratEl  = document.getElementById('inputEstimasiBerat');
     const kotakEl  = document.getElementById('kotakEstimasi');

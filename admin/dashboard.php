@@ -3,24 +3,26 @@ require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
-    redirect('../login.php');
-}
+// Memanfaatkan file proteksi admin yang sudah ada di struktur folder
+require_once '../includes/admin-check.php'; 
 
 // ── Kartu hero ──────────────────────────────────────────────
+// 1. Total Pesanan Hari Ini (Berdasarkan pesanan masuk baru)
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE DATE(created_at) = CURDATE()");
 $stmt->execute();
 $total_pesanan_hari_ini = $stmt->fetchColumn() ?: 0;
 
+// 2. Total Pesanan Aktif (Masih dalam proses pengerjaan)
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE status_pesanan NOT IN ('selesai', 'dibatalkan')");
 $stmt->execute();
 $total_pesanan_aktif = $stmt->fetchColumn() ?: 0;
 
-$stmt = $pdo->prepare("SELECT SUM(total_harga) FROM pesanan WHERE status_pesanan = 'selesai' AND DATE(created_at) = CURDATE()");
+// 3. Omzet Hari Ini (Uang riil masuk hari ini dari transaksi yang LUNAS)
+$stmt = $pdo->prepare("SELECT SUM(total_harga) FROM pesanan WHERE status_pembayaran = 'lunas' AND DATE(updated_at) = CURDATE()");
 $stmt->execute();
 $omzet_hari_ini = $stmt->fetchColumn() ?: 0;
 
-// ── Sejarah pesanan ─────────────────────────────────────────
+// ── Sejarah pesanan (5 Terakhir Selesai) ───────────────────────
 $stmt = $pdo->prepare("
     SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
     FROM pesanan p 
@@ -31,9 +33,9 @@ $stmt = $pdo->prepare("
     LIMIT 5
 ");
 $stmt->execute();
-$sejarah_pesanan = $stmt->fetchAll() ?: []; // ← fix error line 60
+$sejarah_pesanan = $stmt->fetchAll() ?: [];
 
-// ── Preview member aktif ────────────────────────────────────
+// ── Preview member aktif (5 Terakhir Bergabung) ───────────────
 $stmt = $pdo->prepare("
     SELECT * FROM users 
     WHERE role = 'member' AND status_akun = 'aktif' 
@@ -47,41 +49,33 @@ $member_aktif = $stmt->fetchAll() ?: [];
 $dari_tanggal   = $_GET['dari_tanggal'] ?? date('Y-m-d');
 $sampai_tanggal = $_GET['sampai_tanggal'] ?? date('Y-m-d');
 
+// Mengubah filter berdasarkan updated_at agar performa rekap finansial akurat
 $stmt = $pdo->prepare("
     SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
     FROM pesanan p
     JOIN users u ON p.id_member = u.id
     JOIN layanan l ON p.id_layanan = l.id
-    WHERE DATE(p.created_at) BETWEEN ? AND ? 
-    ORDER BY p.created_at DESC
+    WHERE DATE(p.updated_at) BETWEEN ? AND ? 
+    ORDER BY p.updated_at DESC
 ");
 $stmt->execute([$dari_tanggal, $sampai_tanggal]);
-$data_rekap = $stmt->fetchAll() ?: []; // ← fix $data_rekap undefined
+$data_rekap = $stmt->fetchAll() ?: [];
 
-// Hitung total rekapitulasi
-$total_omzet_rekap = 0; // ← fix $total_omzet_rekap undefined
+// Hitung total rekapitulasi secara presisi
+$total_omzet_rekap = 0; 
 $total_berat_rekap = 0;
+
 foreach ($data_rekap as $row) {
-    if ($row['status_pesanan'] !== 'dibatalkan') {
+    // Omzet HANYA bertambah jika pesanan memang sudah dibayar (Lunas)
+    if ($row['status_pembayaran'] === 'lunas') {
         $total_omzet_rekap += $row['total_harga'];
     }
-    $total_berat_rekap += $row['berat_aktual'];
+    // Berat aktual dihitung dari pesanan yang tidak dibatalkan
+    if ($row['status_pesanan'] !== 'dibatalkan') {
+        $total_berat_rekap += $row['berat_aktual'];
+    }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - CleanCo</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-</head>
-<body>
 
     <?php include '../includes/header-admin.php'; ?>
 
@@ -222,6 +216,5 @@ foreach ($data_rekap as $row) {
             </div>
         </div>
     </section>
-
-</body>
-</html>
+    
+    <?php include '../includes/footer.php'; ?>
