@@ -87,7 +87,7 @@ include 'includes/header.php';
         </div>
     </section>
 
-    <?php if (!empty($infoWeb['no_whatsapp'])): ?>
+<?php if (!empty($infoWeb['no_whatsapp'])): ?>
     <a href="https://wa.me/<?= htmlspecialchars($infoWeb['no_whatsapp']) ?>" target="_blank" class="tombol-wa-mengambang" style="position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; padding: 15px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;">
         Hubungi via WhatsApp
     </a>
