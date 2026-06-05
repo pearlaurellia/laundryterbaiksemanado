@@ -340,14 +340,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="popup-tombol-group" style="justify-content:center; gap:14px; display: flex; margin-top: 20px;">
-            <a href="status.php" class="tombol-submit-form" style="text-decoration:none; text-align:center; padding: 10px 20px; background: var(--birutua); color: white; border-radius: 8px;">
-                Lihat Status
-            </a>
-            <button class="tombol-batal-layanan" onclick="pesanLagi()" style="display:inline-block; padding: 10px 20px; cursor: pointer;">
-                Pesan Lagi
-            </button>
-        </div>
+        <div class="popup-tombol-group" style="justify-content:center; gap:12px; display:flex; flex-wrap:wrap; margin-top:20px;">
+         <a id="tombolKonfirmasiWa"
+            href="#"
+            target="_blank"
+            style="display:none; align-items:center; gap:8px; text-decoration:none;
+                   padding:10px 18px; background:#25D366; color:white;
+                   border-radius:8px; font-weight:600; font-size:0.9rem;">
+                Konfirmasi Pesanan via WhatsApp
+        </a>
+        <a href="status.php"
+           style="text-decoration:none; text-align:center;
+                  padding:10px 18px; background:var(--birutua); color:white;
+                  border-radius:8px; font-weight:600; font-size:0.9rem;">
+            Lihat Status
+        </a>
+        <button onclick="pesanLagi()"
+                style="padding:10px 18px; cursor:pointer; border-radius:8px;
+                       font-weight:600; font-size:0.9rem; border:1.5px solid #ccc;
+                       background:white; color:#444;">
+            Pesan Lagi
+        </button>
+      </div>
     </div>
 
     <script src="../assets/js/kalkulasi-harga.js"></script>

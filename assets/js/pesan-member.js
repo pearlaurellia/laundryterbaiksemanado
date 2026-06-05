@@ -54,21 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const noWaBersih = noWaAdmin.replace(/\D/g, '');
 
-        // Langkah Krusial: Buka WhatsApp SEBELUM fetch (Bebas Popup Blocker)
-        if (noWaBersih) {
-            const pesanWa = encodeURIComponent(
-                'Halo Admin CleanCo! 👋\n' +
-                'Saya baru saja membuat pesanan baru:\n' +
-                '• Nama        : ' + memberNama + '\n' +
-                '• Layanan     : ' + window.namaLayananAktif + '\n' +
-                '• Pengantaran : ' + labelOpsi + '\n' +
-                'Mohon konfirmasinya. Terima kasih!'
-            );
-            window.open('https://wa.me/' + noWaBersih + '?text=' + pesanWa, '_blank');
-        } else {
-            console.warn('Nomor WhatsApp admin tidak ditemukan. Cek data-no-wa-admin di formPesanContainer.');
-        }
-
+    
         // Kirim data form ke backend via Fetch POST
         try {
             const formData = new FormData(formPesan);
@@ -84,12 +70,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('popupNoPesanan').textContent   = '#' + result.data.kode_pesanan;
                 document.getElementById('popupLayanan').textContent     = result.data.nama_layanan;
                 document.getElementById('popupPengantaran').textContent = result.data.opsi_pengantaran === 'kurir'
-                                                                          ? 'Kurir Antar-Jemput'
-                                                                          : 'Ambil Mandiri';
+                                                              ? 'Kurir Antar-Jemput'
+                                                              : 'Ambil Mandiri';
                 document.getElementById('popupEstimasi').textContent    = result.data.total_estimasi;
 
-                document.getElementById('overlayPopup').style.display = 'block';
-                document.getElementById('popupSukses').style.display  = 'block';
+                // Siapkan URL WhatsApp di tombol popup (bukan auto-buka)
+                if (noWaBersih) {
+                    const pesanWa = encodeURIComponent(
+                        'Halo Admin CleanCo! 👋\n' +
+                        'Saya baru saja membuat pesanan baru:\n' +
+                        '• Kode Pesanan : #' + result.data.kode_pesanan + '\n' +
+                        '• Nama         : ' + memberNama + '\n' +
+                        '• Layanan      : ' + result.data.nama_layanan + '\n' +
+                        '• Pengantaran  : ' + labelOpsi + '\n' +
+                        'Mohon konfirmasinya. Terima kasih!'
+                    );
+                    const tombolWa = document.getElementById('tombolKonfirmasiWa');
+                    if (tombolWa) {
+                        tombolWa.href = 'https://wa.me/' + noWaBersih + '?text=' + pesanWa;
+                        tombolWa.style.display = 'inline-flex';
+                     }
+                 }
+
+                 document.getElementById('overlayPopup').style.display = 'block';
+                 document.getElementById('popupSukses').style.display  = 'block';
             } else {
                 alert(result.message || 'Gagal menyimpan pesanan ke database.');
             }
