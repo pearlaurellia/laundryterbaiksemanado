@@ -161,7 +161,6 @@ foreach ($data_rekap as $row) {
                                 <div class="pill-nama">Nama: <strong><?= htmlspecialchars($m['nama']) ?></strong></div>
                                 <div class="pill-alamat">Lihat alamat lengkap</div>
                             </div>
-                            <p class="teks-info">Alamat: <?= htmlspecialchars($m['alamat']) ?></p>
                             <p class="teks-info">Nomor Telepon: <?= htmlspecialchars($m['no_hp']) ?></p>
                             <p class="teks-info">Email: <?= htmlspecialchars($m['email']) ?></p>
                         </div>
