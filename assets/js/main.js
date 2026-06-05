@@ -1,19 +1,16 @@
 /**
  * ============================================================
  * main.js — CleanCo Laundry
- * Core JS untuk admin/pesanan.php dan member/riwayat.php
- * Ditambah: Fungsi Navigasi Global & Interaksi UI Layout Halaman
+ * Core JS untuk admin/pesanan.php
  * Murni Native JavaScript (Tanpa Library/Framework)
  * ============================================================
  */
 
 'use strict';
 
-// ── GLOBAL STATE ─────────────────────────────────────────────
 let dataPesanan = {};
-let idAktif     = null; // ID pesanan yang sedang dibuka di panel detail
+let idAktif = null; 
 
-// ── LABEL & KELAS BADGE ───────────────────────────────────────
 const _labelStatus = {
     menunggu_konfirmasi : 'Menunggu Konfirmasi',
     dikonfirmasi        : 'Dikonfirmasi',
@@ -34,62 +31,11 @@ const _kelasStatus = {
     dibatalkan          : 'badge-status badge-status-batal'
 };
 
-// ── HELPER FORMAT CURRENCY ────────────────────────────────────
 const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
-
 // ============================================================
-// LOGIKA INTERAKSI TATA LETAK GLOBAL (HAMBURGER & DROPDOWN)
+// DATA LOADING & SYNC MANAGEMENT
 // ============================================================
-
-/**
- * Menginisialisasi event menu hamburger mobile dan penutupan dropdown otomatis.
- */
-function inisialisasiInteraksiGlobal() {
-    const hamburgerBtn = document.getElementById('hamburgerBtn') || document.querySelector('.hamburger');
-    const navMenu = document.getElementById('navMenu') || document.querySelector('.nav-links');
-    const userToggle = document.getElementById('userDropdownBtn') || document.querySelector('.user-profile-toggle');
-    const userMenu = document.getElementById('userDropdownMenu') || document.querySelector('.user-dropdown');
-
-    // 1. Toggle Hamburger Menu Mobile
-    if (hamburgerBtn && navMenu) {
-        hamburgerBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navMenu.classList.toggle('aktif');
-            hamburgerBtn.classList.toggle('buka');
-        });
-    }
-
-    // 2. Toggle Dropdown Profil User
-    if (userToggle && userMenu) {
-        userToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenu.classList.toggle('tampil');
-        });
-    }
-
-    // 3. Tutup Dropdown & Menu Navigasi jika Admin/Member Klik di Luar Area Komponen
-    document.addEventListener('click', (e) => {
-        // Tutup menu profil
-        if (userMenu && !userMenu.contains(e.target) && e.target !== userToggle) {
-            userMenu.classList.remove('tampil');
-        }
-        // Tutup hamburger menu
-        if (navMenu && !navMenu.contains(e.target) && hamburgerBtn && !hamburgerBtn.contains(e.target)) {
-            navMenu.classList.remove('aktif');
-            hamburgerBtn.classList.remove('buka');
-        }
-    });
-}
-
-
-// ============================================================
-// DATA LOADING MANAGEMENT
-// ============================================================
-
-/**
- * Muat semua pesanan dari server via parameter action query.
- */
 async function muatDataPesanan() {
     try {
         const res  = await fetch('pesanan.php?action=ambil_semua');
@@ -97,52 +43,38 @@ async function muatDataPesanan() {
         if (json.success) {
             dataPesanan = json.data;
         } else {
-            console.error('muatDataPesanan: server error —', json.message);
+            console.error('muatDataPesanan Error:', json.message);
         }
     } catch (err) {
-        console.error('muatDataPesanan: fetch gagal —', err);
+        console.error('Fetch data gagal:', err);
     }
 }
 
-
-// ============================================================
-// UPDATE STATUS PESANAN
-// ============================================================
-
-/**
- * Kirim perubahan status ke server backend.
- */
 async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = null) {
     try {
         const res = await fetch(`pesanan.php?action=update_status&id=${id}`, {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body   : JSON.stringify({
-                status,
-                alasan,
+                status: status,
+                alasan: alasan,
                 dibatalkan_oleh : dibatalkanOleh,
-                berat
+                berat: berat
             })
         });
         const json = await res.json();
         if (!json.success) {
-            console.error('_updateStatusPesanan: server error —', json.message);
-            alert(json.message || 'Gagal memperbarui status pesanan.');
+            alert(json.message || 'Gagal mengubah status pesanan.');
         }
     } catch (err) {
-        console.error('_updateStatusPesanan: fetch gagal —', err);
+        console.error('Status save crashed:', err);
     }
 }
 
-
 // ============================================================
-// PANEL DETAIL PESANAN (admin/pesanan.php)
+// BUKA DETAIL PESANAN PANEL KANAN
 // ============================================================
-
-/**
- * Buka detail pesanan di panel kanan.
- */
-function bukaPesanan(id, el) {
+async function bukaPesanan(id, el) {
     idAktif = id;
     const p = dataPesanan[id];
     if (!p) return;
@@ -163,90 +95,114 @@ function bukaPesanan(id, el) {
     document.getElementById('detailLayanan').textContent     = p.layanan;
     document.getElementById('detailPengiriman').textContent  = p.pengiriman;
     document.getElementById('detailNote').textContent        = p.note || '— Tidak ada catatan —';
-    document.getElementById('inputBerat').value              = p.berat || '';
+    
+    // Sinkronisasi isian angka timbangan berat
+    const inputBerat = document.getElementById('inputBerat');
+    if (inputBerat) inputBerat.value = p.berat || '';
 
-    const tagsEl = document.getElementById('detailTags');
-    tagsEl.innerHTML = (p.tags || []).map(t =>
-        `<span class="badge-${t.tipe}">${t.label}</span>`
-    ).join('');
+    // Saklar buka-tutup box timbangan berat
+    const blokBerat = document.getElementById('blokInputBerat');
+    if (blokBerat) {
+        blokBerat.style.display = (p.status === 'dikonfirmasi' || p.berat > 0) ? 'block' : 'none';
+    }
 
-    setStatusUI(p.status);
+    // Suntik komponen tombol aksi
+    document.getElementById('statusAktifTeks').textContent = _labelStatus[p.status] || p.status;
+    renderTombolAksiAdmin(p.status);
     hitungBiaya();
+    
+    // Muat riwayat timeline aktivitas asinkronus
+    await muatTimelineKlien(id);
 }
 
-/**
- * Menyesuaikan tampilan tombol aksi berdasarkan status pesanan saat ini.
- */
-function setStatusUI(status) {
-    const areaTombolAksi = document.getElementById('areaTombolAksi');
-    if (!areaTombolAksi) return;
+function renderTombolAksiAdmin(status) {
+    const grupAksi = document.getElementById('grupAksiAdmin');
+    const btnBatal = document.getElementById('tombolBatalkanAdmin');
+    const txtBatal = document.getElementById('infoSudahDibatalkan');
 
-    areaTombolAksi.innerHTML = '';
+    if (!grupAksi) return;
+    grupAksi.innerHTML = '';
+
+    // Manajemen visibilitas tombol pembatalan massal
+    if (btnBatal && txtBatal) {
+        btnBatal.style.display = (status !== 'dibatalkan' && status !== 'selesai') ? 'inline-block' : 'none';
+        txtBatal.style.display = (status === 'dibatalkan') ? 'block' : 'none';
+    }
 
     if (status === 'menunggu_konfirmasi') {
-        areaTombolAksi.innerHTML = `
-            <button onclick="ubahStatusLokal('dikonfirmasi')" class="tombol-terima" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">✓ Konfirmasi Pesanan</button>
-            <button onclick="batalkanPesananAdmin(idAktif)" class="tombol-tolak" style="background:#ef4444; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-left:10px;">✕ Batalkan</button>
-        `;
+        grupAksi.innerHTML = `<button onclick="ubahStatusLokal('dikonfirmasi')" class="tombol-submit-form" style="background:#10b981; border:none; color:white; padding: 10px 20px; font-weight:bold; cursor:pointer; border-radius:8px;">✓ Terima & Konfirmasi Pesanan</button>`;
     } else if (status === 'dikonfirmasi') {
-        areaTombolAksi.innerHTML = `
-            <button onclick="bukaModalTimbang()" class="tombol-proses" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">⚖️ Input Berat & Cuci</button>
-        `;
+        grupAksi.innerHTML = `<button onclick="eksekusiTimbangSisiKlien()" class="tombol-submit-form" style="background:#3b82f6; border:none; color:white; padding: 10px 20px; font-weight:bold; cursor:pointer; border-radius:8px;">⚖️ Simpan Berat & Mulai Cuci</button>`;
     } else if (status === 'sedang_dicuci') {
-        areaTombolAksi.innerHTML = `
-            <button onclick="ubahStatusLokal('siap_diambil')" class="tombol-proses" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">🧺 Selesai Cuci (Siap)</button>
-        `;
+        grupAksi.innerHTML = `<button onclick="ubahStatusLokal('siap_diambil')" class="tombol-submit-form" style="background:#f59e0b; border:none; color:white; padding: 10px 20px; font-weight:bold; cursor:pointer; border-radius:8px;">🧺 Selesai Cuci & Siap Diambil</button>`;
     } else if (status === 'siap_diambil') {
         const p = dataPesanan[idAktif];
-        const labelTombol = (p && p.opsi === 'kurir') ? '🚀 Serahkan ke Kurir' : '🤝 Diambil Pelanggan (Selesai)';
         const statusTarget = (p && p.opsi === 'kurir') ? 'sedang_diantar' : 'selesai';
-        
-        areaTombolAksi.innerHTML = `
-            <button onclick="ubahStatusLokal('${statusTarget}')" class="tombol-proses" style="background:#0d3f8a; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">${labelTombol}</button>
-        `;
+        const labelTombol = (p && p.opsi === 'kurir') ? '🚀 Serahkan Ke Kurir' : '🤝 Diambil Pelanggan (Selesai)';
+        grupAksi.innerHTML = `<button onclick="ubahStatusLokal('${statusTarget}')" class="tombol-submit-form" style="background:#0d3f8a; border:none; color:white; padding: 10px 20px; font-weight:bold; cursor:pointer; border-radius:8px;">${labelTombol}</button>`;
     } else if (status === 'sedang_diantar') {
-        areaTombolAksi.innerHTML = `
-            <button onclick="ubahStatusLokal('selesai')" class="tombol-proses" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">🏁 Konfirmasi Diterima (Selesai)</button>
-        `;
+        grupAksi.innerHTML = `<button onclick="ubahStatusLokal('selesai')" class="tombol-submit-form" style="background:#10b981; border:none; color:white; padding: 10px 20px; font-weight:bold; cursor:pointer; border-radius:8px;">🏁 Konfirmasi Diterima (Selesai & Lunas)</button>`;
     } else {
-        areaTombolAksi.innerHTML = `<span style="color:#aaa; font-style:italic;">Tidak ada aksi lanjutan untuk pesanan ini.</span>`;
+        grupAksi.innerHTML = `<span style="color:#aaa; font-style:italic;">Pesanan selesai diproses.</span>`;
     }
 }
 
-/**
- * Menghitung dan merender rincian nota tagihan laundry secara real-time di sisi klien
- */
+// ============================================================
+// HITUNG BIAYA RINCIAN NOTA REAL-TIME
+// ============================================================
 function hitungBiaya() {
     const p = dataPesanan[idAktif];
     if (!p) return;
 
-    const berat = parseFloat(document.getElementById('inputBerat').value) || 0;
+    const inputBerat = document.getElementById('inputBerat');
+    const berat = parseFloat(inputBerat ? inputBerat.value : 0) || 0;
+    
     const subtotalLayanan = berat * p.tarifLayanan;
     const totalSemua = subtotalLayanan + p.tarifKirim;
 
-    if(document.getElementById('textSubtotalLayanan')) {
-        document.getElementById('textSubtotalLayanan').textContent = _fmt(subtotalLayanan) + ` (${berat} kg x ${_fmt(p.tarifLayanan)})`;
-        document.getElementById('textBiayaKurir').textContent = _fmt(p.tarifKirim);
-        document.getElementById('textTotalHarga').textContent = _fmt(totalSemua);
-    }
+    // FIX SELEKTOR: Menggunakan ID rincian bawaan element HTML kamu yang sah
+    const rincianLayanan = document.getElementById('rincianLayanan');
+    const rincianKirim = document.getElementById('rincianKirim');
+    const rincianTotal = document.getElementById('rincianTotal');
+
+    if (rincianLayanan) rincianLayanan.textContent = `Layanan : ${_fmt(subtotalLayanan)} (${berat} kg x ${_fmt(p.tarifLayanan)})`;
+    if (rincianKirim) rincianKirim.textContent = `Pengiriman : ${_fmt(p.tarifKirim)}`;
+    if (rincianTotal) rincianTotal.textContent = `Total : ${_fmt(totalSemua)}`;
 }
 
-/**
- * Jembatan internal untuk memperbarui status pesanan dari tombol aksi
- */
+async function eksekusiTimbangSisiKlien() {
+    const beratValue = parseFloat(document.getElementById('inputBerat').value) || 0;
+    if (beratValue <= 0) {
+        alert('Wajib memasukkan angka berat timbangan aktual cucian terlebih dahulu.');
+        return;
+    }
+    if (!confirm(`Simpan berat ${beratValue} kg dan masukkan pesanan ke proses pencucian?`)) return;
+
+    await _updateStatusPesanan(idAktif, 'sedang_dicuci', null, null, beratValue);
+    await segarkanUlangDataDashboard();
+}
+
 async function ubahStatusLokal(statusBaru) {
     if (!idAktif) return;
     if (!confirm(`Ubah status pesanan ke: "${_labelStatus[statusBaru]}"?`)) return;
 
     await _updateStatusPesanan(idAktif, statusBaru, null, null);
-    await muatDataPesanan();
-    renderListPesanan('semua');
-    setStatusUI(statusBaru);
+    await segarkanUlangDataDashboard();
 }
 
-/**
- * Batal panel detail ke posisi semula
- */
+async function segarkanUlangDataDashboard() {
+    const backupId = idAktif;
+    await muatDataPesanan();
+    renderListPesanan('semua');
+    
+    if (backupId && dataPesanan[backupId]) {
+        const cardTarget = document.querySelector(`.item-pesanan[data-id="${backupId}"]`);
+        if (cardTarget) bukaPesanan(backupId, cardTarget);
+    } else {
+        kembaliKeList();
+    }
+}
+
 function kembaliKeList() {
     document.getElementById('detailKosong').style.display = 'flex';
     document.getElementById('detailIsi').style.display    = 'none';
@@ -254,55 +210,35 @@ function kembaliKeList() {
     idAktif = null;
 }
 
+// ============================================================
+// TIMELINE LOADER MANAGEMENT
+// ============================================================
+async function muatTimelineKlien(id) {
+    const box = document.getElementById('timelineKonten');
+    if (!box) return;
+    box.innerHTML = 'Memuat riwayat...';
 
-// ============================================================
-// INTERAKSI MODAL INPUT TIMBANGAN BERAT
-// ============================================================
-function bukaModalTimbang() {
-    const modal = document.getElementById('modalTimbang');
-    const overlay = document.getElementById('overlayTimbang');
-    if (modal && overlay) {
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
+    try {
+        const res = await fetch(`pesanan.php?action=get_timeline&id=${id}`);
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+            box.innerHTML = json.data.map(r => `
+                <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">
+                    <span style="color:var(--tealmuda); font-weight:bold;">[${_labelStatus[r.status_baru] || r.status_baru}]</span> 
+                    <small style="opacity:0.7; float:right;">${r.changed_at}</small>
+                    <p style="margin:2px 0 0; font-size:0.8rem; opacity:0.9;">Oleh: ${r.dilakukan_oleh} — ${r.keterangan || ''}</p>
+                </div>
+            `).join('');
+        } else {
+            box.innerHTML = '<span style="font-style:italic; opacity:0.6;">Belum ada lini masa riwayat.</span>';
+        }
+    } catch (err) {
+        box.innerHTML = 'Gagal memuat timeline.';
     }
 }
 
-function tutupModalTimbang() {
-    const modal = document.getElementById('modalTimbang');
-    const overlay = document.getElementById('overlayTimbang');
-    if (modal && overlay) {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-    }
-}
-
-/**
- * Memvalidasi input berat dari modal, mengirim data via POST, lalu merefresh halaman detail
- */
-async function eksekusiSimpanTimbangan() {
-    const inputBerat = document.getElementById('inputBeratModal');
-    const beratValue = parseFloat(inputBerat ? inputBerat.value : 0);
-
-    if (isNaN(beratValue) || beratValue <= 0) {
-        alert('Masukkan berat timbangan cucian yang valid (Minimal 0.1 kg).');
-        return;
-    }
-
-    // Ubah status ke sedang_dicuci sambil mengirimkan berat aktual dari modal
-    await _updateStatusPesanan(idAktif, 'sedang_dicuci', null, null, beratValue);
-    await muatDataPesanan();
-    renderListPesanan('semua');
-    
-    // Sinkronisasikan ulang isi panel detail kanan agar nominal harganya terupdate otomatis
-    const itemTarget = document.querySelector(`.item-pesanan[data-id="${idAktif}"]`);
-    if (itemTarget) bukaPesanan(idAktif, itemTarget);
-
-    tutupModalTimbang();
-}
-
-
 // ============================================================
-// FILTER LIST PESANAN (admin/pesanan.php)
+// FILTER LIST SIDEBAR PESANAN
 // ============================================================
 function filterPesanan(status, btn) {
     document.querySelectorAll('.tombol-filter').forEach(b => b.classList.remove('aktif'));
@@ -310,83 +246,9 @@ function filterPesanan(status, btn) {
     renderListPesanan(status);
 }
 
-
-// ============================================================
-// FILTER RIWAYAT (member/riwayat.php)
-// ============================================================
-function filterRiwayat(filter, btn) {
-    document.querySelectorAll('#grupFilterRiwayat .tombol-filter').forEach(b => b.classList.remove('aktif'));
-    btn.classList.add('aktif');
-
-    document.querySelectorAll('.kartu-riwayat').forEach(item => {
-        const cocok = filter === 'semua' || item.dataset.filter === filter;
-        item.style.display = cocok ? 'flex' : 'none';
-    });
-
-    const adaYangTampil = [...document.querySelectorAll('.kartu-riwayat')].some(item => item.style.display !== 'none');
-    const kosongEl = document.getElementById('riwayatKosong');
-    if (kosongEl) kosongEl.style.display = adaYangTampil ? 'none' : 'flex';
-}
-
-
-// ============================================================
-// BATALKAN PESANAN — ADMIN (admin/pesanan.php)
-// ============================================================
-let _idAkanDibatalAdmin = null;
-
-function batalkanPesananAdmin(id) {
-    _idAkanDibatalAdmin = id;
-    const p = dataPesanan[id];
-    if (!p) return;
-
-    document.getElementById('popupBatalAdminTeks').textContent = `Pesanan #${p.kode} (${p.layanan}) milik ${p.nama} akan dibatalkan.`;
-    document.querySelectorAll('input[name="alasanBatal"]').forEach(r => r.checked = false);
-    
-    const inputLainnya = document.getElementById('inputAlasanLainnya');
-    if (inputLainnya) inputLainnya.value = '';
-
-    document.getElementById('overlayBatalAdmin').style.display = 'block';
-    document.getElementById('popupBatalAdmin').style.display   = 'block';
-}
-
-function tutupPopupBatalAdmin() {
-    _idAkanDibatalAdmin = null;
-    document.getElementById('overlayBatalAdmin').style.display = 'none';
-    document.getElementById('popupBatalAdmin').style.display   = 'none';
-}
-
-async function eksekusiBatalAdmin() {
-    if (!_idAkanDibatalAdmin) return;
-    const id = _idAkanDibatalAdmin;
-
-    const radioTerpilih = document.querySelector('input[name="alasanBatal"]:checked');
-    if (!radioTerpilih) {
-        alert('Pilih alasan pembatalan terlebih dahulu.');
-        return;
-    }
-
-    let alasanTeks = radioTerpilih.value;
-    if (alasanTeks === 'lainnya') {
-        const inputLainnya = document.getElementById('inputAlasanLainnya');
-        alasanTeks = inputLainnya?.value.trim() || 'Dibatalkan oleh admin.';
-    }
-
-    await _updateStatusPesanan(id, 'dibatalkan', alasanTeks, 'admin');
-    await muatDataPesanan();
-    renderListPesanan('semua');
-
-    if (idAktif == id) setStatusUI('dibatalkan');
-    tutupPopupBatalAdmin();
-}
-
-
-// ============================================================
-// RENDER LIST PESANAN (admin/pesanan.php — sidebar kiri)
-// ============================================================
 function renderListPesanan(filterStatus) {
     const listEl = document.getElementById('listPesanan');
     if (!listEl) return;
-
     listEl.innerHTML = '';
 
     const entri = Object.entries(dataPesanan)
@@ -400,31 +262,67 @@ function renderListPesanan(filterStatus) {
 
     entri.forEach(([id, p]) => {
         const badgeKelas = _kelasStatus[p.status] || 'badge-status';
-        const tagsHTML   = (p.tags || []).map(t => `<span class="badge-${t.tipe}">${t.label}</span>`).join('');
-
         listEl.insertAdjacentHTML('beforeend', `
-            <div class="item-pesanan" data-id="${id}" data-status="${p.status}" onclick="bukaPesanan(${id}, this)">
+            <div class="item-pesanan ${idAktif == id ? 'aktif-dipilih' : ''}" data-id="${id}" onclick="bukaPesanan(${id}, this)">
                 <div class="item-pesanan-atas">
                     <span class="${badgeKelas}">${_labelStatus[p.status] || p.status}</span>
                     <span class="item-pesanan-waktu">${p.waktu}</span>
                 </div>
                 <p class="item-pesanan-kode">#${p.kode}</p>
                 <p class="item-pesanan-nama">${p.nama}</p>
-                <div class="item-pesanan-tags">${tagsHTML}</div>
+                <small style="color:rgba(255,255,255,0.6); font-size:0.8rem;">📦 ${p.layanan}</small>
             </div>
         `);
     });
 }
 
+// ============================================================
+// BATALKAN PESANAN — ADMIN 
+// ============================================================
+function batalkanPesananAdmin(id) {
+    const p = dataPesanan[id];
+    if (!p) return;
 
-// ============================================================
-// INISIALISASI STARTUP HALAMAN LOAD
-// ============================================================
+    // Mengikat radio button 'lainnya' dengan input field kustom
+    const radios = document.querySelectorAll('input[name="alasanBatal"]');
+    const wrapperLainnya = document.getElementById('wrapperAlasanLainnya');
+    
+    radios.forEach(r => {
+        r.addEventListener('change', () => {
+            if (wrapperLainnya) wrapperLainnya.style.display = (r.value === 'lainnya') ? 'block' : 'none';
+        });
+    });
+
+    document.getElementById('overlayBatalAdmin').style.display = 'block';
+    document.getElementById('popupBatalAdmin').style.display   = 'block';
+}
+
+function tutupPopupBatalAdmin() {
+    document.getElementById('overlayBatalAdmin').style.display = 'none';
+    document.getElementById('popupBatalAdmin').style.display   = 'none';
+}
+
+async function eksekusiBatalAdmin() {
+    const radioTerpilih = document.querySelector('input[name="alasanBatal"]:checked');
+    if (!radioTerpilih) {
+        alert('Pilih salah satu alasan pembatalan.');
+        return;
+    }
+
+    let alasanTeks = radioTerpilih.value;
+    if (alasanTeks === 'lainnya') {
+        alasanTeks = document.getElementById('inputAlasanLainnya').value.trim() || 'Dibatalkan oleh admin.';
+    }
+
+    await _updateStatusPesanan(idAktif, 'dibatalkan', alasanTeks, 'admin');
+    tutupPopupBatalAdmin();
+    await segarkanUlangDataDashboard();
+}
+
+// INITIALIZATION LISTENER
 document.addEventListener('DOMContentLoaded', async () => {
-    // Jalankan interaksi menu hamburger & click outside di halaman manapun
-    inisialisasiInteraksiGlobal();
+    if (typeof inisialisasiInteraksiGlobal === 'function') inisialisasiInteraksiGlobal();
 
-    // Khusus halaman admin pesanan, muat records database
     if (document.getElementById('listPesanan')) {
         await muatDataPesanan();
         renderListPesanan('semua');
