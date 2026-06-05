@@ -111,8 +111,5 @@ include 'includes/header.php';
         <div class="bulat-ditengah-form"></div>
         <div class="bulat-besar-form"><h2>CleanCo</h2></div>
     </section>
-
-<?php 
-// PANGGIL FOOTER DI SINI UNTUK MENUTUP KERANGKA HTML
-include 'includes/footer.php'; 
-?>
+</body>
+</html>

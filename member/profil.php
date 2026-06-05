@@ -164,13 +164,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                     <span class="profil-stat-label">Total Belanja</span>
                 </div>
             </div>
-
-            <!-- Dekorasi lingkaran -->
-            <div class="bulat-atas" style="top:20%; right:3%;"></div>
-            <div class="bulat-ditengah" style="bottom:10%; right:15%;"></div>
-            <div class="bulat-besar" style="right:-20px; bottom:-70px;">
-                <h2>CleanCo</h2>
-            </div>
         </div>
 
         <!-- ── KONTEN BAWAH ── -->

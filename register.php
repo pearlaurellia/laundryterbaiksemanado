@@ -165,8 +165,5 @@ include 'includes/header.php';
     <?php endif; ?>
     
     <script src="assets/js/form-validation.js"></script>
-
-<?php 
-// PANGGIL FOOTER DI SINI UNTUK MENUTUP KERANGKA HTML
-include 'includes/footer.php'; 
-?>
+</body>
+</html>

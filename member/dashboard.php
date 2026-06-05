@@ -43,19 +43,7 @@ $pesanan_terbaru = $stmtTerbaru->fetchAll() ?: [];
 $stmtInfo = $pdo->query("SELECT * FROM info_website LIMIT 1");
 $info = $stmtInfo->fetch();
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - CleanCo</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-</head>
-<body>
+
     <?php include '../includes/header-member.php'; ?>
 
     <!-- HERO -->
@@ -74,14 +62,6 @@ $info = $stmtInfo->fetch();
         <div class="bulat-atas"></div>
         <div class="bulat-ditengah"></div>
         <div class="bulat-besar"><h2>CleanCo</h2></div>
-    </section>
-
-    <!-- KARTU JUMLAH PESANAN AKTIF -->
-    <section class="kartu-stat-section">
-        <div class="kartu-stat">
-            <span class="kartu-stat-angka"><?= $jumlah_aktif ?></span>
-            <span class="kartu-stat-label">Pesanan Aktif</span>
-        </div>
     </section>
 
     <!-- LAYANAN OVERVIEW — dari database -->
@@ -178,7 +158,7 @@ $info = $stmtInfo->fetch();
 
     <!-- PREVIEW 3 PESANAN TERBARU -->
     <section class="sejarah-pesanan">
-        <h3 style="padding:0 24px 12px;">Pesanan Terbaru</h3>
+        <h3 style="padding:0 24px 12px; text-align:center;">Riwayat Pesanan</h3>
         <div class="kartu-sejarah-container">
             <?php if (empty($pesanan_terbaru)): ?>
                 <p style="color:#aaa; padding:20px;">Belum ada pesanan.</p>
@@ -242,5 +222,3 @@ $info = $stmtInfo->fetch();
     </section>
 
     <?php include '../includes/footer.php'; ?>
-</body>
-</html>
