@@ -1,9 +1,11 @@
-let idAktif        = null;
+'use strict';
+
+let idAktif = null;
 let aksiToggleSaat = null;
 
 function bukaMember(id, el) {
     idAktif = id;
-    const m = dataMember[id]; // dataMember diisi dari PHP via <script> di member.php
+    const m = dataMember[id]; 
     if (!m) return;
 
     document.querySelectorAll('.item-member').forEach(i => i.classList.remove('aktif-dipilih'));
@@ -24,19 +26,18 @@ function bukaMember(id, el) {
     document.getElementById('detailPesananSelesai').textContent = 'Selesai & Lunas : ' + m.pesananSelesai;
     document.getElementById('detailPesananAktif').textContent   = 'Sedang Aktif : '    + m.pesananAktif;
     document.getElementById('detailPesananBatal').textContent   = 'Dibatalkan : '       + m.pesananBatal;
-    document.getElementById('detailTotalOmzet').textContent     =
-        'Total Nilai : Rp ' + Number(m.totalOmzet).toLocaleString('id-ID');
+    document.getElementById('detailTotalOmzet').textContent     = 'Total Nilai : Rp ' + Number(m.totalOmzet).toLocaleString('id-ID');
 
-    // Riwayat singkat
+    // Render list 3 pesanan terakhir secara dinamis
     const riwayatEl = document.getElementById('detailRiwayatSingkat');
     if (!m.riwayatSingkat || m.riwayatSingkat.length === 0) {
         riwayatEl.innerHTML = '<p style="color:#aaa;font-size:0.9rem;">Belum ada pesanan.</p>';
     } else {
         riwayatEl.innerHTML = m.riwayatSingkat.map(r => {
-            const warna = r.status === 'selesai'    ? '#52c49c'
+            const warna = r.status === 'selesai' ? '#52c49c'
                         : r.status === 'dikonfirmasi' || r.status === 'sedang_dicuci' ? '#3b82f6'
-                        : r.status === 'dibatalkan' ? '#f87171'
-                        : '#aaa';
+                        : r.status === 'dibatalkan' ? '#f87171' : '#aaa';
+            
             const labelStatus = {
                 selesai: 'Selesai', dikonfirmasi: 'Dikonfirmasi',
                 sedang_dicuci: 'Dicuci', siap_diambil: 'Siap Diambil',
@@ -45,21 +46,19 @@ function bukaMember(id, el) {
             }[r.status] || r.status;
 
             return `
-                <div class="baris-riwayat-singkat">
-                    <span class="riwayat-kode">#${r.kode}</span>
+                <div class="baris-riwayat-singkat" style="display:flex; justify-content:space-between; margin-bottom:8px; background:#f9fafb; padding:10px; border-radius:8px;">
+                    <span class="riwayat-kode" style="font-weight:bold;">#${r.kode}</span>
                     <span class="riwayat-layanan">${r.layanan}</span>
-                    <span class="riwayat-total">${r.total}</span>
-                    <span class="riwayat-status-badge"
-                          style="background:${warna}20;color:${warna};">
+                    <span class="riwayat-total" style="color:var(--tealmuda); font-weight:600;">${r.total}</span>
+                    <span class="riwayat-status-badge" style="background:${warna}20; color:${warna}; padding:2px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">
                         ${labelStatus}
                     </span>
                 </div>`;
         }).join('');
     }
 
-    document.getElementById('tombolWA').href =
-        'https://wa.me/62' + m.noHP.replace(/^0/, '');
-
+    // Normalisasi format link WhatsApp Gateway Indonesia (62)
+    document.getElementById('tombolWA').href = 'https://wa.me/62' + m.noHP.replace(/^0/, '');
     setStatusAkunUI(m.status);
 }
 
@@ -74,7 +73,7 @@ function setStatusAkunUI(status) {
         tombolAktif.style.display = 'none';
         tombolNon.style.display   = 'inline-block';
     } else {
-        teksEl.textContent        = 'Nonaktif';
+        teksEl.textContent        = 'Nonaktif (Banned)';
         teksEl.style.color        = '#f87171';
         tombolAktif.style.display = 'inline-block';
         tombolNon.style.display   = 'none';
@@ -84,13 +83,12 @@ function setStatusAkunUI(status) {
 function toggleStatusMember(aksi) {
     aksiToggleSaat = aksi;
     const m = dataMember[idAktif];
+    if (!m) return;
 
-    document.getElementById('popupJudul').textContent =
-        aksi === 'nonaktif' ? 'Nonaktifkan Akun?' : 'Aktifkan Kembali Akun?';
-    document.getElementById('popupTeks').textContent =
-        aksi === 'nonaktif'
-            ? `${m.nama} tidak akan bisa login setelah dinonaktifkan.`
-            : `${m.nama} akan bisa login kembali ke sistem.`;
+    document.getElementById('popupJudul').textContent = aksi === 'nonaktif' ? 'Nonaktifkan Akun?' : 'Aktifkan Kembali Akun?';
+    document.getElementById('popupTeks').textContent = aksi === 'nonaktif'
+        ? `${m.nama} tidak akan bisa login atau membuat pesanan fiktif setelah dinonaktifkan.`
+        : `${m.nama} akan dipulihkan hak akses loginnya ke dalam sistem.`;
 
     const tombolKonfirm = document.getElementById('popupTombolKonfirm');
     tombolKonfirm.style.backgroundColor = aksi === 'nonaktif' ? '#f87171' : '#52c49c';
@@ -100,30 +98,45 @@ function toggleStatusMember(aksi) {
     document.getElementById('popupKonfirmasi').style.display = 'block';
 }
 
+// PERBAIKAN: Validasi ketat membaca kiriman respons balik server database
 async function konfirmasiToggle() {
     if (!idAktif || !aksiToggleSaat) return;
 
-    await fetch(`member.php?action=toggle_status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `id=${idAktif}&status=${aksiToggleSaat}`
-    });
+    try {
+        const response = await fetch(`member.php?action=toggle_status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${idAktif}&status=${aksiToggleSaat}`
+        });
 
-    // Update data lokal dan UI tanpa reload
-    dataMember[idAktif].status = aksiToggleSaat;
+        const json = await response.json();
 
-    const itemEl  = document.querySelector(`.item-member[data-id="${idAktif}"]`);
-    const badgeEl = itemEl?.querySelector('.badge-status-member');
-    if (badgeEl) {
-        badgeEl.textContent = aksiToggleSaat === 'aktif' ? 'Aktif' : 'Nonaktif';
-        badgeEl.className   = aksiToggleSaat === 'aktif'
-            ? 'badge-status-member badge-member-aktif'
-            : 'badge-status-member badge-member-nonaktif';
-        itemEl.dataset.status = aksiToggleSaat;
+        if (json.success) {
+            // Sinkronisasi data lokal state runtime
+            dataMember[idAktif].status = aksiToggleSaat;
+
+            // Mutasi komponen visual di sidebar tanpa refresh
+            const itemEl  = document.querySelector(`.item-member[data-id="${idAktif}"]`);
+            const badgeEl = itemEl?.querySelector('.badge-status-member');
+            if (badgeEl) {
+                badgeEl.textContent = aksiToggleSaat === 'aktif' ? 'Aktif' : 'Nonaktif';
+                badgeEl.className   = aksiToggleSaat === 'aktif'
+                    ? 'badge-status-member badge-member-aktif'
+                    : 'badge-status-member badge-member-nonaktif';
+                itemEl.dataset.status = aksiToggleSaat;
+            }
+
+            setStatusAkunUI(aksiToggleSaat);
+            alert(`Status akun member berhasil diubah menjadi ${aksiToggleSaat}!`);
+        } else {
+            alert(json.message || 'Gagal mengubah status akun member.');
+        }
+    } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Gangguan koneksi Apache server lokal.');
+    } finally {
+        tutupPopup();
     }
-
-    setStatusAkunUI(aksiToggleSaat);
-    tutupPopup();
 }
 
 function tutupPopup() {
