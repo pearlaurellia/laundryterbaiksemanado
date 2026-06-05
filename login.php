@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <section class="hero-form">
         <div class="konten-form">
-            <h1 class="judul-form">Masuk Member CleanCo</h1>
+            <h1 class="judul-form">Masuk Akun CleanCo</h1>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error" style="background: #ffe3e3; color: #cc0000; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: left; border-left: 4px solid #cc0000;">
