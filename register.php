@@ -59,22 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sukses = true;
     }
 }
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - CleanCo</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-</head>
-<body>
 
-    <?php include 'includes/header.php'; ?>
+// PANGGIL HEADER DI SINI
+include 'includes/header.php'; 
+?>
 
     <section class="hero-form">
         <div class="konten-form konten-form-daftar">
@@ -159,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($sukses): ?>
     <div class="overlay-popup" id="overlay"></div>
 
-    <div class="popup-sukses-pesanan" id="popupSukses">
+    <div class="popup-sukses-pesanan" id="popupSukses" style="display: block;">
         
         <div class="popup-sukses-atas">
             <div class="popup-sukses-ikon">✨</div>
@@ -177,5 +165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     
     <script src="assets/js/form-validation.js"></script>
-</body>
-</html>
+
+<?php 
+// PANGGIL FOOTER DI SINI UNTUK MENUTUP KERANGKA HTML
+include 'includes/footer.php'; 
+?>

@@ -13,6 +13,16 @@ if (isset($_SESSION['id_user'])) {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area - Laundry</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
 <header class="header">
     <nav class="nav-left">
         <ul>
@@ -20,8 +30,12 @@ if (isset($_SESSION['id_user'])) {
                 <a href="dashboard.php" class="tombol-daun">Beranda</a>
             </li>
             <li>
+                <a href="pesan.php" class="tombol-daun">Pesan</a>
+            </li>
+            <li>
                 <a href="status.php" class="tombol-daun" style="position:relative;">
                     Status Pesanan
+                    <?php if ($jumlahBadge > 0): ?>
                     <span id="badgeNotifStatus"
                           style="
                             position:absolute;
@@ -40,15 +54,16 @@ if (isset($_SESSION['id_user'])) {
                             line-height:1;
                             box-shadow:0 1px 4px rgba(0,0,0,0.2);
                           ">
-                        1
+                        <?php echo $jumlahBadge; ?>
                     </span>
+                    <?php endif; ?>
                 </a>
             </li>
             <li>
                 <a href="riwayat.php" class="tombol-daun">Riwayat</a>
             </li>
             <li>
-                <a href="kontak.php" class="tombol-daun">Kontak</a>
+                <a href="../kontak.php" class="tombol-daun">Kontak</a>
             </li>
         </ul>
     </nav>
