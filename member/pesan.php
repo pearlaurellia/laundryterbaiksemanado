@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              data-opsi-pengantaran="<?= htmlspecialchars($pesanan_baru['opsi_pengantaran'] ?? '') ?>"
              data-kecamatan="<?= htmlspecialchars($pesanan_baru['kecamatan'] ?? '') ?>"
              data-estimasi-biaya="<?= (isset($pesanan_baru['estimasi_biaya']) && $pesanan_baru['estimasi_biaya'] !== null) ? $pesanan_baru['estimasi_biaya'] : 'null' ?>"
-             data-no-wa-admin="<?= htmlspecialchars($pesanan_baru['no_wa_admin'] ?? '') ?>">
+             data-no-wa-admin="<?= htmlspecialchars($no_whatsapp_admin) ?>"
 
             <h1 class="judul-form judul-form-kiri">Buat Pesanan Baru</h1>
             <p class="subjudul-pesan">Isi form di bawah untuk memulai pesanan laundry kamu.</p>

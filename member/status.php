@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../config/functions.php';
 
 // PERBAIKAN 1: Auto-Fallback agar tidak peduli apakah session kelompokmu bernama id_user atau user_id
-$id_member = $_SESSION['id_user'] ?? $_SESSION['user_id'] ?? 0;
+$id_member = $_SESSION['id_user'];
 
 // ── Handler POST: batalkan pesanan oleh member ───────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'batalkan') {
@@ -72,7 +72,12 @@ if ($notif_batal) {
 $stmtReset = $pdo->prepare("
     UPDATE pesanan
     SET sudah_dilihat_member = 1
-    WHERE id_member = ? AND status_pesanan != 'dibatalkan'
+    WHERE id_member = ?
+      AND NOT (
+          status_pesanan  = 'dibatalkan'
+          AND dibatalkan_oleh      = 'admin'
+          AND sudah_dilihat_member = 0
+      )
 ");
 $stmtReset->execute([$id_member]);
 
@@ -280,6 +285,27 @@ $steps_ambil = [
 
     <script src="../assets/js/main.js"></script>
     <script src="../assets/js/status-refresh.js"></script>
+    <script>
+    // Popup konfirmasi batalkan pesanan
+    function konfirmasiBatal(id, kode, namaLayanan) {
+        document.getElementById('popupBatalTeks').textContent =
+            'Pesanan #' + kode + ' (' + namaLayanan + ') akan dibatalkan dan tidak dapat dikembalikan.';
+        document.getElementById('inputIdPesananBatal').value = id;
+        document.getElementById('overlayPopup').style.display = 'block';
+        document.getElementById('popupBatal').style.display   = 'block';
+    }
+
+    function tutupPopupBatal() {
+        document.getElementById('overlayPopup').style.display = 'none';
+        document.getElementById('popupBatal').style.display   = 'none';
+    }
+
+    // Popup notifikasi pesanan dibatalkan admin
+    function tutupNotifBatal() {
+        document.getElementById('overlayNotifBatal').style.display = 'none';
+        document.getElementById('popupNotifBatal').style.display   = 'none';
+    }
+    </script>
     <?php include '../includes/footer.php'; ?>
 </body>
 </html>
