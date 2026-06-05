@@ -32,10 +32,9 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
     <?php include '../includes/header-member.php'; ?>
 
     <section class="riwayat-section">
-
         <div class="riwayat-header">
-            <h1 class="status-judul">Riwayat Pesanan</h1>
-            <p class="status-subjudul">
+            <h1 class="judul-overview-layanan">Riwayat Pesanan</h1>
+            <p class="status-subjudul" style="text-align:center; margin-top:8px;">
                 Arsip seluruh pesanan yang telah selesai atau dibatalkan.
             </p>
         </div>
@@ -57,7 +56,7 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
         <?php else: ?>
 
         <!-- Filter tombol -->
-        <div class="grup-filter riwayat-filter">
+        <div class="grup-filter riwayat-filter" style="justify-content:center; margin-bottom:30px;">
             <button class="tombol-filter aktif"
                     onclick="filterRiwayat('semua', this)">
                 Semua

@@ -18,7 +18,7 @@ include 'includes/header.php';
             <div class="layanan-kanan-header">
                 <h2 class="judul-layanan-kanan">Daftar Layanan</h2>
                 <p class="subjudul-layanan-kanan">
-                    Perubahan di sini otomatis memengaruhi halaman publik dan form pemesanan member.
+                    Temukan layanan yang paling pas untuk kebutuhan Anda!
                 </p>
             </div>
 
@@ -47,7 +47,6 @@ include 'includes/header.php';
                         <span class="kartu-layanan-admin-nama"><?= htmlspecialchars($layanan['nama_layanan']) ?></span>
                         <span class="kartu-layanan-admin-tarif">Rp <?= number_format($layanan['tarif_per_kg'], 0, ',', '.') ?> / <?= $satuan ?></span>
                     </div>
-
                     <div class="kartu-layanan-admin-body">
                         <p class="kartu-layanan-admin-deskripsi"><?= htmlspecialchars($layanan['deskripsi']) ?></p>
                         <div class="kartu-layanan-admin-detail">

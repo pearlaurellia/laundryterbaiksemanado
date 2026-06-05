@@ -281,7 +281,7 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                             <p class="pesan-konfirmasi" id="pesanKonfirmasi"></p>
                         </div>
 
-                        <button type="submit" class="tombol-submit-form">
+                        <button type="submit" class="tombol-submit-form" style="background-color:#52c49c; color:white; margin-top:10px;">
                             Ganti Password
                         </button>
                     </form>

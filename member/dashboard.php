@@ -91,6 +91,7 @@ $info = $stmtInfo->fetch();
 
     <!-- PESANAN AKTIF -->
     <section class="preview-pesanan-aktif">
+        <h3 class="judul-overview-layanan-biru">Pesanan Aktif</h3>
         <?php if ($pesanan_aktif): ?>
             <div class="kartu-pesanan-aktif">
                 <div class="pesanan-aktif-kiri">
@@ -158,22 +159,24 @@ $info = $stmtInfo->fetch();
 
     <!-- PREVIEW 3 PESANAN TERBARU -->
     <section class="sejarah-pesanan">
-        <h3 style="padding:0 24px 12px; text-align:center;">Riwayat Pesanan</h3>
+        <h3 class="judul-overview-layanan">Riwayat Pesanan</h3>
         <div class="kartu-sejarah-container">
             <?php if (empty($pesanan_terbaru)): ?>
                 <p style="color:#aaa; padding:20px;">Belum ada pesanan.</p>
             <?php else: ?>
                 <?php foreach ($pesanan_terbaru as $r):
                     $badge_status = [
-                        'menunggu_konfirmasi' => 'Menunggu',
-                        'dikonfirmasi'        => 'Dikonfirmasi',
-                        'sedang_dicuci'       => 'Sedang Dicuci',
-                        'siap_diambil'        => 'Siap Diambil',
-                        'sedang_diantar'      => 'Sedang Diantar',
-                        'selesai'             => 'Selesai',
-                        'dibatalkan'          => 'Dibatalkan',
-                    ][$r['status_pesanan']] ?? $r['status_pesanan'];
-                ?>
+                        'menunggu_konfirmasi' => ['label' => 'Menunggu', 'class' => 'badge-kuning'],
+                        'dikonfirmasi'        => ['label' => 'Dikonfirmasi', 'class' => 'badge-kuning'],
+                        'sedang_dicuci'       => ['label' => 'Sedang Dicuci', 'class' => 'badge-biru'],
+                        'siap_diambil'        => ['label' => 'Siap Diambil', 'class' => 'badge-biru'],
+                        'sedang_diantar'      => ['label' => 'Sedang Diantar', 'class' => 'badge-biru'],
+                        'selesai'             => ['label' => 'Selesai', 'class' => 'badge-hijau'],
+                        'dibatalkan'          => ['label' => 'Dibatalkan', 'class' => 'badge-merah'],
+                        ];
+
+                    $status_config = $badge_status[$r['status_pesanan']] ?? ['label' => $r['status_pesanan'], 'class' => 'badge-status-baru'];?>
+                    
                     <div class="kartu-sejarah">
                         <div class="sejarah-body">
                             <div class="grup-keterangan">
@@ -187,7 +190,7 @@ $info = $stmtInfo->fetch();
                                 <?php if ($r['berat_aktual'] > 0): ?>
                                     <span class="badge-biru"><?= $r['berat_aktual'] ?>kg</span>
                                 <?php endif; ?>
-                                <span class="badge-biru"><?= $badge_status ?></span>
+                                <span class="<?= $status_config['class'] ?>"><?= $status_config['label'] ?></span>
                             </div>
                             <p>Total harga: Rp <?= number_format($r['total_harga'], 0, ',', '.') ?></p>
                             <a href="detail-pesanan.php?id=<?= $r['id'] ?>" class="tombol-detail">

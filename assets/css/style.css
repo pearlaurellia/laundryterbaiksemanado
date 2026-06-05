@@ -202,6 +202,7 @@ body {
     padding: 10px 20px 10px;
     flex-grow: 1;
     position: relative;
+    min-height: 150px;
 }
 
 .kartu-body p,  .kartu-body ul {
@@ -259,6 +260,20 @@ body {
     font-weight: 500;
     border-radius: 20px 0px 20px 0px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
+}
+
+.judul-overview-layanan-biru {
+    justify-self: center;
+    width: 450px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.313);
+    color: white;
+    padding: 12px 28px;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 500;
+    border-radius: 20px 0px 20px 0px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
+    border: 2px solid white;
 }
 
 .teks-overview-layanan {
@@ -360,7 +375,7 @@ body {
     padding: 0px 40px 0px 0px;
 }
 
-.badge-hijau, .badge-biru {
+.badge-hijau, .badge-biru, .badge-merah, .badge-kuning {
     padding: 8px 24px;
     border-radius: 25px; 
     font-weight: 500;
@@ -375,6 +390,16 @@ body {
 .badge-biru {
     background-color: #3b82f6;
     color: white;
+}
+
+.badge-merah {
+    background-color: #ff4d4f;
+    color: white;
+}
+
+.badge-kuning {
+    background-color: #fadb14;
+    color: #333;
 }
 
 .status-teks {
@@ -436,7 +461,7 @@ body {
 
 .preview-pesanan-aktif {
     width: 100%;
-    padding: 50px 80px;
+    padding: 100px 50px 150px 50px;
     height: fit-content;
     background: linear-gradient(#2A74BD, #3393BC);
 }
@@ -455,6 +480,7 @@ body {
 
 .kartu-sejarah {
     width: 900px;
+    height: fit-content;
     background-color: #52c49c;
     border-radius: 0px 20px 20px 20px;
     overflow: hidden;
@@ -479,6 +505,7 @@ body {
     padding: 15px 30px 0px;
     flex-grow: 1;
     position: relative;
+    min-height: 150px;
 }
 
 .tombol-detail {
@@ -931,11 +958,12 @@ body {
     flex-direction: column;
     gap: 6px;
     margin-bottom: 18px;
-    width: 100%;
+    width: 150%;
 }
 
 .label-form {
-    color: white;
+    margin-top: 20px;
+    color: black;
     font-size: 0.95rem;
 }
 
@@ -1546,6 +1574,12 @@ body {
     overflow-y: auto;
 }
 
+.status-kanan {
+    flex: 1;
+    padding: 40px 50px;
+    overflow-y: auto;
+}
+
 .layanan-kanan-header {
     margin-bottom: 28px;
 }
@@ -1632,7 +1666,7 @@ body {
 .kartu-layanan-admin-detail {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap:   wrap;
     justify-content: flex-end;
 }
 
@@ -1965,7 +1999,7 @@ body {
 .kartu-pilih-layanan:hover { border-color: rgba(255,255,255,0.6); }
 
 .kartu-pilih-layanan.dipilih {
-    border-color: white;
+    border-color: #52c49c;
     background-color: white;
 }
 
@@ -2555,7 +2589,7 @@ body {
 }
 
 .input-profil {
-    width: 100%;
+    max-width: 490px;
     padding: 11px 16px;
     border: 2px solid #e8e8e8;
     border-radius: 20px 0px 20px 0px;
@@ -2907,6 +2941,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    align-items: center;
 }
 
 /* Kartu riwayat */
