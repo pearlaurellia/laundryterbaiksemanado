@@ -15,7 +15,7 @@
 
 <div class="laporan-container">
     <!-- SIDEBAR FILTER -->
-    <aside class="laporan-sidebar">
+    <aside class="pesanan-sidebar">
         <h2 class="judul-sidebar">Laporan</h2>
         
         <div class="filter-group">
