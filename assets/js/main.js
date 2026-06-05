@@ -2,29 +2,17 @@
  * ============================================================
  * main.js — CleanCo Laundry
  * Core JS untuk admin/pesanan.php dan member/riwayat.php
- *
- * BACKEND INTEGRATION NOTES:
- * Semua fungsi yang berinteraksi dengan data kini menggunakan
- * fetch() ke endpoint PHP. Tidak ada lagi localStorage atau
- * data dummy di file ini.
- *
- * ENDPOINT YANG DIBUTUHKAN (lihat komentar di tiap fungsi):
- *   GET  /api/pesanan                          → ambil semua pesanan (admin)
- *   POST /api/pesanan/:id/status               → update status pesanan
- *   GET  /api/member/riwayat                   → ambil riwayat pesanan member
+ * Murni Native JavaScript (Tanpa Library/Framework)
  * ============================================================
  */
 
 'use strict';
 
 // ── GLOBAL STATE ─────────────────────────────────────────────
-// dataPesanan: cache pesanan yang sedang ditampilkan di halaman admin.
-// Diisi oleh muatDataPesanan() saat halaman load dan setelah setiap update.
 let dataPesanan = {};
 let idAktif     = null; // ID pesanan yang sedang dibuka di panel detail
 
 // ── LABEL & KELAS BADGE ───────────────────────────────────────
-// Dipakai bersama oleh renderListPesanan, bukaPesanan, dan riwayat.
 const _labelStatus = {
     menunggu_konfirmasi : 'Menunggu Konfirmasi',
     dikonfirmasi        : 'Dikonfirmasi',
@@ -45,7 +33,7 @@ const _kelasStatus = {
     dibatalkan          : 'badge-status badge-status-batal'
 };
 
-// ── HELPER FORMAT ─────────────────────────────────────────────
+// ── HELPER FORMAT CURRENCY ────────────────────────────────────
 const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
 
@@ -54,57 +42,12 @@ const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 // ============================================================
 
 /**
- * Muat semua pesanan dari server dan simpan ke dataPesanan.
- *
- * BACKEND:
- *   GET /api/pesanan
- *   Response JSON:
- *   {
- *     "success": true,
- *     "data": {
- *       "<id>": {
- *         "id": <int>,
- *         "kode": "LDR-20261204-3847",
- *         "nama": "Ryan Liam",
- *         "username": "@liam999",
- *         "namaLengkap": "Ryan Liam Santoso",
- *         "telpon": "0834545827",
- *         "alamat": "Jl. Paal 4 No.12",
- *         "kecamatan": "Wanea",
- *         "layanan": "Express",
- *         "pengiriman": "Antar",
- *         "tarifLayanan": 15000,
- *         "tarifKirim": 10000,
- *         "berat": null,           // float|null — null sebelum ditimbang
- *         "note": "...",           // string|null
- *         "opsi": "kurir",         // "kurir"|"ambil_sendiri"
- *         "status": "menunggu_konfirmasi",
- *         "waktu": "10:00 Rabu, 04-12-2026",
- *         "tags": [
- *           { "label": "Express", "tipe": "biru" },
- *           { "label": "Antar",   "tipe": "biru" }
- *         ],
- *         "alasanBatal": null,
- *         "dibatalkanOleh": null
- *       },
- *       ...
- *     }
- *   }
- *
- *   PHP contoh (admin/api/pesanan.php):
- *   $rows = $pdo->query("
- *       SELECT p.*, u.nama, u.username, u.no_hp AS telpon,
- *              l.nama_layanan AS layanan, l.tarif_per_kg AS tarifLayanan
- *       FROM pesanan p
- *       JOIN users u ON p.id_member = u.id
- *       JOIN layanan l ON p.id_layanan = l.id
- *       ORDER BY p.id DESC
- *   ")->fetchAll();
- *   // Petakan ke struktur objek berlabel ID lalu json_encode
+ * Muat semua pesanan dari server via parameter action query.
  */
 async function muatDataPesanan() {
     try {
-        const res  = await fetch('/api/pesanan');
+        // PERBAIKAN: Mengubah /api/pesanan menjadi pesanan.php?action=ambil_semua
+        const res  = await fetch('pesanan.php?action=ambil_semua');
         const json = await res.json();
         if (json.success) {
             dataPesanan = json.data;
@@ -122,46 +65,12 @@ async function muatDataPesanan() {
 // ============================================================
 
 /**
- * Kirim perubahan status ke server.
- *
- * BACKEND:
- *   POST /api/pesanan/:id/status
- *   Body JSON:
- *   {
- *     "status": "sedang_dicuci",
- *     "alasan": null,              // string|null — diisi saat dibatalkan
- *     "dibatalkan_oleh": null,     // "admin"|"member"|null
- *     "berat": 4.2                 // float|null — dikirim saat prosesTimbang()
- *   }
- *   Response JSON:
- *   { "success": true }
- *
- *   PHP contoh (admin/api/update-status.php):
- *   $id     = intval($_GET['id']);
- *   $body   = json_decode(file_get_contents('php://input'), true);
- *   $status = $body['status'];
- *   $pdo->prepare("
- *       UPDATE pesanan
- *       SET status_pesanan = ?, alasan_pembatalan = ?,
- *           dibatalkan_oleh = ?, berat_aktual = COALESCE(?, berat_aktual),
- *           total_harga = CASE
- *               WHEN ? IS NOT NULL THEN (? * tarif_per_kg_snapshot) + biaya_kurir
- *               ELSE total_harga END,
- *           updated_at = NOW()
- *       WHERE id = ?
- *   ")->execute([$status, $body['alasan'], $body['dibatalkan_oleh'],
- *                $body['berat'], $body['berat'], $body['berat'], $id]);
- *
- *   // Catat ke riwayat_status:
- *   $pdo->prepare("
- *       INSERT INTO riwayat_status (id_pesanan, status_lama, status_baru,
- *                                   dilakukan_oleh, keterangan)
- *       VALUES (?, ?, ?, 'admin', ?)
- *   ")->execute([$id, $statusLama, $status, $body['alasan']]);
+ * Kirim perubahan status ke server backend.
  */
 async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = null) {
     try {
-        const res = await fetch(`/api/pesanan/${id}/status`, {
+        // PERBAIKAN: Mengubah jalur routing ke parameter file lokal pesanan.php
+        const res = await fetch(`pesanan.php?action=update_status&id=${id}`, {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body   : JSON.stringify({
@@ -174,6 +83,7 @@ async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = 
         const json = await res.json();
         if (!json.success) {
             console.error('_updateStatusPesanan: server error —', json.message);
+            alert(json.message || 'Gagal memperbarui status pesanan.');
         }
     } catch (err) {
         console.error('_updateStatusPesanan: fetch gagal —', err);
@@ -187,7 +97,6 @@ async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = 
 
 /**
  * Buka detail pesanan di panel kanan.
- * Dipanggil dari onclick="bukaPesanan(id, this)" di tiap item list.
  */
 function bukaPesanan(id, el) {
     idAktif = id;
@@ -222,7 +131,80 @@ function bukaPesanan(id, el) {
 }
 
 /**
- * Kembali ke list (tutup panel detail).
+ * Menyesuaikan tampilan tombol aksi berdasarkan status pesanan saat ini.
+ */
+function setStatusUI(status) {
+    const areaTombolAksi = document.getElementById('areaTombolAksi');
+    if (!areaTombolAksi) return;
+
+    // Mengosongkan tombol aksi lama
+    areaTombolAksi.innerHTML = '';
+
+    // Logika Alur Kerja tombol admin dinamis sesuai state pesanan
+    if (status === 'menunggu_konfirmasi') {
+        areaTombolAksi.innerHTML = `
+            <button onclick="ubahStatusLokal('dikonfirmasi')" class="tombol-terima" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">✓ Konfirmasi Pesanan</button>
+            <button onclick="batalkanPesananAdmin(idAktif)" class="tombol-tolak" style="background:#ef4444; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-left:10px;">✕ Batalkan</button>
+        `;
+    } else if (status === 'dikonfirmasi') {
+        areaTombolAksi.innerHTML = `
+            <button onclick="bukaModalTimbang()" class="tombol-proses" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">⚖️ Input Berat & Cuci</button>
+        `;
+    } else if (status === 'sedang_dicuci') {
+        areaTombolAksi.innerHTML = `
+            <button onclick="ubahStatusLokal('siap_diambil')" class="tombol-proses" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">🧺 Selesai Cuci (Siap)</button>
+        `;
+    } else if (status === 'siap_diambil') {
+        const p = dataPesanan[idAktif];
+        const labelTombol = (p && p.opsi === 'kurir') ? '🚀 Serahkan ke Kurir' : '🤝 Diambil Pelanggan (Selesai)';
+        const statusTarget = (p && p.opsi === 'kurir') ? 'sedang_diantar' : 'selesai';
+        
+        areaTombolAksi.innerHTML = `
+            <button onclick="ubahStatusLokal('${statusTarget}')" class="tombol-proses" style="background:#0d3f8a; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">${labelTombol}</button>
+        `;
+    } else if (status === 'sedang_diantar') {
+        areaTombolAksi.innerHTML = `
+            <button onclick="ubahStatusLokal('selesai')" class="tombol-proses" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">🏁 Konfirmasi Diterima (Selesai)</button>
+        `;
+    } else {
+        // Status Selesai atau Dibatalkan tidak menampilkan tombol aksi lagi
+        areaTombolAksi.innerHTML = `<span style="color:#aaa; font-style:italic;">Tidak ada aksi lanjutan untuk pesanan ini.</span>`;
+    }
+}
+
+/**
+ * Menghitung dan merender rincian nota tagihan laundry secara real-time di sisi klien
+ */
+function hitungBiaya() {
+    const p = dataPesanan[idAktif];
+    if (!p) return;
+
+    const berat = parseFloat(document.getElementById('inputBerat').value) || 0;
+    const subtotalLayanan = berat * p.tarifLayanan;
+    const totalSemua = subtotalLayanan + p.tarifKirim;
+
+    if(document.getElementById('textSubtotalLayanan')) {
+        document.getElementById('textSubtotalLayanan').textContent = _fmt(subtotalLayanan) + ` (${berat} kg x ${_fmt(p.tarifLayanan)})`;
+        document.getElementById('textBiayaKurir').textContent = _fmt(p.tarifKirim);
+        document.getElementById('textTotalHarga').textContent = _fmt(totalSemua);
+    }
+}
+
+/**
+ * Jembatan internal untuk memperbarui status pesanan dari tombol aksi
+ */
+async function ubahStatusLokal(statusBaru) {
+    if (!idAktif) return;
+    if (!confirm(`Ubah status pesanan ke: "${_labelStatus[statusBaru]}"?`)) return;
+
+    await _updateStatusPesanan(idAktif, statusBaru, null, null);
+    await muatDataPesanan();
+    renderListPesanan('semua');
+    setStatusUI(statusBaru);
+}
+
+/**
+ * Batal panel detail ke posisi semula
  */
 function kembaliKeList() {
     document.getElementById('detailKosong').style.display = 'flex';
@@ -235,11 +217,6 @@ function kembaliKeList() {
 // ============================================================
 // FILTER LIST PESANAN (admin/pesanan.php)
 // ============================================================
-
-/**
- * Filter list sidebar berdasarkan status.
- * Dipanggil dari onclick="filterPesanan('semua', this)" dst.
- */
 function filterPesanan(status, btn) {
     document.querySelectorAll('.tombol-filter').forEach(b => b.classList.remove('aktif'));
     btn.classList.add('aktif');
@@ -250,15 +227,8 @@ function filterPesanan(status, btn) {
 // ============================================================
 // FILTER RIWAYAT (member/riwayat.php)
 // ============================================================
-
-/**
- * Filter kartu riwayat di halaman member.
- * Dipanggil dari onclick="filterRiwayat('selesai', this)" dst.
- * Riwayat dirender oleh PHP — JS hanya toggle visibilitasnya.
- */
 function filterRiwayat(filter, btn) {
-    document.querySelectorAll('#grupFilterRiwayat .tombol-filter')
-            .forEach(b => b.classList.remove('aktif'));
+    document.querySelectorAll('#grupFilterRiwayat .tombol-filter').forEach(b => b.classList.remove('aktif'));
     btn.classList.add('aktif');
 
     document.querySelectorAll('.kartu-riwayat').forEach(item => {
@@ -266,8 +236,7 @@ function filterRiwayat(filter, btn) {
         item.style.display = cocok ? 'flex' : 'none';
     });
 
-    const adaYangTampil = [...document.querySelectorAll('.kartu-riwayat')]
-        .some(item => item.style.display !== 'none');
+    const adaYangTampil = [...document.querySelectorAll('.kartu-riwayat')].some(item => item.style.display !== 'none');
     const kosongEl = document.getElementById('riwayatKosong');
     if (kosongEl) kosongEl.style.display = adaYangTampil ? 'none' : 'flex';
 }
@@ -276,22 +245,16 @@ function filterRiwayat(filter, btn) {
 // ============================================================
 // BATALKAN PESANAN — ADMIN (admin/pesanan.php)
 // ============================================================
-
 let _idAkanDibatalAdmin = null;
 
-/**
- * Buka popup konfirmasi pembatalan.
- * id = ID pesanan di dataPesanan (key numerik dari server).
- */
 function batalkanPesananAdmin(id) {
     _idAkanDibatalAdmin = id;
     const p = dataPesanan[id];
     if (!p) return;
 
-    document.getElementById('popupBatalAdminTeks').textContent =
-        `Pesanan #${p.kode} (${p.layanan}) milik ${p.nama} akan dibatalkan.`;
-
+    document.getElementById('popupBatalAdminTeks').textContent = `Pesanan #${p.kode} (${p.layanan}) milik ${p.nama} akan dibatalkan.`;
     document.querySelectorAll('input[name="alasanBatal"]').forEach(r => r.checked = false);
+    
     const inputLainnya = document.getElementById('inputAlasanLainnya');
     if (inputLainnya) inputLainnya.value = '';
 
@@ -305,15 +268,6 @@ function tutupPopupBatalAdmin() {
     document.getElementById('popupBatalAdmin').style.display   = 'none';
 }
 
-/**
- * Eksekusi pembatalan: kirim ke server lalu refresh list.
- *
- * BACKEND: lihat _updateStatusPesanan() di atas.
- * Pastikan backend juga:
- *   1. Menyimpan alasan_pembatalan di tabel pesanan.
- *   2. Mencatat ke riwayat_status dengan keterangan = alasan.
- *   3. Jika alasan = 'pesanan_fiktif', ubah status_akun member menjadi 'nonaktif'.
- */
 async function eksekusiBatalAdmin() {
     if (!_idAkanDibatalAdmin) return;
     const id = _idAkanDibatalAdmin;
@@ -331,14 +285,10 @@ async function eksekusiBatalAdmin() {
     }
 
     await _updateStatusPesanan(id, 'dibatalkan', alasanTeks, 'admin');
-
-    // Refresh data dan UI
     await muatDataPesanan();
     renderListPesanan('semua');
 
-    // Jika pesanan yang dibatalkan sedang dibuka di panel detail, update UI-nya
     if (idAktif == id) setStatusUI('dibatalkan');
-
     tutupPopupBatalAdmin();
 }
 
@@ -346,45 +296,27 @@ async function eksekusiBatalAdmin() {
 // ============================================================
 // RENDER LIST PESANAN (admin/pesanan.php — sidebar kiri)
 // ============================================================
-
-/**
- * Render ulang list pesanan di sidebar.
- * Dipanggil setelah muatDataPesanan() dan setelah tiap update status.
- *
- * CATATAN BACKEND:
- * dataPesanan sudah berisi data terbaru dari server.
- * Tidak perlu fetch lagi di sini — cukup render dari cache.
- */
 function renderListPesanan(filterStatus) {
     const listEl = document.getElementById('listPesanan');
     if (!listEl) return;
 
     listEl.innerHTML = '';
 
-    // Urutkan: pesanan terbaru (id terbesar) di atas
     const entri = Object.entries(dataPesanan)
         .filter(([, p]) => filterStatus === 'semua' || p.status === filterStatus)
         .sort(([idA], [idB]) => Number(idB) - Number(idA));
 
     if (entri.length === 0) {
-        listEl.innerHTML = `
-            <div style="padding:32px 16px; text-align:center; color:#aaa; font-size:0.9rem;">
-                Tidak ada pesanan ditemukan.
-            </div>`;
+        listEl.innerHTML = `<div style="padding:32px 16px; text-align:center; color:#aaa; font-size:0.9rem;">Tidak ada pesanan ditemukan.</div>`;
         return;
     }
 
     entri.forEach(([id, p]) => {
         const badgeKelas = _kelasStatus[p.status] || 'badge-status';
-        const tagsHTML   = (p.tags || []).map(t =>
-            `<span class="badge-${t.tipe}">${t.label}</span>`
-        ).join('');
+        const tagsHTML   = (p.tags || []).map(t => `<span class="badge-${t.tipe}">${t.label}</span>`).join('');
 
         listEl.insertAdjacentHTML('beforeend', `
-            <div class="item-pesanan"
-                 data-id="${id}"
-                 data-status="${p.status}"
-                 onclick="bukaPesanan(${id}, this)">
+            <div class="item-pesanan" data-id="${id}" data-status="${p.status}" onclick="bukaPesanan(${id}, this)">
                 <div class="item-pesanan-atas">
                     <span class="${badgeKelas}">${_labelStatus[p.status] || p.status}</span>
                     <span class="item-pesanan-waktu">${p.waktu}</span>
@@ -401,9 +333,7 @@ function renderListPesanan(filterStatus) {
 // ============================================================
 // INISIALISASI HALAMAN
 // ============================================================
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // Hanya jalan di halaman yang punya #listPesanan (admin/pesanan.php)
     if (document.getElementById('listPesanan')) {
         await muatDataPesanan();
         renderListPesanan('semua');
