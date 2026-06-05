@@ -55,7 +55,6 @@ foreach ($data_laporan as $row) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-
 </head>
 <body>
 
@@ -63,12 +62,10 @@ foreach ($data_laporan as $row) {
 
     <section class="rekapitulasi" style="margin-top: 20px;">
         <div class="rekap-kiri">
-            <h1 class="judul-rekap" style="font-family: 'Bricolage Grotesque', sans-serif;">Laporan Keuangan</h1>
+            <h1 class="judul-rekap" style="font-family: 'Bricolage Grotesque', sans-serif;">Dashboard Admin</h1>
             <p style="color: rgba(255,255,255,0.8); font-size: 0.95rem; margin-top: -10px;">
                 Memantau arus kas, jumlah distribusi beban kerja laundry, dan status transaksi CleanCo secara realtime.
             </p>
-            <div class="bulat-rekap-kecil"></div>
-            <div class="bulat-rekap-besar"></div>
         </div>
 
         <div class="rekap-kanan">
@@ -78,16 +75,12 @@ foreach ($data_laporan as $row) {
                     <div class="kartu-header">Total Omzet</div>
                     <div class="kartu-body">
                         <p>Rp <?= number_format($total_omzet, 0, ',', '.') ?></p>
-                        <div class="bulat-kecil"></div>
-                        <div class="bulat-harga"></div>
                     </div>
                 </div>
                 <div class="kartu-rekap">
                     <div class="kartu-header kartu-header-biru">Volume Pesanan</div>
                     <div class="kartu-body">
                         <p><?= $total_pesanan ?> Nota <span style="font-size: 1rem; color:#888;">(<?= number_format($total_berat, 1) ?> kg)</span></p>
-                        <div class="bulat-kecil"></div>
-                        <div class="bulat-harga"></div>
                     </div>
                 </div>
             </div>
@@ -96,7 +89,7 @@ foreach ($data_laporan as $row) {
 
     <main class="area-laporan">
         
-        <form method="GET" action="laporan.php" class="form-filter-rekap">
+        <form method="GET" action="dashboard.php" class="form-filter-rekap">
             <div class="grup-filter-input">
                 <label class="label-rekap" style="color: #1D3557; font-weight: 600;">Dari Tanggal :</label>
                 <input type="date" name="dari_tanggal" class="input-rekap" value="<?= $dari_tanggal ?>" style="border: 1.5px solid #e0e0e0; width:100%;">
@@ -121,7 +114,7 @@ foreach ($data_laporan as $row) {
 
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="tombol-aksi-laporan btn-cari">Terapkan Filter</button>
-                <button type="button" onclick="window.print()" class="tombol-aksi-laporan btn-cetak">🖨️ Cetak PDF</button>
+                <button type="button" onclick="window.print()" class="tombol-aksi-laporan btn-cetak">🖨️ Cetak Laporan</button>
             </div>
         </form>
 
