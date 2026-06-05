@@ -110,6 +110,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $estimasi_biaya = ($estimasi_berat * $layananTerpilih['tarif_per_kg']) + $biaya_kurir;
         }
 
+        // FORMAT FEEDBACK UNTUK RESPONS AJAX MODAL
+        $labelHarga = $estimasi_biaya !== null 
+            ? 'Rp ' . number_format($estimasi_biaya, 0, ',', '.') . ' (Estimasi, Belum Final)' 
+            : 'Dihitung admin setelah ditimbang';
+
+        // DETEKSI AJAX INTERCEPTOR (Sesuai Fase 7.4)
+        if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'kode_pesanan' => $kode_pesanan,
+                    'nama_layanan' => $layananTerpilih['nama_layanan'],
+                    'opsi_pengantaran' => $opsi_pengantaran,
+                    'kecamatan' => $kecamatan,
+                    'total_estimasi' => $labelHarga
+                ]
+            ]);
+            exit;
+        }
+
         $pesanan_baru = [
             'kode_pesanan'     => $kode_pesanan,
             'nama_layanan'     => $layananTerpilih['nama_layanan'],
@@ -120,8 +141,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         $sukses = true;
+    } else {
+        // Balasan error validasi jika dikirim lewat sistem AJAX
+        if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => implode("\n", $errors)
+            ]);
+            exit;
+        }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -133,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght=0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -143,7 +175,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form id="formPesan" method="POST" action="pesan.php">
 
-        <div class="konten-form konten-form-pesan">
+        <div id="formPesanContainer" class="konten-form konten-form-pesan"
+             data-sukses="<?= $sukses ? 'true' : 'false' ?>"
+             data-member-nama="<?= htmlspecialchars($_SESSION['nama'] ?? 'Member') ?>"
+             data-kode-pesanan="<?= htmlspecialchars($pesanan_baru['kode_pesanan'] ?? '') ?>"
+             data-nama-layanan="<?= htmlspecialchars($pesanan_baru['nama_layanan'] ?? '') ?>"
+             data-opsi-pengantaran="<?= htmlspecialchars($pesanan_baru['opsi_pengantaran'] ?? '') ?>"
+             data-kecamatan="<?= htmlspecialchars($pesanan_baru['kecamatan'] ?? '') ?>"
+             data-estimasi-biaya="<?= (isset($pesanan_baru['estimasi_biaya']) && $pesanan_baru['estimasi_biaya'] !== null) ? $pesanan_baru['estimasi_biaya'] : 'null' ?>"
+             data-no-wa-admin="<?= htmlspecialchars($pesanan_baru['no_wa_admin'] ?? '') ?>">
+
             <h1 class="judul-form judul-form-kiri">Buat Pesanan Baru</h1>
             <p class="subjudul-pesan">Isi form di bawah untuk memulai pesanan laundry kamu.</p>
 
@@ -155,16 +196,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <!-- ── PILIH LAYANAN ── -->
             <div class="grup-input-form">
                 <label class="label-form">Pilih Layanan</label>
                 <div class="grid-pilih-layanan" id="gridLayanan">
                     <?php
                     $total_layanan = count($layanan_list);
+                    $id_default = '';
                     foreach ($layanan_list as $i => $l):
                         $dipilih = ($total_layanan >= 2) ? ($i === 1) : ($i === 0);
+                        if ($dipilih) { $id_default = $l['id']; }
                     ?>
                         <div class="kartu-pilih-layanan <?= $dipilih ? 'dipilih' : '' ?>"
+                             id="cardLayanan_<?= $l['id'] ?>"
                              data-id="<?= $l['id'] ?>"
                              data-nama="<?= htmlspecialchars($l['nama_layanan']) ?>"
                              data-tarif="<?= $l['tarif_per_kg'] ?>"
@@ -184,19 +227,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <input type="hidden" id="inputLayananId" name="layanan_id"
-                       value="<?= $total_layanan >= 2 ? $layanan_list[1]['id'] : ($layanan_list[0]['id'] ?? '') ?>">
+                <input type="hidden" id="inputLayananId" name="layanan_id" value="<?= $id_default ?>">
             </div>
 
-            <!-- ── OPSI PENGANTARAN ── -->
             <div class="grup-input-form">
                 <label class="label-form">Opsi Pengantaran</label>
                 <div class="grid-opsi-pengantaran">
-
                     <label class="kartu-opsi-pengantaran">
-                        <input type="radio" name="opsi_pengantaran"
-                               value="ambil_sendiri"
-                               onchange="gantiOpsiPengantaran('ambil_sendiri')">
+                        <input type="radio" name="opsi_pengantaran" value="ambil_sendiri" onchange="gantiOpsiPengantaran('ambil_sendiri')">
                         <div class="kartu-opsi-isi">
                             <span class="kartu-opsi-ikon">🏬</span>
                             <span class="kartu-opsi-label">Ambil Sendiri</span>
@@ -205,24 +243,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
 
                     <label class="kartu-opsi-pengantaran dipilih-opsi">
-                        <input type="radio" name="opsi_pengantaran"
-                               value="kurir"
-                               checked
-                               onchange="gantiOpsiPengantaran('kurir')">
+                        <input type="radio" name="opsi_pengantaran" value="kurir" checked onchange="gantiOpsiPengantaran('kurir')">
                         <div class="kartu-opsi-isi">
                             <span class="kartu-opsi-ikon">🛵</span>
                             <span class="kartu-opsi-label">Kurir Laundry</span>
                             <span class="kartu-opsi-biaya">+ Rp 10.000</span>
                         </div>
                     </label>
-
                 </div>
             </div>
 
-            <!-- ── INFO KURIR ── -->
             <div class="info-kurir-wrapper" id="infoKurir">
                 <p class="info-kurir-teks">
-                    🛵 Kurir akan menghubungi kamu via WhatsApp sebelum menjemput.
+                    💡 Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
                 </p>
                 <p class="info-kurir-teks">
                     📍 Layanan kurir tersedia untuk kecamatan:
@@ -230,8 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
             </div>
 
-            <!-- ── ALAMAT ── -->
-            <div id="seksiAlamat">
+            <div id="containerAlamat">
                 <div class="grup-input-form">
                     <label class="label-form">Kecamatan Tujuan</label>
                     <select class="input-form" id="inputKecamatan" name="kecamatan">
@@ -246,68 +278,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="grup-input-form">
                     <label class="label-form">Alamat Lengkap</label>
-                    <input type="text" class="input-form"
-                           id="inputAlamat" name="alamat_pengantaran"
-                           placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan..."
-                           value="<?= !$sukses ? htmlspecialchars($alamat_pengantaran ?? '') : '' ?>">
+                    <input type="text" class="input-form" id="inputAlamat" name="alamat_pengantaran" placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan..." value="<?= !$sukses ? htmlspecialchars($alamat_pengantaran ?? '') : '' ?>">
                 </div>
             </div>
 
-            <!-- ── ESTIMASI BERAT ── -->
             <div class="grup-input-form">
                 <label class="label-form">Estimasi Berat <span class="label-opsional">(opsional)</span></label>
                 <div class="input-berat-wrapper">
-                    <input type="number"
-                           class="input-berat"
-                           id="inputEstimasiBerat"
-                           name="estimasi_berat"
-                           placeholder="0"
-                           min="0" step="0.1"
-                           oninput="hitungEstimasi()"
-                           value="<?= !$sukses && isset($estimasi_berat) ? $estimasi_berat : '' ?>"
-                           style="width:110px;">
-                    <span class="satuan-berat" style="color:white;">kg</span>
+                    <input type="number" class="input-berat" id="inputEstimasiBerat" name="estimasi_berat" placeholder="0" min="0" step="0.1" value="<?= !$sukses && isset($estimasi_berat) ? $estimasi_berat : '' ?>" style="width:110px;">
+                    <span class="satuan-berat" style="color:white; margin-left: 8px;">kg</span>
                 </div>
             </div>
 
-            <!-- ── ESTIMASI HARGA ── -->
-            <div class="kotak-estimasi-harga" id="kotakEstimasi">
+            <div class="kotak-estimasi-harga" id="kotakEstimasi" style="padding: 15px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
                 <p class="estimasi-harga-teks" id="teksEstimasiHarga">
                     Harga akan dihitung admin setelah pakaian ditimbang.
                 </p>
             </div>
 
-            <!-- ── CATATAN KHUSUS ── -->
             <div class="grup-input-form">
                 <label class="label-form">Catatan Khusus <span class="label-opsional">(opsional)</span></label>
-                <textarea class="input-form input-textarea"
-                          id="inputCatatan" name="catatan"
-                          placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
+                <textarea class="input-form input-textarea" id="inputCatatan" name="catatan" placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
             </div>
 
-            <!-- ── TOMBOL SUBMIT ── -->
-            <button type="button"
-                    class="tombol-submit-form tombol-kirim-pesanan"
-                    onclick="kirimPesanan(event)">
+            <button type="button" class="tombol-submit-form tombol-kirim-pesanan" onclick="kirimPesananForm(event)">
                 Kirim Pesanan
             </button>
-
         </div>
-
         </form>
 
         <div class="bulat-atas"></div>
         <div class="bulat-ditengah"></div>
         <div class="bulat-besar"><h2>CleanCo</h2></div>
-
     </section>
 
-    <!-- ── OVERLAY ── -->
     <div class="overlay-popup" id="overlayPopup" style="display:none;"></div>
 
-    <!-- ── POP-UP SUKSES ── -->
     <div class="popup-sukses-pesanan" id="popupSukses" style="display:none;">
-
         <div class="popup-sukses-atas">
             <div class="popup-sukses-ikon">✓</div>
             <h2 class="popup-sukses-judul">Pesanan Berhasil Dibuat!</h2>
@@ -333,74 +340,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="popup-tombol-group" style="justify-content:center; gap:14px;">
-            <a href="status.php" class="tombol-submit-form"
-               style="text-decoration:none; text-align:center;">
+        <div class="popup-tombol-group" style="justify-content:center; gap:14px; display: flex; margin-top: 20px;">
+            <a href="status.php" class="tombol-submit-form" style="text-decoration:none; text-align:center; padding: 10px 20px; background: var(--birutua); color: white; border-radius: 8px;">
                 Lihat Status
             </a>
-            <button class="tombol-batal-layanan"
-                    onclick="pesanLagi()"
-                    style="display:inline-block;">
+            <button class="tombol-batal-layanan" onclick="pesanLagi()" style="display:inline-block; padding: 10px 20px; cursor: pointer;">
                 Pesan Lagi
             </button>
         </div>
-
     </div>
 
-    <script>
-    const sessionMember = {
-        nama : '<?= htmlspecialchars($_SESSION['nama'] ?? 'Member') ?>',
-        noHP : '<?= htmlspecialchars($_SESSION['no_hp'] ?? '') ?>',
-        id   : <?= intval($id_member) ?>
-    };
-
-    <?php if ($sukses): ?>
-    (function tampilkanPopupSukses() {
-        const data = {
-            kode      : '<?= htmlspecialchars($pesanan_baru['kode_pesanan']) ?>',
-            layanan   : '<?= htmlspecialchars($pesanan_baru['nama_layanan']) ?>',
-            opsi      : '<?= $pesanan_baru['opsi_pengantaran'] ?>',
-            kecamatan : '<?= htmlspecialchars($pesanan_baru['kecamatan']) ?>',
-            estimasi  : <?= $pesanan_baru['estimasi_biaya'] !== null ? $pesanan_baru['estimasi_biaya'] : 'null' ?>,
-            noWa      : '<?= htmlspecialchars($pesanan_baru['no_wa_admin']) ?>'
-        };
-
-        const labelOpsi = data.opsi === 'kurir'
-            ? 'Kurir ke ' + data.kecamatan
-            : 'Ambil Sendiri';
-
-        const pesanWa = encodeURIComponent(
-            'Halo Admin, saya baru membuat pesanan laundry.\n' +
-            'Kode Pesanan: ' + data.kode + '\n' +
-            'Nama: ' + sessionMember.nama + '\n' +
-            'Pengantaran: ' + labelOpsi
-        );
-        const noWaBersih = data.noWa.replace(/\D/g, '');
-        if (noWaBersih) {
-            window.open('https://wa.me/' + noWaBersih + '?text=' + pesanWa, '_blank');
-        }
-
-        document.getElementById('popupNoPesanan').textContent  = '#' + data.kode;
-        document.getElementById('popupLayanan').textContent    = data.layanan;
-        document.getElementById('popupPengantaran').textContent = labelOpsi;
-        document.getElementById('popupEstimasi').textContent   = data.estimasi !== null
-            ? 'Rp ' + data.estimasi.toLocaleString('id-ID') + ' (Estimasi, Belum Final)'
-            : 'Dihitung admin setelah ditimbang';
-
-        document.getElementById('overlayPopup').style.display = 'block';
-        document.getElementById('popupSukses').style.display  = 'block';
-    })();
-    <?php endif; ?>
-
-    function pesanLagi() {
-        document.getElementById('overlayPopup').style.display = 'none';
-        document.getElementById('popupSukses').style.display  = 'none';
-    }
-    </script>
-
-    <script src="../assets/js/pesan-member.js"></script>
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>
+    <script src="../assets/js/pesan-member.js"></script>
 
     <?php include '../includes/footer.php'; ?>
 </body>

@@ -2,227 +2,252 @@
  * ============================================================
  * profil-member.js — CleanCo Laundry
  * Digunakan di: member/profil.php
+ * Murni Native JavaScript (Tanpa Library/Framework)
  *
- * Berisi:
- *   - toggleEditProfil() / batalEditProfil() → mode edit nama & HP
- *   - simpanProfil()                         → POST update profil
- *   - cekKuatPassword()                      → indikator kekuatan password
- *   - cekKonfirmasi()                        → validasi konfirmasi password
- *   - gantiPassword()                        → POST ganti password
+ * Mengelola interaksi halaman data diri pelanggan, validasi
+ * real-time kekuatan kata sandi, serta pembaruan data secara
+ * asynchronous (AJAX Fetch POST) bebas reload halaman.
  * ============================================================
  */
 
 'use strict';
 
 let modeEditProfil = false;
-let nilaiAsli      = {};
+let nilaiAsli = {};
+
+// ── INIT EVENT LISTENERS FOR LIVE REACTIVE VALIDATION ───────
+document.addEventListener('DOMContentLoaded', () => {
+    const inputPassBaru = document.getElementById('inputPasswordBaru');
+    const inputKonfirm = document.getElementById('inputKonfirmasiPassword');
+
+    // Pengikat Otomatis: Deteksi kekuatan password secara real-time saat diketik
+    if (inputPassBaru) {
+        inputPassBaru.addEventListener('input', function() {
+            cekKuatPassword(this.value);
+            if (inputKonfirm && inputKonfirm.value !== '') {
+                cekKonfirmasi();
+            }
+        });
+    }
+
+    // Pengikat Otomatis: Deteksi kecocokan konfirmasi password saat diketik
+    if (inputKonfirm) {
+        inputKonfirm.addEventListener('input', () => {
+            cekKonfirmasi();
+        });
+    }
+});
 
 
-// ── TOGGLE EDIT PROFIL ────────────────────────────────────
+// ── TOGGLE EDIT PROFIL DATA DIRI ───────────────────────────
 function toggleEditProfil() {
     modeEditProfil = !modeEditProfil;
-    const inputs   = ['inputNamaProfil', 'inputNoHP'];
-    const tombolEl = document.getElementById('tombolEditProfil');
-    const simpanEl = document.getElementById('tombolSimpanProfil');
+    const inputs = ['inputNamaProfil', 'inputNoHP'];
+    const tombolEdit = document.getElementById('tombolEditProfil');
+    const tombolSimpan = document.getElementById('tombolSimpanProfil');
+    const tombolBatal = document.getElementById('tombolBatalProfil'); // Tombol penunjang jika ada di HTML
 
     if (modeEditProfil) {
         inputs.forEach(id => {
-            nilaiAsli[id] = document.getElementById(id).value;
-            document.getElementById(id).removeAttribute('readonly');
-            document.getElementById(id).classList.add('input-editable');
+            const el = document.getElementById(id);
+            if (el) {
+                nilaiAsli[id] = el.value;
+                el.removeAttribute('readonly');
+                el.classList.add('input-editable');
+                el.style.borderColor = '#0d3f8a'; // Beri highlight border biru tanda aktif
+            }
         });
-        tombolEl.style.display = 'none';
-        simpanEl.style.display = 'block';
+        
+        if (tombolEdit) tombolEdit.style.display = 'none';
+        if (tombolSimpan) tombolSimpan.style.display = 'inline-block';
+        if (tombolBatal) tombolBatal.style.display = 'inline-block';
     }
 }
 
 function batalEditProfil() {
     const inputs = ['inputNamaProfil', 'inputNoHP'];
+    
     inputs.forEach(id => {
-        document.getElementById(id).value = nilaiAsli[id];
-        document.getElementById(id).setAttribute('readonly', true);
-        document.getElementById(id).classList.remove('input-editable');
+        const el = document.getElementById(id);
+        if (el && nilaiAsli[id] !== undefined) {
+            el.value = nilaiAsli[id];
+            el.setAttribute('readonly', true);
+            el.classList.remove('input-editable');
+            el.style.borderColor = ''; // Kembalikan warna border semula
+        }
     });
+    
     modeEditProfil = false;
-    document.getElementById('tombolEditProfil').style.display  = 'inline-block';
-    document.getElementById('tombolSimpanProfil').style.display = 'none';
+    
+    const tombolEdit = document.getElementById('tombolEditProfil');
+    const tombolSimpan = document.getElementById('tombolSimpanProfil');
+    const tombolBatal = document.getElementById('tombolBatalProfil');
+
+    if (tombolEdit) tombolEdit.style.display = 'inline-block';
+    if (tombolSimpan) tombolSimpan.style.display = 'none';
+    if (tombolBatal) tombolBatal.style.display = 'none';
 }
 
 
-// ── SIMPAN PROFIL ─────────────────────────────────────────
-/**
- * BACKEND:
- *   POST /api/member/profil
- *   Body JSON: { "nama": "...", "no_hp": "08..." }
- *   Response: { "success": true }
- *
- *   PHP (member/api/simpan-profil.php):
- *   session_start();
- *   $id   = $_SESSION['user_id'];
- *   $body = json_decode(file_get_contents('php://input'), true);
- *   $pdo->prepare("UPDATE users SET nama = ?, no_hp = ? WHERE id = ?")
- *       ->execute([$body['nama'], $body['no_hp'], $id]);
- *   // Update session juga:
- *   $_SESSION['nama']  = $body['nama'];
- *   $_SESSION['no_hp'] = $body['no_hp'];
- *   echo json_encode(['success' => true]);
- */
+// ── UPDATE DATA PROFIL (AJAX FETCH POST) ────────────────────
 async function simpanProfil() {
-    const nama = document.getElementById('inputNamaProfil').value.trim();
-    const noHP = document.getElementById('inputNoHP').value.trim();
+    const namaEl = document.getElementById('inputNamaProfil');
+    const noHPEl = document.getElementById('inputNoHP');
+    
+    if (!namaEl || !noHPEl) return;
 
-    if (!nama) { alert('Nama tidak boleh kosong.'); return; }
+    const nama = namaEl.value.trim();
+    const noHP = noHPEl.value.trim();
+
+    // Validasi Sisi Klien
+    if (!nama) { alert('Nama lengkap tidak boleh dibiarkan kosong.'); return; }
     if (!/^[0-9]{10,13}$/.test(noHP)) {
-        alert('Nomor WhatsApp harus berupa angka 10–13 digit.');
+        alert('Nomor WhatsApp wajib berupa angka numerik sepanjang 10–13 digit.');
         return;
     }
 
     try {
-        const res  = await fetch('/api/member/profil', {
+        // PERBAIKAN ROUTING: Mengubah rute /api menjadi parameter query string file lokal
+        const res = await fetch('profil.php?action=update_profil', {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body   : JSON.stringify({ nama, no_hp: noHP })
+            body   : JSON.stringify({ nama: nama, no_hp: noHP })
         });
+        
         const json = await res.json();
+        
         if (!json.success) {
-            alert('Gagal menyimpan profil. Coba lagi.');
+            alert(json.message || 'Sistem gagal memperbarui data profil.');
             return;
         }
     } catch (err) {
         console.error('simpanProfil: fetch gagal —', err);
-        alert('Koneksi bermasalah. Coba lagi.');
+        alert('Koneksi Apache XAMPP bermasalah. Gagal menggapai database.');
         return;
     }
 
     batalEditProfil();
-    tampilPopupBerhasil('Profil Diperbarui', 'Nama dan nomor WhatsApp kamu berhasil disimpan.');
+    tampilPopupBerhasil('Profil Diperbarui', 'Nama dan nomor WhatsApp identitas akun kamu berhasil disimpan.');
 }
 
 
-// ── INDIKATOR KEKUATAN PASSWORD ───────────────────────────
+// ── REAL-TIME PASSWORD STRENGTH MONITOR ─────────────────────
 function cekKuatPassword(val) {
     const wrapperEl = document.getElementById('kuatPasswordWrapper');
     const isiEl     = document.getElementById('kuatPasswordIsi');
     const labelEl   = document.getElementById('kuatPasswordLabel');
-    if (!wrapperEl) return;
+    if (!wrapperEl || !isiEl || !labelEl) return;
 
     wrapperEl.style.display = val.length > 0 ? 'flex' : 'none';
     if (val.length === 0) return;
 
     let skor = 0;
-    if (val.length >= 8)          skor++;
-    if (/[A-Z]/.test(val))        skor++;
-    if (/[0-9]/.test(val))        skor++;
-    if (/[^A-Za-z0-9]/.test(val)) skor++;
+    if (val.length >= 8)           skor++; // Syarat panjang minimum
+    if (/[A-Z]/.test(val))        skor++; // Syarat huruf besar
+    if (/[0-9]/.test(val))        skor++; // Syarat angka
+    if (/[^A-Za-z0-9]/.test(val)) skor++; // Syarat simbol karakter khusus
 
-    const level = ['', 'Lemah', 'Cukup', 'Kuat', 'Sangat Kuat'][skor];
-    const warna = ['', '#f87171', '#f59e0b', '#52c49c', '#0d3f8a'][skor];
+    const level = ['', 'Lemah sekali', 'Cukup Aman', 'Sangat Kuat', 'Sempurna'][skor];
+    const warna = ['', '#ef4444', '#f59e0b', '#10b981', '#0d3f8a'][skor];
     const lebar = [0, 25, 50, 75, 100][skor];
 
-    isiEl.style.width           = lebar + '%';
+    isiEl.style.width = lebar + '%';
     isiEl.style.backgroundColor = warna;
-    labelEl.textContent         = level;
-    labelEl.style.color         = warna;
+    labelEl.textContent = level;
+    labelEl.style.color = warna;
 }
 
 
-// ── VALIDASI KONFIRMASI PASSWORD ──────────────────────────
+// ── REAL-TIME PASSWORDS MATCH CHECKER ───────────────────────
 function cekKonfirmasi() {
-    const baru    = document.getElementById('inputPasswordBaru').value;
-    const konfirm = document.getElementById('inputKonfirmasiPassword').value;
+    const baru = document.getElementById('inputPasswordBaru')?.value || '';
+    const konfirm = document.getElementById('inputKonfirmasiPassword')?.value || '';
     const pesanEl = document.getElementById('pesanKonfirmasi');
     if (!pesanEl) return;
 
     if (!konfirm) { pesanEl.textContent = ''; return; }
 
     if (baru === konfirm) {
-        pesanEl.textContent = '✓ Password cocok';
-        pesanEl.style.color = '#52c49c';
+        pesanEl.textContent = '✓ Rumusan kata sandi baru telah serasi';
+        pesanEl.style.color = '#10b981';
     } else {
-        pesanEl.textContent = '✕ Password tidak cocok';
-        pesanEl.style.color = '#f87171';
+        pesanEl.textContent = '✕ Konfirmasi kata sandi tidak cocok';
+        pesanEl.style.color = '#ef4444';
     }
 }
 
 
-// ── GANTI PASSWORD ────────────────────────────────────────
-/**
- * BACKEND:
- *   POST /api/member/ganti-password
- *   Body JSON: { "password_lama": "...", "password_baru": "..." }
- *   Response: { "success": true }
- *             atau { "success": false, "message": "Password lama tidak sesuai." }
- *
- *   PHP (member/api/ganti-password.php):
- *   session_start();
- *   $id   = $_SESSION['user_id'];
- *   $body = json_decode(file_get_contents('php://input'), true);
- *
- *   // Ambil hash password dari DB
- *   $row  = $pdo->prepare("SELECT password FROM users WHERE id = ?");
- *   $row->execute([$id]);
- *   $user = $row->fetch();
- *
- *   if (!password_verify($body['password_lama'], $user['password'])) {
- *       echo json_encode(['success' => false, 'message' => 'Password lama tidak sesuai.']);
- *       exit;
- *   }
- *   $hash = password_hash($body['password_baru'], PASSWORD_BCRYPT);
- *   $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")
- *       ->execute([$hash, $id]);
- *   echo json_encode(['success' => true]);
- */
+// ── GANTI PASSWORD AKUN (AJAX FETCH POST) ───────────────────
 async function gantiPassword() {
-    const lama    = document.getElementById('inputPasswordLama').value;
-    const baru    = document.getElementById('inputPasswordBaru').value;
-    const konfirm = document.getElementById('inputKonfirmasiPassword').value;
+    const lamaEl = document.getElementById('inputPasswordLama');
+    const baruEl = document.getElementById('inputPasswordBaru');
+    const konfirmEl = document.getElementById('inputKonfirmasiPassword');
 
-    if (!lama)            { alert('Masukkan password saat ini.'); return; }
-    if (baru.length < 8)  { alert('Password baru minimal 8 karakter.'); return; }
-    if (baru !== konfirm) { alert('Konfirmasi password tidak cocok.'); return; }
+    if (!lamaEl || !baruEl || !konfirmEl) return;
+
+    const lama = lamaEl.value;
+    const baru = baruEl.value;
+    const konfirm = konfirmEl.value;
+
+    if (!lama) { alert('Sebutkan kata sandi lama Anda saat ini.'); return; }
+    if (baru.length < 8) { alert('Kata sandi baru diwajibkan minimal sepanjang 8 karakter.'); return; }
+    if (baru !== konfirm) { alert('Proses dibatalkan, konfirmasi kata sandi baru belum cocok.'); return; }
 
     try {
-        const res  = await fetch('/api/member/ganti-password', {
+        // PERBAIKAN ROUTING: Mengubah rute /api menjadi parameter query string file lokal
+        const res = await fetch('profil.php?action=update_password', {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body   : JSON.stringify({ password_lama: lama, password_baru: baru })
         });
+        
         const json = await res.json();
+        
         if (!json.success) {
-            alert(json.message || 'Gagal mengganti password. Pastikan password lama benar.');
+            alert(json.message || 'Gagal memperbarui kata sandi. Pastikan password lama tepat.');
             return;
         }
     } catch (err) {
         console.error('gantiPassword: fetch gagal —', err);
-        alert('Koneksi bermasalah. Coba lagi.');
+        alert('Gagal berkomunikasi dengan database server.');
         return;
     }
 
-    // Reset semua field password
-    document.getElementById('inputPasswordLama').value    = '';
-    document.getElementById('inputPasswordBaru').value    = '';
-    document.getElementById('inputKonfirmasiPassword').value = '';
+    // Sterilisasi massal kolom inputan password pasca pembaruan data sukses
+    lamaEl.value = '';
+    baruEl.value = '';
+    konfirmEl.value = '';
+    
     const kuatWrapper = document.getElementById('kuatPasswordWrapper');
     if (kuatWrapper) kuatWrapper.style.display = 'none';
+    
     const pesanKonfirm = document.getElementById('pesanKonfirmasi');
     if (pesanKonfirm) pesanKonfirm.textContent = '';
 
     tampilPopupBerhasil(
         'Password Diperbarui',
-        'Password kamu berhasil diganti. Gunakan password baru saat login berikutnya.'
+        'Kata sandi akun CleanCo kamu berhasil diganti. Pergunakan sandi baru ini pada login berikutnya.'
     );
 }
 
 
-// ── POPUP BERHASIL ────────────────────────────────────────
+// ── SYSTEM MODAL POPUP DISPLAY MANAGEMENT ───────────────────
 function tampilPopupBerhasil(judul, teks) {
-    document.getElementById('popupBerhasilJudul').textContent = judul;
-    document.getElementById('popupBerhasilTeks').textContent  = teks;
-    document.getElementById('overlayPopup').style.display     = 'block';
-    document.getElementById('popupBerhasil').style.display    = 'block';
+    const jdlEl = document.getElementById('popupBerhasilJudul');
+    const txtEl = document.getElementById('popupBerhasilTeks');
+    const ovrEl = document.getElementById('overlayPopup');
+    const popEl = document.getElementById('popupBerhasil');
+
+    if (jdlEl) jdlEl.textContent = judul;
+    if (txtEl) txtEl.textContent = teks;
+    if (ovrEl) ovrEl.style.display = 'block';
+    if (popEl) popEl.style.display = 'block';
 }
 
 function tutupPopupBerhasil() {
-    document.getElementById('overlayPopup').style.display  = 'none';
-    document.getElementById('popupBerhasil').style.display = 'none';
+    const ovrEl = document.getElementById('overlayPopup');
+    const popEl = document.getElementById('popupBerhasil');
+    
+    if (ovrEl) ovrEl.style.display = 'none';
+    if (popEl) popEl.style.display = 'none';
 }

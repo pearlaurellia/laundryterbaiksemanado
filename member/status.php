@@ -44,28 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     redirect('status.php');
 }
 
-// ── Reset badge: tandai semua pesanan sudah dilihat ─────────
-$stmtReset = $pdo->prepare("
-    UPDATE pesanan
-    SET sudah_dilihat_member = 1
-    WHERE id_member = ?
-");
-$stmtReset->execute([$id_member]);
-
-// ── Query pesanan aktif dari DB ──────────────────────────────
-$stmtAktif = $pdo->prepare("
-    SELECT p.*, l.nama_layanan, l.tarif_per_kg
-    FROM pesanan p
-    JOIN layanan l ON p.id_layanan = l.id
-    WHERE p.id_member = ?
-      AND p.status_pesanan NOT IN ('selesai', 'dibatalkan')
-    ORDER BY p.created_at DESC
-");
-$stmtAktif->execute([$id_member]);
-$pesanan_aktif = $stmtAktif->fetchAll() ?: [];
-
 // ── Cek notifikasi pesanan dibatalkan admin ──────────────────
-// Pesanan yang dibatalkan admin dan belum dilihat member
+// PERBAIKAN: Dipindahkan ke atas agar dibaca browser SEBELUM flag di-reset massal
 $stmtNotif = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
@@ -80,13 +60,34 @@ $stmtNotif = $pdo->prepare("
 $stmtNotif->execute([$id_member]);
 $notif_batal = $stmtNotif->fetch();
 
-// Jika ada notif, reset flag-nya setelah diambil
+// Jika ada notif pembatalan dari admin, reset flag data tersebut setelah diamankan komponen
 if ($notif_batal) {
     $stmtResetNotif = $pdo->prepare("
         UPDATE pesanan SET sudah_dilihat_member = 1 WHERE id = ?
     ");
     $stmtResetNotif->execute([$notif_batal['id']]);
 }
+
+// ── Reset badge: tandai pesanan aktif lainnya sudah dilihat ─────────
+// PERBAIKAN: Hanya me-reset pesanan yang bukan pembatalan admin agar tidak saling tabrakan
+$stmtReset = $pdo->prepare("
+    UPDATE pesanan
+    SET sudah_dilihat_member = 1
+    WHERE id_member = ? AND status_pesanan != 'dibatalkan'
+");
+$stmtReset->execute([$id_member]);
+
+// ── Query pesanan aktif dari DB ──────────────────────────────
+$stmtAktif = $pdo->prepare("
+    SELECT p.*, l.nama_layanan, l.tarif_per_kg
+    FROM pesanan p
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE p.id_member = ?
+      AND p.status_pesanan NOT IN ('selesai', 'dibatalkan')
+    ORDER BY p.created_at DESC
+");
+$stmtAktif->execute([$id_member]);
+$pesanan_aktif = $stmtAktif->fetchAll() ?: [];
 
 // ── Helper: label dan kelas badge status ─────────────────────
 $label_status = [
@@ -130,7 +131,7 @@ $steps_ambil = [
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght=0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -154,8 +155,7 @@ $steps_ambil = [
                     <p class="status-kosong-sub">
                         Semua pesanan kamu sudah selesai atau belum ada yang dipesan.
                     </p>
-                    <a href="pesan.php" class="tombol-submit-form"
-                       style="text-decoration:none; display:inline-block; margin-top:10px;">
+                    <a href="pesan.php" class="tombol-submit-form" style="text-decoration:none; display:inline-block; margin-top:10px;">
                         Buat Pesanan Baru
                     </a>
                 </div>
@@ -180,7 +180,6 @@ $steps_ambil = [
 
                     <div class="kartu-status-pesanan">
 
-                        <!-- Header kartu -->
                         <div class="kartu-status-header">
                             <div class="kartu-status-header-kiri">
                                 <h3 class="kartu-status-kode">#<?= htmlspecialchars($p['kode_pesanan']) ?></h3>
@@ -196,7 +195,6 @@ $steps_ambil = [
                             </div>
                         </div>
 
-                        <!-- Banner kondisional -->
                         <?php if ($status === 'siap_diambil'): ?>
                             <div class="banner-status banner-hijau" style="margin:0; border-radius:0;">
                                 <span class="banner-ikon">✓</span>
@@ -209,7 +207,6 @@ $steps_ambil = [
                             </div>
                         <?php endif; ?>
 
-                        <!-- Progress bar -->
                         <div class="progress-bar-wrapper">
                             <div class="progress-bar-track">
                                 <?php foreach ($steps as $idx => $step):
@@ -236,10 +233,8 @@ $steps_ambil = [
                             </div>
                         </div>
 
-                        <!-- Body: harga dan info lokasi -->
                         <div class="kartu-status-body">
 
-                            <!-- Berat & harga kondisional -->
                             <?php if ($p['berat_aktual'] > 0): ?>
                                 <div class="kotak-harga-final-status">
                                     <div class="harga-final-baris">
@@ -264,7 +259,6 @@ $steps_ambil = [
                                 </div>
                             <?php endif; ?>
 
-                            <!-- Info lokasi -->
                             <div class="kartu-status-info-kurir">
                                 <span class="info-kurir-ikon"><?= $is_kurir ? '🛵' : '🏬' ?></span>
                                 <div>
@@ -279,14 +273,11 @@ $steps_ambil = [
 
                         </div>
 
-                        <!-- Aksi -->
                         <div class="kartu-status-aksi">
-                            <a href="detail-pesanan.php?id=<?= $p['id'] ?>"
-                               class="tombol-detail-status">Lihat Detail</a>
+                            <a href="detail-pesanan.php?id=<?= $p['id'] ?>" class="tombol-detail-status">Lihat Detail</a>
 
                             <?php if ($status === 'menunggu_konfirmasi'): ?>
-                                <button class="tombol-batalkan-status"
-                                        onclick="konfirmasiBatal(<?= $p['id'] ?>, '<?= htmlspecialchars($p['kode_pesanan']) ?>', '<?= htmlspecialchars($p['nama_layanan']) ?>')">
+                                <button class="tombol-batalkan-status" onclick="konfirmasiBatal(<?= $p['id'] ?>, '<?= htmlspecialchars($p['kode_pesanan']) ?>', '<?= htmlspecialchars($p['nama_layanan']) ?>')">
                                     Batalkan
                                 </button>
                             <?php endif; ?>
@@ -302,11 +293,8 @@ $steps_ambil = [
 
     </section>
 
-    <!-- ── OVERLAY ── -->
-    <div class="overlay-popup" id="overlayPopup"
-         style="display:none;" onclick="tutupPopupBatal()"></div>
+    <div class="overlay-popup" id="overlayPopup" style="display:none;" onclick="tutupPopupBatal()"></div>
 
-    <!-- ── POPUP KONFIRMASI BATALKAN ── -->
     <div class="popup-konfirmasi" id="popupBatal" style="display:none;">
         <h3 class="popup-judul">Batalkan Pesanan?</h3>
         <p class="popup-teks" id="popupBatalTeks">
@@ -319,26 +307,18 @@ $steps_ambil = [
             <form id="formBatalkan" method="POST" action="status.php" style="display:inline;">
                 <input type="hidden" name="action" value="batalkan">
                 <input type="hidden" name="id_pesanan" id="inputIdPesananBatal" value="">
-                <button type="submit"
-                        class="popup-tombol-konfirm"
-                        style="background-color:#f87171; color:white;">
+                <button type="submit" class="popup-tombol-konfirm" style="background-color:#f87171; color:white;">
                     Ya, Batalkan
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ── POPUP NOTIFIKASI DIBATALKAN ADMIN ── -->
     <?php if ($notif_batal): ?>
     <div class="overlay-popup" id="overlayNotifBatal" style="display:block;"></div>
-    <div class="popup-konfirmasi" id="popupNotifBatal"
-         style="display:block; text-align:center; padding:40px 36px;">
+    <div class="popup-konfirmasi" id="popupNotifBatal" style="display:block; text-align:center; padding:40px 36px;">
 
-        <div style="width:60px; height:60px; border-radius:50%;
-                    background:#FFD1D1; color:#D32F2F;
-                    font-size:1.8rem; font-weight:700;
-                    display:flex; align-items:center; justify-content:center;
-                    margin:0 auto 16px;">
+        <div style="width:60px; height:60px; border-radius:50%; background:#FFD1D1; color:#D32F2F; font-size:1.8rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
             ✕
         </div>
 
@@ -353,24 +333,17 @@ $steps_ambil = [
         </p>
 
         <?php if (!empty($notif_batal['alasan_pembatalan'])): ?>
-            <div style="margin:0 0 20px;
-                        background:#fff5f5; border-left:3px solid #f87171;
-                        border-radius:0 8px 8px 0; padding:10px 14px;
-                        text-align:left; font-size:0.88rem; color:#555;">
+            <div style="margin:0 0 20px; background:#fff5f5; border-left:3px solid #f87171; border-radius:0 8px 8px 0; padding:10px 14px; text-align:left; font-size:0.88rem; color:#555;">
                 <strong style="color:#D32F2F;">Alasan:</strong>
                 <?= htmlspecialchars($notif_batal['alasan_pembatalan']) ?>
             </div>
         <?php endif; ?>
 
         <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-            <button class="tombol-submit-form"
-                    onclick="tutupNotifBatal()"
-                    style="margin-top:0; background:#f0f0f0; color:#555;">
+            <button class="tombol-submit-form" onclick="tutupNotifBatal()" style="margin-top:0; background:#f0f0f0; color:#555;">
                 Mengerti
             </button>
-            <a href="riwayat.php"
-               class="tombol-submit-form"
-               style="text-decoration:none; margin-top:0;">
+            <a href="riwayat.php" class="tombol-submit-form" style="text-decoration:none; margin-top:0;">
                 Lihat Riwayat
             </a>
         </div>
@@ -379,30 +352,6 @@ $steps_ambil = [
 
     <script src="../assets/js/main.js"></script>
     <script src="../assets/js/status-refresh.js"></script>
-
-    <script>
-    // ── Popup batalkan ───────────────────────────────────────
-    function konfirmasiBatal(idPesanan, kodePesanan, namaLayanan) {
-        document.getElementById('popupBatalTeks').textContent =
-            'Pesanan #' + kodePesanan + ' (' + namaLayanan + ') akan dibatalkan dan tidak dapat dikembalikan.';
-        document.getElementById('inputIdPesananBatal').value = idPesanan;
-        document.getElementById('overlayPopup').style.display = 'block';
-        document.getElementById('popupBatal').style.display   = 'block';
-    }
-
-    function tutupPopupBatal() {
-        document.getElementById('overlayPopup').style.display = 'none';
-        document.getElementById('popupBatal').style.display   = 'none';
-    }
-
-    // ── Popup notif batal admin ──────────────────────────────
-    function tutupNotifBatal() {
-        const overlay = document.getElementById('overlayNotifBatal');
-        const popup   = document.getElementById('popupNotifBatal');
-        if (overlay) overlay.style.display = 'none';
-        if (popup)   popup.style.display   = 'none';
-    }
-    </script>
 
     <?php include '../includes/footer.php'; ?>
 </body>

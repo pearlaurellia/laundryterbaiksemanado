@@ -2,6 +2,7 @@
  * ============================================================
  * main.js — CleanCo Laundry
  * Core JS untuk admin/pesanan.php dan member/riwayat.php
+ * Ditambah: Fungsi Navigasi Global & Interaksi UI Layout Halaman
  * Murni Native JavaScript (Tanpa Library/Framework)
  * ============================================================
  */
@@ -38,7 +39,52 @@ const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
 
 // ============================================================
-// DATA LOADING
+// LOGIKA INTERAKSI TATA LETAK GLOBAL (HAMBURGER & DROPDOWN)
+// ============================================================
+
+/**
+ * Menginisialisasi event menu hamburger mobile dan penutupan dropdown otomatis.
+ */
+function inisialisasiInteraksiGlobal() {
+    const hamburgerBtn = document.getElementById('hamburgerBtn') || document.querySelector('.hamburger');
+    const navMenu = document.getElementById('navMenu') || document.querySelector('.nav-links');
+    const userToggle = document.getElementById('userDropdownBtn') || document.querySelector('.user-profile-toggle');
+    const userMenu = document.getElementById('userDropdownMenu') || document.querySelector('.user-dropdown');
+
+    // 1. Toggle Hamburger Menu Mobile
+    if (hamburgerBtn && navMenu) {
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navMenu.classList.toggle('aktif');
+            hamburgerBtn.classList.toggle('buka');
+        });
+    }
+
+    // 2. Toggle Dropdown Profil User
+    if (userToggle && userMenu) {
+        userToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenu.classList.toggle('tampil');
+        });
+    }
+
+    // 3. Tutup Dropdown & Menu Navigasi jika Admin/Member Klik di Luar Area Komponen
+    document.addEventListener('click', (e) => {
+        // Tutup menu profil
+        if (userMenu && !userMenu.contains(e.target) && e.target !== userToggle) {
+            userMenu.classList.remove('tampil');
+        }
+        // Tutup hamburger menu
+        if (navMenu && !navMenu.contains(e.target) && hamburgerBtn && !hamburgerBtn.contains(e.target)) {
+            navMenu.classList.remove('aktif');
+            hamburgerBtn.classList.remove('buka');
+        }
+    });
+}
+
+
+// ============================================================
+// DATA LOADING MANAGEMENT
 // ============================================================
 
 /**
@@ -46,7 +92,6 @@ const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
  */
 async function muatDataPesanan() {
     try {
-        // PERBAIKAN: Mengubah /api/pesanan menjadi pesanan.php?action=ambil_semua
         const res  = await fetch('pesanan.php?action=ambil_semua');
         const json = await res.json();
         if (json.success) {
@@ -69,7 +114,6 @@ async function muatDataPesanan() {
  */
 async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = null) {
     try {
-        // PERBAIKAN: Mengubah jalur routing ke parameter file lokal pesanan.php
         const res = await fetch(`pesanan.php?action=update_status&id=${id}`, {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -137,10 +181,8 @@ function setStatusUI(status) {
     const areaTombolAksi = document.getElementById('areaTombolAksi');
     if (!areaTombolAksi) return;
 
-    // Mengosongkan tombol aksi lama
     areaTombolAksi.innerHTML = '';
 
-    // Logika Alur Kerja tombol admin dinamis sesuai state pesanan
     if (status === 'menunggu_konfirmasi') {
         areaTombolAksi.innerHTML = `
             <button onclick="ubahStatusLokal('dikonfirmasi')" class="tombol-terima" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">✓ Konfirmasi Pesanan</button>
@@ -167,7 +209,6 @@ function setStatusUI(status) {
             <button onclick="ubahStatusLokal('selesai')" class="tombol-proses" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">🏁 Konfirmasi Diterima (Selesai)</button>
         `;
     } else {
-        // Status Selesai atau Dibatalkan tidak menampilkan tombol aksi lagi
         areaTombolAksi.innerHTML = `<span style="color:#aaa; font-style:italic;">Tidak ada aksi lanjutan untuk pesanan ini.</span>`;
     }
 }
@@ -211,6 +252,52 @@ function kembaliKeList() {
     document.getElementById('detailIsi').style.display    = 'none';
     document.querySelectorAll('.item-pesanan').forEach(i => i.classList.remove('aktif-dipilih'));
     idAktif = null;
+}
+
+
+// ============================================================
+// INTERAKSI MODAL INPUT TIMBANGAN BERAT
+// ============================================================
+function bukaModalTimbang() {
+    const modal = document.getElementById('modalTimbang');
+    const overlay = document.getElementById('overlayTimbang');
+    if (modal && overlay) {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+}
+
+function tutupModalTimbang() {
+    const modal = document.getElementById('modalTimbang');
+    const overlay = document.getElementById('overlayTimbang');
+    if (modal && overlay) {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+}
+
+/**
+ * Memvalidasi input berat dari modal, mengirim data via POST, lalu merefresh halaman detail
+ */
+async function eksekusiSimpanTimbangan() {
+    const inputBerat = document.getElementById('inputBeratModal');
+    const beratValue = parseFloat(inputBerat ? inputBerat.value : 0);
+
+    if (isNaN(beratValue) || beratValue <= 0) {
+        alert('Masukkan berat timbangan cucian yang valid (Minimal 0.1 kg).');
+        return;
+    }
+
+    // Ubah status ke sedang_dicuci sambil mengirimkan berat aktual dari modal
+    await _updateStatusPesanan(idAktif, 'sedang_dicuci', null, null, beratValue);
+    await muatDataPesanan();
+    renderListPesanan('semua');
+    
+    // Sinkronisasikan ulang isi panel detail kanan agar nominal harganya terupdate otomatis
+    const itemTarget = document.querySelector(`.item-pesanan[data-id="${idAktif}"]`);
+    if (itemTarget) bukaPesanan(idAktif, itemTarget);
+
+    tutupModalTimbang();
 }
 
 
@@ -331,9 +418,13 @@ function renderListPesanan(filterStatus) {
 
 
 // ============================================================
-// INISIALISASI HALAMAN
+// INISIALISASI STARTUP HALAMAN LOAD
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // Jalankan interaksi menu hamburger & click outside di halaman manapun
+    inisialisasiInteraksiGlobal();
+
+    // Khusus halaman admin pesanan, muat records database
     if (document.getElementById('listPesanan')) {
         await muatDataPesanan();
         renderListPesanan('semua');

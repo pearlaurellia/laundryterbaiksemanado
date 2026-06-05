@@ -55,7 +55,7 @@ if (isset($_SESSION['id_user'])) {
                 <a href="riwayat.php" class="tombol-daun">Riwayat</a>
             </li>
             <li>
-                <a href="../kontak.php" class="tombol-daun">Kontak</a>
+                <a href="kontak.php" class="tombol-daun">Kontak</a>
             </li>
         </ul>
     </nav>
