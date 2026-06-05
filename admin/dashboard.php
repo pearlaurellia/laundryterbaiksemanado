@@ -3,53 +3,78 @@ require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Proteksi halaman: Pastikan sudah login dan rolenya adalah admin
 if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
     redirect('../login.php');
 }
 
-// Inisialisasi tanggal default (Awal bulan ini s.d Hari ini)
-$dari_tanggal   = $_GET['dari_tanggal'] ?? date('Y-m-01');
+// ── Kartu hero ──────────────────────────────────────────────
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE DATE(created_at) = CURDATE()");
+$stmt->execute();
+$total_pesanan_hari_ini = $stmt->fetchColumn() ?: 0;
+
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE status_pesanan NOT IN ('selesai', 'dibatalkan')");
+$stmt->execute();
+$total_pesanan_aktif = $stmt->fetchColumn() ?: 0;
+
+$stmt = $pdo->prepare("SELECT SUM(total_harga) FROM pesanan WHERE status_pesanan = 'selesai' AND DATE(created_at) = CURDATE()");
+$stmt->execute();
+$omzet_hari_ini = $stmt->fetchColumn() ?: 0;
+
+// ── Sejarah pesanan ─────────────────────────────────────────
+$stmt = $pdo->prepare("
+    SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
+    FROM pesanan p 
+    JOIN users u ON p.id_member = u.id 
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE p.status_pesanan = 'selesai' 
+    ORDER BY p.updated_at DESC 
+    LIMIT 5
+");
+$stmt->execute();
+$sejarah_pesanan = $stmt->fetchAll() ?: []; // ← fix error line 60
+
+// ── Preview member aktif ────────────────────────────────────
+$stmt = $pdo->prepare("
+    SELECT * FROM users 
+    WHERE role = 'member' AND status_akun = 'aktif' 
+    ORDER BY created_at DESC 
+    LIMIT 5
+");
+$stmt->execute();
+$member_aktif = $stmt->fetchAll() ?: [];
+
+// ── Rekapitulasi ────────────────────────────────────────────
+$dari_tanggal   = $_GET['dari_tanggal'] ?? date('Y-m-d');
 $sampai_tanggal = $_GET['sampai_tanggal'] ?? date('Y-m-d');
-$status_filter  = $_GET['status'] ?? 'semua';
 
-// Menyusun Query SQL secara dinamis berdasarkan filter
-$query_str = "SELECT p.*, u.nama AS nama_pelanggan, u.email
-              FROM pesanan p 
-              JOIN users u ON p.id_member = u.id 
-              WHERE DATE(p.created_at) BETWEEN ? AND ?";
-$params = [$dari_tanggal, $sampai_tanggal];
+$stmt = $pdo->prepare("
+    SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
+    FROM pesanan p
+    JOIN users u ON p.id_member = u.id
+    JOIN layanan l ON p.id_layanan = l.id
+    WHERE DATE(p.created_at) BETWEEN ? AND ? 
+    ORDER BY p.created_at DESC
+");
+$stmt->execute([$dari_tanggal, $sampai_tanggal]);
+$data_rekap = $stmt->fetchAll() ?: []; // ← fix $data_rekap undefined
 
-if ($status_filter !== 'semua') {
-    $query_str .= " AND p.status = ?";
-    $params[] = $status_filter;
-}
-
-$query_str .= " ORDER BY p.created_at DESC";
-
-$stmt = $pdo->prepare($query_str);
-$stmt->execute($params);
-$data_laporan = $stmt->fetchAll();
-
-// Menghitung statistik Rekapitulasi secara otomatis dari data terfilter
-$total_omzet   = 0;
-$total_pesanan = count($data_laporan);
-$total_berat   = 0;
-
-foreach ($data_laporan as $row) {
-    // Omzet hanya dihitung dari pesanan yang tidak dibatalkan
-    if ($row['status'] !== 'dibatalkan') {
-        $total_omzet += $row['total_harga'];
+// Hitung total rekapitulasi
+$total_omzet_rekap = 0; // ← fix $total_omzet_rekap undefined
+$total_berat_rekap = 0;
+foreach ($data_rekap as $row) {
+    if ($row['status_pesanan'] !== 'dibatalkan') {
+        $total_omzet_rekap += $row['total_harga'];
     }
-    $total_berat += $row['berat'];
+    $total_berat_rekap += $row['berat_aktual'];
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Rekapitulasi - CleanCo Admin</title>
+    <title>Dashboard Admin - CleanCo</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,118 +85,144 @@ foreach ($data_laporan as $row) {
 
     <?php include '../includes/header-admin.php'; ?>
 
-    <section class="rekapitulasi" style="margin-top: 20px;">
+    <!-- SECTION 1: Hero dengan kartu statistik hari ini -->
+    <section class="hero">
+        <div class="konten-hero-admin">
+            <div class="kartu-pesanan-container">
+                <div class="kartu-pesanan">
+                    <div class="kartu-header">Total Pesanan Hari Ini</div>
+                    <div class="kartu-body-admin">
+                        <p><?= $total_pesanan_hari_ini ?></p>
+                        <div class="bulat-kecil-admin"></div>
+                        <div class="bulat-harga-admin"></div>
+                    </div>
+                </div>
+                <div class="kartu-pesanan">
+                    <div class="kartu-header">Total Pesanan Aktif</div>
+                    <div class="kartu-body-admin">
+                        <p><?= $total_pesanan_aktif ?></p>
+                        <div class="bulat-kecil-admin"></div>
+                        <div class="bulat-harga-admin"></div>
+                    </div>
+                </div>
+                <div class="kartu-pesanan">
+                    <div class="kartu-header">Omzet</div>
+                    <div class="kartu-body-admin">
+                        <p>Rp <?= number_format($omzet_hari_ini, 0, ',', '.') ?></p>
+                        <div class="bulat-kecil-admin"></div>
+                        <div class="bulat-harga-admin"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bulat-atas-admin"></div>
+        <div class="bulat-ditengah-admin"></div>
+        <div class="bulat-besar-admin"><h2>CleanCo</h2></div>
+    </section>
+
+    <!-- SECTION 2: Sejarah pesanan terakhir -->
+    <section class="sejarah-pesanan">
+        <div class="kartu-sejarah-container">
+            <?php if (empty($sejarah_pesanan)): ?>
+                <p style="color:#aaa; padding: 20px;">Belum ada pesanan selesai.</p>
+            <?php else: ?>
+                <?php foreach ($sejarah_pesanan as $p): ?>
+                    <div class="kartu-sejarah">
+                        <div class="sejarah-body">
+                            <div class="grup-keterangan">
+                                <span class="badge-biru"><?= date('H:i l, d-m-Y', strtotime($p['created_at'])) ?></span>
+                                <span class="badge-biru"><?= htmlspecialchars($p['nama_layanan']) ?></span>
+                                <span class="badge-biru"><?= htmlspecialchars($p['opsi_pengantaran']) ?></span>
+                                <span class="badge-biru"><?= number_format($p['berat_aktual'], 1) ?>kg</span>
+                            </div>
+                            <p>Pesanan selesai: <?= date('H:i l, d-m-Y', strtotime($p['updated_at'])) ?></p>
+                            <p>Total harga: Rp <?= number_format($p['total_harga'], 0, ',', '.') ?></p>
+                            <a href="pesanan.php?id=<?= $p['id'] ?>" class="tombol-detail">Detail Pesanan</a>
+                            <div class="bulat-kecil"></div>
+                            <div class="bulat-harga"></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- SECTION 3: Preview member aktif -->
+    <section class="preview-pesanan-aktif">
+        <div class="pesanan-aktif-container">
+            <?php if (empty($member_aktif)): ?>
+                <p style="color:#aaa; padding: 20px;">Belum ada member aktif.</p>
+            <?php else: ?>
+                <?php foreach ($member_aktif as $m): ?>
+                    <div class="kartu-member-admin">
+                        <div class="member-kiri">
+                            <p class="teks-kecil">Username: <?= htmlspecialchars($m['email']) ?></p>
+                            <div class="baris-nama">
+                                <div class="pill-nama">Nama: <strong><?= htmlspecialchars($m['nama']) ?></strong></div>
+                                <div class="pill-alamat">Lihat alamat lengkap</div>
+                            </div>
+                            <p class="teks-info">Alamat: <?= htmlspecialchars($m['alamat']) ?></p>
+                            <p class="teks-info">Nomor Telepon: <?= htmlspecialchars($m['no_hp']) ?></p>
+                            <p class="teks-info">Email: <?= htmlspecialchars($m['email']) ?></p>
+                        </div>
+                        <div class="member-kanan">
+                            <p class="teks-tanggal">Tanggal bergabung:<br><?= date('d-m-Y', strtotime($m['created_at'])) ?></p>
+                            <div class="baris-aksi">
+                                <a href="member.php?id=<?= $m['id'] ?>" class="pill-riwayat">Riwayat Pesanan</a>
+                                <a href="member.php?action=nonaktif&id=<?= $m['id'] ?>" class="pill-nonaktif">Nonaktifkan</a>
+                            </div>
+                            <div class="lingkaran-member-kecil"></div>
+                            <div class="lingkaran-member-besar"></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- SECTION 4: Rekapitulasi dengan filter -->
+    <section class="rekapitulasi">
         <div class="rekap-kiri">
-            <h1 class="judul-rekap" style="font-family: 'Bricolage Grotesque', sans-serif;">Dashboard Admin</h1>
-            <p style="color: rgba(255,255,255,0.8); font-size: 0.95rem; margin-top: -10px;">
-                Memantau arus kas, jumlah distribusi beban kerja laundry, dan status transaksi CleanCo secara realtime.
-            </p>
+            <h1 class="judul-rekap">Rekapitulasi</h1>
+
+            <form method="GET" action="">
+                <label class="label-rekap">Dari Tanggal:</label>
+                <input type="date" name="dari_tanggal" class="input-rekap" value="<?= $dari_tanggal ?>">
+
+                <label class="label-rekap">Sampai Tanggal:</label>
+                <input type="date" name="sampai_tanggal" class="input-rekap" value="<?= $sampai_tanggal ?>">
+
+                <button type="submit" class="tombol-filter-rekap">Filter</button>
+            </form>
+
+            <div class="bulat-rekap-kecil"></div>
+            <div class="bulat-rekap-besar"></div>
         </div>
 
         <div class="rekap-kanan">
-            <div class="badge-tanggal-rekap">Periode: <?= date('d M Y', strtotime($dari_tanggal)) ?> - <?= date('d M Y', strtotime($sampai_tanggal)) ?></div>
+            <div class="badge-tanggal-rekap">
+                Rekap: <?= date('d-m-Y', strtotime($dari_tanggal)) ?> s.d <?= date('d-m-Y', strtotime($sampai_tanggal)) ?>
+            </div>
             <div class="kartu-rekap-container">
                 <div class="kartu-rekap">
-                    <div class="kartu-header">Total Omzet</div>
+                    <div class="kartu-header">Omzet</div>
                     <div class="kartu-body">
-                        <p>Rp <?= number_format($total_omzet, 0, ',', '.') ?></p>
+                        <p>Rp <?= number_format($total_omzet_rekap, 0, ',', '.') ?></p>
+                        <div class="bulat-kecil"></div>
+                        <div class="bulat-harga"></div>
                     </div>
                 </div>
                 <div class="kartu-rekap">
-                    <div class="kartu-header kartu-header-biru">Volume Pesanan</div>
+                    <div class="kartu-header kartu-header-biru">Total Pesanan</div>
                     <div class="kartu-body">
-                        <p><?= $total_pesanan ?> Nota <span style="font-size: 1rem; color:#888;">(<?= number_format($total_berat, 1) ?> kg)</span></p>
+                        <p><?= count($data_rekap) ?> Nota <span style="font-size:1rem;color:#888;">(<?= number_format($total_berat_rekap, 1) ?> kg)</span></p>
+                        <div class="bulat-kecil"></div>
+                        <div class="bulat-harga"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <main class="area-laporan">
-        
-        <form method="GET" action="dashboard.php" class="form-filter-rekap">
-            <div class="grup-filter-input">
-                <label class="label-rekap" style="color: #1D3557; font-weight: 600;">Dari Tanggal :</label>
-                <input type="date" name="dari_tanggal" class="input-rekap" value="<?= $dari_tanggal ?>" style="border: 1.5px solid #e0e0e0; width:100%;">
-            </div>
-
-            <div class="grup-filter-input">
-                <label class="label-rekap" style="color: #1D3557; font-weight: 600;">Sampai Tanggal :</label>
-                <input type="date" name="sampai_tanggal" class="input-rekap" value="<?= $sampai_tanggal ?>" style="border: 1.5px solid #e0e0e0; width:100%;">
-            </div>
-
-            <div class="grup-filter-input">
-                <label class="label-rekap" style="color: #1D3557; font-weight: 600;">Status Transaksi :</label>
-                <select name="status" class="select-rekap">
-                    <option value="semua" <?= $status_filter === 'semua' ? 'selected' : '' ?>>Semua Status</option>
-                    <option value="menunggu_konfirmasi" <?= $status_filter === 'menunggu_konfirmasi' ? 'selected' : '' ?>>Menunggu Konfirmasi</option>
-                    <option value="dikonfirmasi" <?= $status_filter === 'dikonfirmasi' ? 'selected' : '' ?>>Dikonfirmasi</option>
-                    <option value="sedang_dicuci" <?= $status_filter === 'sedang_dicuci' ? 'selected' : '' ?>>Sedang Diproses</option>
-                    <option value="selesai" <?= $status_filter === 'selesai' ? 'selected' : '' ?>>Selesai</option>
-                    <option value="dibatalkan" <?= $status_filter === 'dibatalkan' ? 'selected' : '' ?>>Dibatalkan</option>
-                </select>
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="tombol-aksi-laporan btn-cari">Terapkan Filter</button>
-                <button type="button" onclick="window.print()" class="tombol-aksi-laporan btn-cetak">🖨️ Cetak Laporan</button>
-            </div>
-        </form>
-
-        <div class="tabel-wrapper">
-            <table class="tabel-clean">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Kode Nota</th>
-                        <th>Tanggal Pesan</th>
-                        <th>Pelanggan</th>
-                        <th>Layanan / Paket</th>
-                        <th>Berat</th>
-                        <th>Total Bayar</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($data_laporan)): ?>
-                        <tr>
-                            <td colspan="8" style="text-align: center; color: #aaa; padding: 40px;">
-                                Transaksi tidak ditemukan pada range tanggal terpilih.
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php $no = 1; foreach ($data_laporan as $laporan): ?>
-                            <tr>
-                                <td><?= $no++ ?></td>
-                                <td style="font-weight: 700; color: #346E9E;">#<?= $laporan['kode_pesanan'] ?? 'CLN-' . $laporan['id'] ?></td>
-                                <td><?= date('d-m-Y H:i', strtotime($laporan['created_at'])) ?></td>
-                                <td>
-                                    <strong><?= htmlspecialchars($laporan['nama_pelanggan']) ?></strong><br>
-                                    <span style="font-size:0.8rem; color:#888;"><?= htmlspecialchars($laporan['email']) ?></span>
-                                </td>
-                                <td>
-                                    <span style="text-transform: capitalize;"><?= htmlspecialchars($laporan['layanan']) ?></span> 
-                                    <small style="color: #666;">(<?= htmlspecialchars($laporan['pengiriman']) ?>)</small>
-                                </td>
-                                <td><?= number_format($laporan['berat'], 1) ?> kg</td>
-                                <td style="font-weight: 600; color: #1D3557;">Rp <?= number_format($laporan['total_harga'], 0, ',', '.') ?></td>
-                                <td>
-                                    <?php 
-                                    $st = $laporan['status'];
-                                    if ($st === 'menunggu_konfirmasi') echo '<span class="badge-status status-menunggu">Menunggu</span>';
-                                    elseif ($st === 'selesai') echo '<span class="badge-status status-selesai">Selesai</span>';
-                                    elseif ($st === 'dibatalkan') echo '<span class="badge-status status-batal">Batal</span>';
-                                    else echo '<span class="badge-status status-proses">Diproses</span>';
-                                    ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-    </main>
 
 </body>
 </html>
