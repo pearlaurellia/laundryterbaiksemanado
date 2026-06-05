@@ -3,81 +3,45 @@ require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Proteksi halaman: Pastikan sudah login dan rolenya adalah admin
 if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
     redirect('../login.php');
 }
 
-// PROSES BACKEND: Menerima POST Request untuk Update Data (Menggunakan PDO)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     $action = $_GET['action'];
-    $success = false;
 
     if ($action === 'simpan_kontak') {
-        $wa_admin = $_POST['wa_admin'];
-        $email_admin = $_POST['email_admin'];
-        
-        $stmt1 = $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'wa_admin'");
-        $stmt1->execute([$wa_admin]);
-        
-        $stmt2 = $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'email_admin'");
-        $stmt2->execute([$email_admin]);
-        $success = true;
-    } 
+        $stmt = $pdo->prepare("UPDATE info_website SET no_whatsapp = ?, no_telepon = ? WHERE id = 1");
+        $stmt->execute([trim($_POST['no_whatsapp']), trim($_POST['no_telepon'])]);
+    }
     elseif ($action === 'simpan_jam') {
-        $jam_buka = $_POST['jam_buka'];
-        $jam_tutup = $_POST['jam_tutup'];
-        $hari_operasional = $_POST['hari_operasional'];
-        $catatan_jam = $_POST['catatan_jam'];
-
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'jam_buka'")->execute([$jam_buka]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'jam_tutup'")->execute([$jam_tutup]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'hari_operasional'")->execute([$hari_operasional]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'catatan_jam'")->execute([$catatan_jam]);
-        $success = true;
-    } 
+        $stmt = $pdo->prepare("UPDATE info_website SET jam_operasional = ? WHERE id = 1");
+        $stmt->execute([trim($_POST['jam_operasional'])]);
+    }
     elseif ($action === 'simpan_alamat') {
-        $nama_outlet = $_POST['nama_outlet'];
-        $alamat_outlet = $_POST['alamat_outlet'];
-        $kecamatan_outlet = $_POST['kecamatan_outlet'];
-        $maps_outlet = $_POST['maps_outlet'];
-
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'nama_outlet'")->execute([$nama_outlet]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'alamat_outlet'")->execute([$alamat_outlet]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'kecamatan_outlet'")->execute([$kecamatan_outlet]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'maps_outlet'")->execute([$maps_outlet]);
-        $success = true;
-    } 
-    elseif ($action === 'simpan_kurir') {
-        $biaya_kurir = $_POST['biaya_kurir'];
-        $catatan_kurir = $_POST['catatan_kurir'];
-        
+        $stmt = $pdo->prepare("UPDATE info_website SET nama_usaha = ?, alamat = ? WHERE id = 1");
+        $stmt->execute([trim($_POST['nama_usaha']), trim($_POST['alamat'])]);
+    }
+    elseif ($action === 'simpan_kecamatan') {
         $kecamatan_array = isset($_POST['kecamatan']) ? $_POST['kecamatan'] : [];
-        $kecamatan_json = json_encode($kecamatan_array);
-
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'biaya_kurir'")->execute([$biaya_kurir]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'catatan_kurir'")->execute([$catatan_kurir]);
-        $pdo->prepare("UPDATE info_website SET value = ? WHERE `key` = 'kecamatan_layanan'")->execute([$kecamatan_json]);
-        $success = true;
+        $stmt = $pdo->prepare("UPDATE info_website SET kecamatan_dilayani = ? WHERE id = 1");
+        $stmt->execute([json_encode($kecamatan_array, JSON_UNESCAPED_UNICODE)]);
     }
 
-    if ($success) {
-        header("Location: edit-info.php?status=sukses");
-        exit;
-    }
+    header("Location: edit-info.php?status=sukses");
+    exit;
 }
 
-// FRONTEND GET DATA: Ambil data dengan PDO ke array asosiatif
-$info = [];
-$query_ambil = $pdo->query("SELECT * FROM info_website");
-while ($row = $query_ambil->fetch()) {
-    $info[$row['key']] = $row['value'];
+$stmt = $pdo->query("SELECT * FROM info_website WHERE id = 1");
+$info = $stmt->fetch();
+
+$kecamatan_aktif = [];
+if (!empty($info['kecamatan_dilayani'])) {
+    $decoded = json_decode($info['kecamatan_dilayani'], true);
+    $kecamatan_aktif = is_array($decoded) ? $decoded : [];
 }
 
-$kecamatan_aktif = isset($info['kecamatan_layanan']) ? json_decode($info['kecamatan_layanan'], true) : [];
-if (!is_array($kecamatan_aktif)) {
-    $kecamatan_aktif = [];
-}
+$semua_kecamatan = ['Wenang','Wanea','Tikala','Mapanget','Tuminting','Singkil','Bunaken','Malalayang','Sario','Paal Dua'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -93,210 +57,220 @@ if (!is_array($kecamatan_aktif)) {
 </head>
 <body>
 
-    <?php include '../includes/header-admin.php'; ?>
+<?php include '../includes/header-admin.php'; ?>
 
-    <section class="halaman-layanan">
+<?php if (isset($_GET['status']) && $_GET['status'] === 'sukses'): ?>
+    <div class="notif-sukses">✓ Perubahan berhasil disimpan.</div>
+<?php endif; ?>
 
-        <div class="layanan-sidebar edit-info-sidebar">
-            <h2 class="judul-sidebar">Edit Info Website</h2>
-            <p class="edit-info-sidebar-sub">
-                Perubahan di sini langsung memengaruhi halaman publik dan form pemesanan member.
-            </p>
+<div class="edit-info-page">
 
-            <nav class="edit-info-nav">
-                <a href="#seksiKontak" class="edit-info-nav-item aktif-nav" onclick="aktifkanNav(this)">📞 Kontak</a>
-                <a href="#seksiJam" class="edit-info-nav-item" onclick="aktifkanNav(this)">🕐 Jam Operasional</a>
-                <a href="#seksiAlamat" class="edit-info-nav-item" onclick="aktifkanNav(this)">📍 Alamat Outlet</a>
-                <a href="#seksiKurir" class="edit-info-nav-item" onclick="aktifkanNav(this)">🛵 Layanan Kurir</a>
-            </nav>
+    <h1 class="edit-info-judul">Info Website</h1>
+    <p class="edit-info-sub">
+        Perubahan langsung memengaruhi halaman publik dan form pemesanan member.
+    </p>
 
-            <div class="edit-info-dampak">
-                <p class="edit-info-dampak-judul">Halaman yang terpengaruh:</p>
-                <ul class="edit-info-dampak-list">
-                    <li>index.php</li>
-                    <li>kontak.php</li>
-                    <li>member/pesan.php</li>
-                </ul>
+    <!-- ── KARTU 1: KONTAK ── -->
+    <div class="edit-info-kartu">
+        <div class="edit-info-kartu-header">
+            <div>
+                <h2 class="edit-info-kartu-judul">📞 Kontak</h2>
+                <p class="edit-info-kartu-sub">Nomor WhatsApp dan telepon yang tampil di halaman publik.</p>
+            </div>
+            <button class="tombol-edit-info" id="btnEditKontak"
+                    onclick="bukaEdit('kontak')">Edit</button>
+        </div>
+
+        <!-- Tampilan -->
+        <div id="viewKontak" class="edit-info-grid">
+            <div class="edit-info-field">
+                <span class="edit-info-label">Nomor WhatsApp</span>
+                <p class="edit-info-nilai"><?= htmlspecialchars($info['no_whatsapp'] ?? '—') ?></p>
+            </div>
+            <div class="edit-info-field">
+                <span class="edit-info-label">Nomor Telepon</span>
+                <p class="edit-info-nilai"><?= htmlspecialchars($info['no_telepon'] ?? '—') ?></p>
             </div>
         </div>
 
-        <div class="layanan-kanan edit-info-kanan">
-
-            <div class="edit-info-seksi" id="seksiKontak">
-                <div class="edit-info-seksi-header">
-                    <div>
-                        <h2 class="judul-layanan-kanan">Informasi Kontak</h2>
-                        <p class="subjudul-layanan-kanan">Nomor WA ini digunakan sebagai tujuan click-to-chat otomatis saat member memesan.</p>
-                    </div>
-                    <button class="tombol-edit-profil" id="tombolEditKontak" onclick="toggleEditSeksi('kontak')">Edit</button>
+        <!-- Form edit -->
+        <form method="POST" action="edit-info.php?action=simpan_kontak"
+              id="formKontak" style="display:none;">
+            <div class="edit-info-grid">
+                <div class="edit-info-field">
+                    <label class="edit-info-label" for="inputWA">Nomor WhatsApp</label>
+                    <input type="text" id="inputWA" name="no_whatsapp"
+                           class="edit-info-input"
+                           value="<?= htmlspecialchars($info['no_whatsapp'] ?? '') ?>"
+                           placeholder="cth: 6281234567890">
+                    <span class="edit-info-hint">Format: 62xxx tanpa tanda +</span>
                 </div>
-
-                <form method="POST" action="edit-info.php?action=simpan_kontak" class="edit-info-form" id="formKontak">
-                    <div class="grup-input-form">
-                        <label class="label-profil">Nomor WhatsApp Admin (format: 628xxx)</label>
-                        <input type="text" class="input-profil input-readonly" id="inputWaAdmin" name="wa_admin" value="<?= htmlspecialchars($info['wa_admin'] ?? '') ?>" readonly required>
-                        <p class="edit-info-hint">* Format tanpa tanda + dan tanpa spasi. Contoh: 628123456789</p>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Email Bisnis</label>
-                        <input type="email" class="input-profil input-readonly" id="inputEmailAdmin" name="email_admin" value="<?= htmlspecialchars($info['email_admin'] ?? '') ?>" readonly required>
-                    </div>
-
-                    <div class="edit-info-tombol-simpan" id="simpanKontak" style="display:none;">
-                        <button type="button" class="tombol-submit-form" onclick="simpanSeksi('kontak')">Simpan Kontak</button>
-                        <button type="button" class="tombol-batal-layanan" style="display:inline-block;" onclick="batalEditSeksi('kontak')">Batal</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="edit-info-divider"></div>
-
-            <div class="edit-info-seksi" id="seksiJam">
-                <div class="edit-info-seksi-header">
-                    <div>
-                        <h2 class="judul-layanan-kanan">Jam Operasional</h2>
-                        <p class="subjudul-layanan-kanan">Ditampilkan di halaman kontak.php.</p>
-                    </div>
-                    <button class="tombol-edit-profil" id="tombolEditJam" onclick="toggleEditSeksi('jam')">Edit</button>
+                <div class="edit-info-field">
+                    <label class="edit-info-label" for="inputTelp">Nomor Telepon</label>
+                    <input type="text" id="inputTelp" name="no_telepon"
+                           class="edit-info-input"
+                           value="<?= htmlspecialchars($info['no_telepon'] ?? '') ?>"
+                           placeholder="cth: 08123456789">
                 </div>
-
-                <form method="POST" action="edit-info.php?action=simpan_jam" class="edit-info-form" id="formJam">
-                    <div class="edit-info-form-grid">
-                        <div class="grup-input-form">
-                            <label class="label-profil">Jam Buka</label>
-                            <input type="time" class="input-profil input-readonly" id="inputJamBuka" name="jam_buka" value="<?= htmlspecialchars($info['jam_buka'] ?? '08:00') ?>" readonly required>
-                        </div>
-                        <div class="grup-input-form">
-                            <label class="label-profil">Jam Tutup</label>
-                            <input type="time" class="input-profil input-readonly" id="inputJamTutup" name="jam_tutup" value="<?= htmlspecialchars($info['jam_tutup'] ?? '21:00') ?>" readonly required>
-                        </div>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Hari Operasional</label>
-                        <input type="text" class="input-profil input-readonly" id="inputHariOperasional" name="hari_operasional" value="<?= htmlspecialchars($info['hari_operasional'] ?? 'Senin – Sabtu') ?>" readonly required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Catatan Jam (opsional)</label>
-                        <input type="text" class="input-profil input-readonly" id="inputCatatanJam" name="catatan_jam" value="<?= htmlspecialchars($info['catatan_jam'] ?? '') ?>" readonly>
-                    </div>
-
-                    <div class="edit-info-tombol-simpan" id="simpanJam" style="display:none;">
-                        <button type="button" class="tombol-submit-form" onclick="simpanSeksi('jam')">Simpan Jam</button>
-                        <button type="button" class="tombol-batal-layanan" style="display:inline-block;" onclick="batalEditSeksi('jam')">Batal</button>
-                    </div>
-                </form>
             </div>
-
-            <div class="edit-info-divider"></div>
-
-            <div class="edit-info-seksi" id="seksiAlamat">
-                <div class="edit-info-seksi-header">
-                    <div>
-                        <h2 class="judul-layanan-kanan">Alamat Outlet</h2>
-                        <p class="subjudul-layanan-kanan">Ditampilkan di kontak.php dan sebagai tujuan untuk member yang ambil sendiri.</p>
-                    </div>
-                    <button class="tombol-edit-profil" id="tombolEditAlamat" onclick="toggleEditSeksi('alamat')">Edit</button>
-                </div>
-
-                <form method="POST" action="edit-info.php?action=simpan_alamat" class="edit-info-form" id="formAlamat">
-                    <div class="grup-input-form">
-                        <label class="label-profil">Nama Outlet</label>
-                        <input type="text" class="input-profil input-readonly" id="inputNamaOutlet" name="nama_outlet" value="<?= htmlspecialchars($info['nama_outlet'] ?? '') ?>" readonly required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Alamat Lengkap</label>
-                        <input type="text" class="input-profil input-readonly" id="inputAlamatOutlet" name="alamat_outlet" value="<?= htmlspecialchars($info['alamat_outlet'] ?? '') ?>" readonly required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Kecamatan</label>
-                        <input type="text" class="input-profil input-readonly" id="inputKecamatanOutlet" name="kecamatan_outlet" value="<?= htmlspecialchars($info['kecamatan_outlet'] ?? '') ?>" readonly required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Link Google Maps (opsional)</label>
-                        <input type="url" class="input-profil input-readonly" id="inputMapsOutlet" name="maps_outlet" value="<?= htmlspecialchars($info['maps_outlet'] ?? '') ?>" readonly>
-                    </div>
-
-                    <div class="edit-info-tombol-simpan" id="simpanAlamat" style="display:none;">
-                        <button type="button" class="tombol-submit-form" onclick="simpanSeksi('alamat')">Simpan Alamat</button>
-                        <button type="button" class="tombol-batal-layanan" style="display:inline-block;" onclick="batalEditSeksi('alamat')">Batal</button>
-                    </div>
-                </form>
+            <div class="edit-info-aksi">
+                <button type="submit" class="tombol-simpan-info">Simpan</button>
+                <button type="button" class="tombol-batal-info"
+                        onclick="tutupEdit('kontak')">Batal</button>
             </div>
-
-            <div class="edit-info-divider"></div>
-
-            <div class="edit-info-seksi" id="seksiKurir">
-                <div class="edit-info-seksi-header">
-                    <div>
-                        <h2 class="judul-layanan-kanan">Layanan Kurir</h2>
-                        <p class="subjudul-layanan-kanan">Kecamatan yang aktif muncul sebagai pilihan dropdown di form pesanan member.</p>
-                    </div>
-                    <button class="tombol-edit-profil" id="tombolEditKurir" onclick="toggleEditSeksi('kurir')">Edit</button>
-                </div>
-
-                <form method="POST" action="edit-info.php?action=simpan_kurir" class="edit-info-form" id="formKurir">
-                    <div class="grup-input-form">
-                        <label class="label-profil">Biaya Kurir Flat (Rp)</label>
-                        <input type="number" class="input-profil input-readonly" id="inputBiayaKurir" name="biaya_kurir" value="<?= htmlspecialchars($info['biaya_kurir'] ?? '0') ?>" min="0" step="500" readonly required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Kecamatan yang Dilayani</label>
-                        <div class="kecamatan-pills" id="kecamatanPills">
-                            <?php foreach ($kecamatan_aktif as $kec): ?>
-                                <span class="pill-kecamatan"><?= htmlspecialchars($kec) ?></span>
-                            <?php endforeach; ?>
-                            <?php if (empty($kecamatan_aktif)): ?>
-                                <span class="pill-kecamatan" style="background:#fee2e2; color:#dc2626;">Belum ada wilayah aktif</span>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="kecamatan-checkboxes" id="kecamatanCheckboxes" style="display:none;">
-                            <?php
-                            $list_semua_kecamatan = ["Wanea", "Malalayang", "Tikala", "Mapanget", "Tuminting", "Bunaken", "Wenang", "Paal Dua", "Singkil", "Sario", "Paal Empat", "Molas"];
-                            foreach ($list_semua_kecamatan as $kec):
-                                $tercentang = in_array($kec, $kecamatan_aktif) ? 'checked' : '';
-                            ?>
-                                <label class="checkbox-kecamatan">
-                                    <input type="checkbox" name="kecamatan[]" value="<?= $kec ?>" <?= $tercentang ?>> <?= $kec ?>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label class="label-profil">Catatan untuk Member</label>
-                        <input type="text" class="input-profil input-readonly" id="inputCatatanKurir" name="catatan_kurir" value="<?= htmlspecialchars($info['catatan_kurir'] ?? '') ?>" readonly>
-                    </div>
-
-                    <div class="edit-info-tombol-simpan" id="simpanKurir" style="display:none;">
-                        <button type="button" class="tombol-submit-form" onclick="simpanSeksi('kurir')">Simpan Pengaturan Kurir</button>
-                        <button type="button" class="tombol-batal-layanan" style="display:inline-block;" onclick="batalEditSeksi('kurir')">Batal</button>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </section>
-
-    <div class="overlay-popup" id="overlayPopup" style="display:none;"></div>
-    <div class="popup-konfirmasi" id="popupBerhasil" style="display:none;">
-        <h3 class="popup-judul" id="popupBerhasilJudul">Berhasil Disimpan!</h3>
-        <p class="popup-teks" id="popupBerhasilTeks">Perubahan telah disimpan dan langsung aktif.</p>
-        <div class="popup-tombol-group" style="justify-content:center;">
-            <button class="popup-tombol-konfirm" style="background-color:#52c49c; color:#1a4d3a;" id="btnPopupOk">OK</button>
-        </div>
+        </form>
     </div>
 
-    <script src="../assets/js/form-validation.js"></script>
-    
-    <script src="js/main.js"></script>
+    <!-- ── KARTU 2: JAM OPERASIONAL ── -->
+    <div class="edit-info-kartu">
+        <div class="edit-info-kartu-header">
+            <div>
+                <h2 class="edit-info-kartu-judul">🕐 Jam Operasional</h2>
+                <p class="edit-info-kartu-sub">Tampil di halaman beranda dan info kontak.</p>
+            </div>
+            <button class="tombol-edit-info" id="btnEditJam"
+                    onclick="bukaEdit('jam')">Edit</button>
+        </div>
+
+        <div id="viewJam" class="edit-info-grid edit-info-grid-full">
+            <div class="edit-info-field">
+                <span class="edit-info-label">Jam Operasional</span>
+                <p class="edit-info-nilai"><?= htmlspecialchars($info['jam_operasional'] ?? '—') ?></p>
+            </div>
+        </div>
+
+        <form method="POST" action="edit-info.php?action=simpan_jam"
+              id="formJam" style="display:none;">
+            <div class="edit-info-grid edit-info-grid-full">
+                <div class="edit-info-field">
+                    <label class="edit-info-label" for="inputJam">Jam Operasional</label>
+                    <input type="text" id="inputJam" name="jam_operasional"
+                           class="edit-info-input"
+                           value="<?= htmlspecialchars($info['jam_operasional'] ?? '') ?>"
+                           placeholder="cth: Senin - Sabtu: 08.00 - 17.00 WITA">
+                    <span class="edit-info-hint">Tulis lengkap dalam satu baris.</span>
+                </div>
+            </div>
+            <div class="edit-info-aksi">
+                <button type="submit" class="tombol-simpan-info">Simpan</button>
+                <button type="button" class="tombol-batal-info"
+                        onclick="tutupEdit('jam')">Batal</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── KARTU 3: NAMA & ALAMAT ── -->
+    <div class="edit-info-kartu">
+        <div class="edit-info-kartu-header">
+            <div>
+                <h2 class="edit-info-kartu-judul">📍 Nama Usaha & Alamat</h2>
+                <p class="edit-info-kartu-sub">Tampil di footer dan halaman kontak.</p>
+            </div>
+            <button class="tombol-edit-info" id="btnEditAlamat"
+                    onclick="bukaEdit('alamat')">Edit</button>
+        </div>
+
+        <div id="viewAlamat" class="edit-info-grid">
+            <div class="edit-info-field">
+                <span class="edit-info-label">Nama Usaha</span>
+                <p class="edit-info-nilai"><?= htmlspecialchars($info['nama_usaha'] ?? '—') ?></p>
+            </div>
+            <div class="edit-info-field">
+                <span class="edit-info-label">Alamat</span>
+                <p class="edit-info-nilai"><?= htmlspecialchars($info['alamat'] ?? '—') ?></p>
+            </div>
+        </div>
+
+        <form method="POST" action="edit-info.php?action=simpan_alamat"
+              id="formAlamat" style="display:none;">
+            <div class="edit-info-grid">
+                <div class="edit-info-field">
+                    <label class="edit-info-label" for="inputNama">Nama Usaha</label>
+                    <input type="text" id="inputNama" name="nama_usaha"
+                           class="edit-info-input"
+                           value="<?= htmlspecialchars($info['nama_usaha'] ?? '') ?>"
+                           placeholder="cth: CleanCo Laundry">
+                </div>
+                <div class="edit-info-field">
+                    <label class="edit-info-label" for="inputAlamat">Alamat Lengkap</label>
+                    <input type="text" id="inputAlamat" name="alamat"
+                           class="edit-info-input"
+                           value="<?= htmlspecialchars($info['alamat'] ?? '') ?>"
+                           placeholder="cth: Jl. Mawar No. 10, Manado">
+                </div>
+            </div>
+            <div class="edit-info-aksi">
+                <button type="submit" class="tombol-simpan-info">Simpan</button>
+                <button type="button" class="tombol-batal-info"
+                        onclick="tutupEdit('alamat')">Batal</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── KARTU 4: KECAMATAN ── -->
+    <div class="edit-info-kartu">
+        <div class="edit-info-kartu-header">
+            <div>
+                <h2 class="edit-info-kartu-judul">🗺️ Kecamatan yang Dilayani</h2>
+                <p class="edit-info-kartu-sub">Menentukan pilihan kecamatan di form pemesanan kurir.</p>
+            </div>
+            <button class="tombol-edit-info" id="btnEditKecamatan"
+                    onclick="bukaEdit('kecamatan')">Edit</button>
+        </div>
+
+        <div id="viewKecamatan" class="kecamatan-grid">
+            <?php if (empty($kecamatan_aktif)): ?>
+                <p style="color:#aaa; font-size:0.9rem;">Belum ada kecamatan dipilih.</p>
+            <?php else: ?>
+                <?php foreach ($kecamatan_aktif as $kec): ?>
+                    <span class="pill-kec"><?= htmlspecialchars($kec) ?></span>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <form method="POST" action="edit-info.php?action=simpan_kecamatan"
+              id="formKecamatan" style="display:none;">
+            <div class="kecamatan-grid" style="margin-bottom:20px;">
+                <?php foreach ($semua_kecamatan as $kec): ?>
+                    <label class="checkbox-kec">
+                        <input type="checkbox" name="kecamatan[]" value="<?= $kec ?>"
+                               <?= in_array($kec, $kecamatan_aktif) ? 'checked' : '' ?>>
+                        <?= $kec ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+            <div class="edit-info-aksi">
+                <button type="submit" class="tombol-simpan-info">Simpan</button>
+                <button type="button" class="tombol-batal-info"
+                        onclick="tutupEdit('kecamatan')">Batal</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+const _seksiMap = {
+    kontak:     { form: 'formKontak',     view: 'viewKontak',     btn: 'btnEditKontak'     },
+    jam:        { form: 'formJam',        view: 'viewJam',        btn: 'btnEditJam'        },
+    alamat:     { form: 'formAlamat',     view: 'viewAlamat',     btn: 'btnEditAlamat'     },
+    kecamatan:  { form: 'formKecamatan',  view: 'viewKecamatan',  btn: 'btnEditKecamatan'  },
+};
+
+function bukaEdit(seksi) {
+    const s = _seksiMap[seksi];
+    document.getElementById(s.form).style.display = 'block';
+    document.getElementById(s.view).style.display = 'none';
+    document.getElementById(s.btn).style.display  = 'none';
+}
+
+function tutupEdit(seksi) {
+    const s = _seksiMap[seksi];
+    document.getElementById(s.form).style.display = 'none';
+    document.getElementById(s.view).style.display = '';
+    document.getElementById(s.btn).style.display  = '';
+}
+</script>
 
 </body>
 </html>

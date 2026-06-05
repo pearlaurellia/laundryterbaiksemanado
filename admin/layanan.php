@@ -25,7 +25,7 @@
                 <div class="grup-input-form">
                     <label class="label-form">Nama Layanan</label>
                     <input type="text"
-                           class="input-form"
+                           class="input-form input-form-sidebar"
                            id="inputNamaLayanan"
                            name="nama"
                            placeholder="cth: Reguler, Express...">
@@ -47,7 +47,7 @@
 
                 <div class="grup-input-form">
                     <label class="label-form">Satuan</label>
-                    <select class="input-form" id="inputSatuanLayanan" name="satuan">
+                    <select class="input-form input-form-sidebar" id="inputSatuanLayanan" name="satuan">
                         <option value="kg">per Kg</option>
                         <option value="item">per Item</option>
                     </select>
@@ -56,7 +56,7 @@
                 <div class="grup-input-form">
                     <label class="label-form">Deskripsi Singkat</label>
                     <input type="text"
-                           class="input-form"
+                           class="input-form input-form-sidebar"
                            id="inputDeskripsiLayanan"
                            name="deskripsi"
                            placeholder="cth: Paket lengkap dan terjangkau">
@@ -65,7 +65,7 @@
                 <div class="grup-input-form">
                     <label class="label-form">Estimasi Durasi</label>
                     <input type="text"
-                           class="input-form"
+                           class="input-form input-form-sidebar"
                            id="inputDurasiLayanan"
                            name="durasi"
                            placeholder="cth: 1-2 hari, 6-8 jam">
