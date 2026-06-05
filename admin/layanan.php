@@ -1,92 +1,100 @@
 <?php
+// 1. Inisialisasi Keamanan & Koneksi Database
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
+require_once '../includes/admin-check.php'; // Proteksi halaman admin
 
-// 2. BACKEND HANDLER: Memproses Request API dari Fetch JavaScript
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Membaca payload JSON dari JavaScript
-    $inputRaw = file_get_contents('php://input');
-    $data = json_decode($inputRaw, true);
+// ============================================================
+// [POST] LOGIKA BACKEND HANDLER - MERESPONS AJAX DARI JS
+// ============================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    
+    // Membaca kiriman JSON raw body dari fetch JavaScript
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    $action = $_GET['action'];
 
-    if ($data && isset($data['action'])) {
-        header('Content-Type: application/json');
-        
-        $action = $data['action'];
-        $nama = isset($data['nama_layanan']) ? trim($data['nama_layanan']) : '';
-        $tarif = isset($data['tarif_per_kg']) ? intval($data['tarif_per_kg']) : 0;
-        $satuan = isset($data['satuan']) ? trim($data['satuan']) : 'kg';
-        $deskripsi = isset($data['deskripsi']) ? trim($data['deskripsi']) : '';
-        $durasi = isset($data['durasi']) ? trim($data['durasi']) : '';
-        $id = isset($data['id']) ? intval($data['id']) : 0;
-
-        // --- ACTION: TAMBAH ---
+    try {
+        // --- AKSI: TAMBAH LAYANAN ---
         if ($action === 'tambah') {
-            if (empty($nama) || $tarif <= 0) {
-                echo json_encode(['sukses' => false, 'pesan' => 'Nama dan tarif valid wajib diisi.']);
+            $nama      = bersihkan($input['nama_layanan'] ?? '');
+            $tarif     = filter_var($input['tarif_per_kg'] ?? 0, FILTER_VALIDATE_INT);
+            $satuan    = bersihkan($input['satuan'] ?? 'kg');
+            $deskripsi = bersihkan($input['deskripsi'] ?? '');
+            $durasi    = bersihkan($input['estimasi_hari'] ?? '');
+
+            if (empty($nama) || $tarif === false || $tarif <= 0) {
+                echo json_encode(['success' => false, 'message' => 'Nama dan tarif wajib diisi dengan benar.']);
                 exit;
             }
-            try {
-                $stmt = $pdo->prepare("INSERT INTO layanan (nama_layanan, tarif_per_kg, satuan, deskripsi, durasi, status) VALUES (?, ?, ?, ?, ?, 'aktif')");
-                $stmt->execute([$nama, $tarif, $satuan, $deskripsi, $durasi]);
-                echo json_encode(['sukses' => true, 'id' => $pdo->lastInsertId()]);
-            } catch (Exception $e) {
-                echo json_encode(['sukses' => false, 'pesan' => 'Gagal menyimpan database: ' . $e->getMessage()]);
-            }
+
+            $stmt = $pdo->prepare("INSERT INTO layanan (nama_layanan, tarif_per_kg, satuan, deskripsi, durasi, status) VALUES (?, ?, ?, ?, ?, 'aktif')");
+            $stmt->execute([$nama, $tarif, $satuan, $deskripsi, $durasi]);
+            
+            echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
             exit;
         }
 
-        // --- ACTION: EDIT ---
-        if ($action === 'edit') {
-            if (empty($id) || empty($nama) || $tarif <= 0) {
-                echo json_encode(['sukses' => false, 'pesan' => 'Data tidak lengkap atau tarif tidak valid.']);
+        // --- AKSI: EDIT LAYANAN ---
+        if ($action === 'edit' && isset($_GET['id'])) {
+            $id        = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+            $nama      = bersihkan($input['nama_layanan'] ?? '');
+            $tarif     = filter_var($input['tarif_per_kg'] ?? 0, FILTER_VALIDATE_INT);
+            $satuan    = bersihkan($input['satuan'] ?? 'kg');
+            $deskripsi = bersihkan($input['deskripsi'] ?? '');
+            $durasi    = bersihkan($input['estimasi_hari'] ?? '');
+
+            if (!$id || empty($nama) || $tarif === false || $tarif <= 0) {
+                echo json_encode(['success' => false, 'message' => 'Validasi gagal, data tidak valid.']);
                 exit;
             }
-            try {
-                $stmt = $pdo->prepare("UPDATE layanan SET nama_layanan = ?, tarif_per_kg = ?, satuan = ?, deskripsi = ?, durasi = ? WHERE id = ?");
-                $stmt->execute([$nama, $tarif, $satuan, $deskripsi, $durasi, $id]);
-                echo json_encode(['sukses' => true]);
-            } catch (Exception $e) {
-                echo json_encode(['sukses' => false, 'pesan' => 'Gagal memperbarui database.']);
-            }
+
+            $stmt = $pdo->prepare("UPDATE layanan SET nama_layanan = ?, tarif_per_kg = ?, satuan = ?, deskripsi = ?, durasi = ? WHERE id = ?");
+            $stmt->execute([$nama, $tarif, $satuan, $deskripsi, $durasi, $id]);
+            
+            echo json_encode(['success' => true]);
             exit;
         }
 
-        // --- ACTION: HAPUS (SOFT DELETE) ---
-        if ($action === 'hapus') {
-            if (empty($id)) {
-                echo json_encode(['sukses' => false, 'pesan' => 'ID tidak valid.']);
+        // --- AKSI: HAPUS (SOFT DELETE) ---
+        if ($action === 'hapus' && isset($_GET['id'])) {
+            $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+
+            // Batasan Alur Kerja: Cek apakah layanan masih digunakan di pesanan aktif
+            $cekPesanan = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE id_layanan = ? AND status_pesanan NOT IN ('selesai', 'dibatalkan')");
+            $cekPesanan->execute([$id]);
+            if ($cekPesanan->fetchColumn() > 0) {
+                echo json_encode(['success' => false, 'message' => 'Layanan gagal dihapus karena masih digunakan dalam antrean pesanan aktif.']);
                 exit;
             }
-            try {
-                // Validasi: Cek apakah layanan sedang dipakai di pesanan aktif
-                $stmtCek = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE id_layanan = ? AND status_pesanan NOT IN ('selesai', 'dibatalkan')");
-                $stmtCek->execute([$id]);
-                $masihDipakai = $stmtCek->fetchColumn();
 
-                if ($masihDipakai > 0) {
-                    echo json_encode(['sukses' => false, 'pesan' => 'Layanan gagal dinonaktifkan karena sedang digunakan oleh pesanan aktif berjalan.']);
-                    exit;
-                }
-
-                // Jalankan Soft Delete jika aman
-                $stmtHapus = $pdo->prepare("UPDATE layanan SET status = 'nonaktif' WHERE id = ?");
-                $stmtHapus->execute([$id]);
-                echo json_encode(['sukses' => true]);
-            } catch (Exception $e) {
-                echo json_encode(['sukses' => false, 'pesan' => 'Gagal menghapus data.']);
-            }
+            // Soft-delete: Cukup ubah status menjadi nonaktif
+            $stmt = $pdo->prepare("UPDATE layanan SET status = 'nonaktif' WHERE id = ?");
+            $stmt->execute([$id]);
+            
+            echo json_encode(['success' => true]);
             exit;
         }
+
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+        exit;
     }
 }
 
-// 3. FRONTEND DATA FETCHING: Ambil semua data layanan yang berstatus aktif
-$query = $pdo->query("SELECT * FROM layanan WHERE status = 'aktif' ORDER BY id ASC");
-$daftarLayanan = $query->fetchAll();
-?>
+// ============================================================
+// [GET] LOGIKA TAMPILAN - MENGAMBIL DATA UNTUK RENDER HALAMAN
+// ============================================================
+// Admin dapat melihat seluruh layanan (baik yang aktif maupun nonaktif)
+$stmt = $pdo->prepare("SELECT * FROM layanan ORDER BY status ASC, id ASC");
+$stmt->execute();
+$allLayanan = $stmt->fetchAll();
 
-    <?php include '../includes/header-admin.php'; ?>
+// Panggil header-admin (Menangani kerangka HTML awal, CSS, dan open body)
+include '../includes/header-admin.php';
+?>
 
     <section class="halaman-layanan">
 
@@ -126,8 +134,8 @@ $daftarLayanan = $query->fetchAll();
                 </div>
 
                 <div class="tombol-form-layanan">
-                    <button class="tombol-submit-form" id="tombolSimpan" onclick="simpanLayanan()">Simpan</button>
-                    <button class="tombol-batal-layanan" id="tombolBatal" onclick="resetForm()" style="display:none;">Batal</button>
+                    <button type="button" class="tombol-submit-form" id="tombolSimpan" onclick="simpanLayanan()">Simpan</button>
+                    <button type="button" class="tombol-batal-layanan" id="tombolBatal" onclick="resetForm()" style="display:none;">Batal</button>
                 </div>
 
             </div>
@@ -136,45 +144,57 @@ $daftarLayanan = $query->fetchAll();
         <div class="layanan-kanan">
             <div class="layanan-kanan-header">
                 <h2 class="judul-layanan-kanan">Daftar Layanan</h2>
-                <p class="subjudul-layanan-kanan">
-                    Perubahan di sini otomatis memengaruhi halaman publik dan form pemesanan member.
-                </p>
+                <p class="subjudul-layanan-kanan">Perubahan di sini otomatis memengaruhi halaman publik dan form pemesanan member.</p>
             </div>
 
             <div class="kartu-layanan-admin-container" id="containerLayanan">
-                <?php if (!empty($daftarLayanan)): ?>
-                    <?php foreach ($daftarLayanan as $l): ?>
-                        <div class="kartu-layanan-admin"
-                             data-id="<?= $l['id'] ?>"
-                             data-nama="<?= htmlspecialchars($l['nama_layanan']) ?>"
-                             data-tarif="<?= $l['tarif_per_kg'] ?>"
-                             data-satuan="<?= htmlspecialchars($l['satuan']) ?>"
-                             data-deskripsi="<?= htmlspecialchars($l['deskripsi']) ?>"
-                             data-durasi="<?= htmlspecialchars($l['durasi']) ?>">
+                <?php foreach ($allLayanan as $l): 
+                    $isNonaktif = ($l['status'] === 'nonaktif');
+                ?>
+                    <div class="kartu-layanan-admin" 
+                         style="<?= $isNonaktif ? 'opacity: 0.6; background: #f3f4f6;' : '' ?>"
+                         data-id="<?= $l['id'] ?>"
+                         data-nama="<?= htmlspecialchars($l['nama_layanan']) ?>"
+                         data-tarif="<?= (int)$l['tarif_per_kg'] ?>"
+                         data-satuan="<?= htmlspecialchars($l['satuan']) ?>"
+                         data-deskripsi="<?= htmlspecialchars($l['deskripsi']) ?>"
+                         data-durasi="<?= htmlspecialchars($l['durasi'] ?? '') ?>">
 
-                            <div class="kartu-layanan-admin-header">
-                                <span class="kartu-layanan-admin-nama"><?= htmlspecialchars($l['nama_layanan']) ?></span>
-                                <span class="kartu-layanan-admin-tarif">Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / <?= htmlspecialchars($l['satuan']) ?></span>
-                            </div>
+                        <div class="kartu-layanan-admin-header">
+                            <span class="kartu-layanan-admin-nama">
+                                <?= htmlspecialchars($l['nama_layanan']) ?> 
+                                <?= $isNonaktif ? '<small style="color:red;">(Nonaktif)</small>' : '' ?>
+                            </span>
+                            <span class="kartu-layanan-admin-tarif">Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / <?= htmlspecialchars($l['satuan']) ?></span>
+                        </div>
 
-                            <div class="kartu-layanan-admin-body">
-                                <p class="kartu-layanan-admin-deskripsi"><?= htmlspecialchars($l['deskripsi'] ?: '—') ?></p>
-                                <div class="kartu-layanan-admin-detail">
+                        <div class="kartu-layanan-admin-body">
+                            <p class="kartu-layanan-admin-deskripsi"><?= htmlspecialchars($l['deskripsi'] ?: '—') ?></p>
+                            <div class="kartu-layanan-admin-detail">
+                                <?php if ($l['satuan'] === 'kg'): ?>
                                     <span class="badge-hijau">Cuci</span>
-                                    <span class="badge-biru"><?= htmlspecialchars($l['durasi'] ?: '—') ?></span>
-                                </div>
-                            </div>
-
-                            <div class="kartu-layanan-admin-aksi">
-                                <button class="tombol-edit-layanan" onclick="editLayanan(this.closest('.kartu-layanan-admin'))">Edit</button>
-                                <button class="tombol-hapus-layanan" onclick="hapusLayanan(this.closest('.kartu-layanan-admin'))">Hapus</button>
+                                    <span class="badge-hijau">Kering</span>
+                                    <span class="badge-hijau">Setrika</span>
+                                <?php else: ?>
+                                    <span class="badge-hijau">Dry Clean</span>
+                                <?php endif; ?>
+                                <span class="badge-biria" style="background:#e0f2fe; color:#0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                                    <?= htmlspecialchars($l['durasi'] ?: '—') ?>
+                                </span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+
+                        <div class="kartu-layanan-admin-aksi">
+                            <button class="tombol-edit-layanan" onclick="editLayanan(this.closest('.kartu-layanan-admin'))">Edit</button>
+                            <?php if (!$isNonaktif): ?>
+                                <button class="tombol-hapus-layanan" onclick="hapusLayanan(this.closest('.kartu-layanan-admin'))">Hapus</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
 
-            <div class="layanan-kosong" id="layananKosong" style="display: <?= empty($daftarLayanan) ? 'block' : 'none' ?>;">
+            <div class="layanan-kosong" id="layananKosong" style="display: <?= count($allLayanan) === 0 ? 'block' : 'none' ?>;">
                 <p>Belum ada layanan. Tambah layanan baru di panel kiri.</p>
             </div>
         </div>
@@ -182,4 +202,8 @@ $daftarLayanan = $query->fetchAll();
     </section>
 
     <script src="../assets/js/layanan-admin.js"></script>
-    <?php include '../includes/footer.php'; ?>
+
+<?php 
+// Panggil footer untuk menutup tag body dan html secara valid
+include '../includes/footer.php'; 
+?>

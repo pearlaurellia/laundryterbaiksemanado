@@ -2,228 +2,250 @@
  * ============================================================
  * layanan-admin.js — CleanCo Laundry
  * Digunakan di: admin/layanan.php
+ *
+ * Berisi CRUD layanan via AJAX Fetch API:
+ * - editLayanan()   → Mengisi form sidebar dengan data kartu yang dipilih
+ * - simpanLayanan() → Mengirim data POST (Tambah/Edit) dalam bentuk JSON
+ * - hapusLayanan()  → Mengirim data POST Soft-Delete ke server
+ * - resetForm()     → Mengosongkan form & mengembalikan status ke "Tambah"
+ * - cekKosong()     → Menampilkan/menyembunyikan teks "Belum ada layanan"
  * ============================================================
  */
 
 'use strict';
 
-let modeEdit    = false;
+// State Global untuk mengontrol alur Edit data
+let modeEdit = false;
 let idEditAktif = null;
 
-// URL backend — semua action dikirim ke satu file yang sama
-const URL_BACKEND = 'layanan.php';
-
-
-// ── EDIT ──────────────────────────────────────────────────────
+// ── 1. FUNGSI EDIT LAYANAN ──────────────────────────────────
+/**
+ * Mengambil data dari atribut dataset kartu HTML lalu memasukkannya ke form.
+ * @param {HTMLElement} kartuEl - Elemen kartu .kartu-layanan-admin yang diklik
+ */
 function editLayanan(kartuEl) {
-    modeEdit    = true;
+    modeEdit = true;
     idEditAktif = kartuEl.dataset.id;
 
-    document.getElementById('judulFormLayanan').textContent    = 'Edit Layanan';
-    document.getElementById('inputNamaLayanan').value          = kartuEl.dataset.nama;
-    document.getElementById('inputTarifLayanan').value         = kartuEl.dataset.tarif;
-    document.getElementById('inputSatuanLayanan').value        = kartuEl.dataset.satuan;
-    document.getElementById('inputDeskripsiLayanan').value     = kartuEl.dataset.deskripsi;
-    document.getElementById('inputDurasiLayanan').value        = kartuEl.dataset.durasi;
-    document.getElementById('tombolBatal').style.display       = 'inline-block';
+    // Mengisi nilai form berdasarkan data-attributes kartu
+    document.getElementById('judulFormLayanan').textContent = 'Edit Layanan';
+    document.getElementById('inputNamaLayanan').value = kartuEl.dataset.nama;
+    document.getElementById('inputTarifLayanan').value = kartuEl.dataset.tarif;
+    document.getElementById('inputSatuanLayanan').value = kartuEl.dataset.satuan;
+    document.getElementById('inputDeskripsiLayanan').value = kartuEl.dataset.deskripsi;
+    document.getElementById('inputDurasiLayanan').value = kartuEl.dataset.durasi;
+    
+    // Memunculkan tombol batal edit
+    document.getElementById('tombolBatal').style.display = 'inline-block';
 
+    // Scroll otomatis ke area form jika layar HP agar admin tidak bingung
     document.querySelector('.layanan-sidebar')?.scrollIntoView({ behavior: 'smooth' });
 }
 
-
-// ── SIMPAN (TAMBAH / EDIT) ────────────────────────────────────
+// ── 2. FUNGSI SIMPAN (TAMBAH / EDIT) ────────────────────────
+/**
+ * Melakukan validasi input di sisi klien, menyusun payload JSON,
+ * lalu menembak endpoint PHP secara asinkronus (AJAX).
+ */
 async function simpanLayanan() {
-    const nama      = document.getElementById('inputNamaLayanan').value.trim();
-    const tarif     = document.getElementById('inputTarifLayanan').value.trim();
-    const satuan    = document.getElementById('inputSatuanLayanan').value;
+    const nama = document.getElementById('inputNamaLayanan').value.trim();
+    const tarif = document.getElementById('inputTarifLayanan').value.trim();
+    const satuan = document.getElementById('inputSatuanLayanan').value;
     const deskripsi = document.getElementById('inputDeskripsiLayanan').value.trim();
-    const durasi    = document.getElementById('inputDurasiLayanan').value.trim();
+    const durasi = document.getElementById('inputDurasiLayanan').value.trim();
 
-    // Validasi client-side
-    if (!nama) {
-        alert('Nama layanan wajib diisi.');
-        document.getElementById('inputNamaLayanan').focus();
+    // Validasi Lapis Pertama (Client-side validation)
+    if (!nama || !tarif || !durasi) {
+        alert('Nama layanan, tarif, dan estimasi durasi wajib diisi.');
         return;
     }
-    if (!tarif || isNaN(parseInt(tarif)) || parseInt(tarif) <= 0) {
-        alert('Tarif harus berupa angka lebih dari 0.');
-        document.getElementById('inputTarifLayanan').focus();
+    if (isNaN(parseInt(tarif)) || parseInt(tarif) <= 0) {
+        alert('Tarif harus berupa angka positif yang valid.');
         return;
     }
 
-    // ✅ Kirim sebagai FormData agar PHP bisa baca via $_POST
-    const form = new FormData();
-    form.append('action',    modeEdit ? 'edit' : 'tambah');
-    form.append('nama',      nama);
-    form.append('tarif',     parseInt(tarif));
-    form.append('satuan',    satuan);
-    form.append('deskripsi', deskripsi);
-    form.append('durasi',    durasi);   // ✅ nama field sesuai kolom DB
+    // Menyusun payload sesuai spesifikasi JSON backend
+    const payload = {
+        nama_layanan: nama,
+        tarif_per_kg: parseInt(tarif),
+        satuan: satuan,
+        deskripsi: deskripsi,
+        estimasi_hari: durasi
+    };
 
-    if (modeEdit && idEditAktif) {
-        form.append('id', idEditAktif);
-    }
+    // Format Rupiah untuk manipulasi DOM (Contoh: Rp 8.000 / kg)
+    const tarifFmt = 'Rp ' + parseInt(tarif).toLocaleString('id-ID') + ' / ' + satuan;
 
     try {
-        const res  = await fetch(URL_BACKEND, { method: 'POST', body: form });
-        const json = await res.json();
-
-        // ✅ Cek key 'sukses' sesuai response PHP
-        if (!json.sukses) {
-            alert(json.pesan || 'Gagal menyimpan layanan. Coba lagi.');
-            return;
+        let url = 'layanan.php?action=tambah';
+        
+        // Jika statusnya sedang mengedit, ubah target URL parameter
+        if (modeEdit && idEditAktif) {
+            url = `layanan.php?action=edit&id=${idEditAktif}`;
         }
 
-        const tarifFmt = 'Rp ' + parseInt(tarif).toLocaleString('id-ID') + ' / ' + satuan;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-        if (modeEdit && idEditAktif) {
-            // ── Update kartu yang sudah ada di DOM ──
-            const kartuEl = document.querySelector(
-                `#containerLayanan .kartu-layanan-admin[data-id="${idEditAktif}"]`
-            );
-            if (kartuEl) {
-                // Update data-* attribute
-                kartuEl.dataset.nama      = nama;
-                kartuEl.dataset.tarif     = tarif;
-                kartuEl.dataset.satuan    = satuan;
-                kartuEl.dataset.deskripsi = deskripsi;
-                kartuEl.dataset.durasi    = durasi;
+        const json = await response.json();
 
-                // Update teks yang tampil di kartu
-                kartuEl.querySelector('.kartu-layanan-admin-nama').textContent      = nama;
-                kartuEl.querySelector('.kartu-layanan-admin-tarif').textContent     = tarifFmt;
-                kartuEl.querySelector('.kartu-layanan-admin-deskripsi').textContent = deskripsi || '—';
+        if (json.success) {
+            if (modeEdit && idEditAktif) {
+                // ── UPDATE DOM: MODE EDIT ──
+                const kartuEl = document.querySelector(`.kartu-layanan-admin[data-id="${idEditAktif}"]`);
+                if (kartuEl) {
+                    // Update data attributes agar jika diedit lagi datanya sudah baru
+                    kartuEl.dataset.nama = nama;
+                    kartuEl.dataset.tarif = tarif;
+                    kartuEl.dataset.satuan = satuan;
+                    kartuEl.dataset.deskripsi = deskripsi;
+                    kartuEl.dataset.durasi = durasi;
 
-                // Update badge durasi jika ada
-                const badgeDurasi = kartuEl.querySelector('.kartu-layanan-admin-detail .badge-biru');
-                if (badgeDurasi) badgeDurasi.textContent = durasi || '—';
-            }
+                    // Update visual teks kartu
+                    kartuEl.querySelector('.kartu-layanan-admin-nama').childNodes[0].textContent = nama + ' ';
+                    kartuEl.querySelector('.kartu-layanan-admin-tarif').textContent = tarifFmt;
+                    kartuEl.querySelector('.kartu-layanan-admin-deskripsi').textContent = deskripsi || '—';
+                    
+                    // Update badge durasi (elemen span terakhir di detail)
+                    const detailBadges = kartuEl.querySelectorAll('.kartu-layanan-admin-detail span');
+                    if (detailBadges.length > 0) {
+                        detailBadges[detailBadges.length - 1].textContent = durasi;
+                    }
+                }
+                alert('Layanan berhasil diperbarui!');
+            } else {
+                // ── UPDATE DOM: MODE TAMBAH BARU ──
+                const newId = json.id;
+                const kartuBaru = document.createElement('div');
+                kartuBaru.className = 'kartu-layanan-admin';
+                kartuBaru.dataset.id = newId;
+                kartuBaru.dataset.nama = nama;
+                kartuBaru.dataset.tarif = tarif;
+                kartuBaru.dataset.satuan = satuan;
+                kartuBaru.dataset.deskripsi = deskripsi;
+                kartuBaru.dataset.durasi = durasi;
 
-        } else {
-            // ── Buat kartu baru dan tambahkan ke DOM ──
-            const newId   = json.id;
-            const kartuBaru = document.createElement('div');
-            kartuBaru.className         = 'kartu-layanan-admin';
-            kartuBaru.dataset.id        = newId;
-            kartuBaru.dataset.nama      = nama;
-            kartuBaru.dataset.tarif     = tarif;
-            kartuBaru.dataset.satuan    = satuan;
-            kartuBaru.dataset.deskripsi = deskripsi;
-            kartuBaru.dataset.durasi    = durasi;
+                // Logika penentuan badge visual berdasarkan satuan
+                const badgeKomponen = (satuan === 'kg') 
+                    ? `<span class="badge-hijau">Cuci</span> <span class="badge-hijau">Kering</span> <span class="badge-hijau">Setrika</span>`
+                    : `<span class="badge-hijau">Dry Clean</span>`;
 
-            kartuBaru.innerHTML = `
-                <div class="kartu-layanan-admin-header">
-                    <span class="kartu-layanan-admin-nama">${escHtml(nama)}</span>
-                    <span class="kartu-layanan-admin-tarif">${tarifFmt}</span>
-                </div>
-                <div class="kartu-layanan-admin-body">
-                    <p class="kartu-layanan-admin-deskripsi">${escHtml(deskripsi) || '—'}</p>
-                    <div class="kartu-layanan-admin-detail">
-                        <span class="badge-biru">${escHtml(durasi) || '—'}</span>
+                kartuBaru.innerHTML = `
+                    <div class="kartu-layanan-admin-header">
+                        <span class="kartu-layanan-admin-nama">${nama}</span>
+                        <span class="kartu-layanan-admin-tarif">${tarifFmt}</span>
                     </div>
-                </div>
-                <div class="kartu-layanan-admin-aksi">
-                    <button class="tombol-edit-layanan"
-                            onclick="editLayanan(this.closest('.kartu-layanan-admin'))">
-                        Edit
-                    </button>
-                    <button class="tombol-hapus-layanan"
-                            onclick="hapusLayanan(this.closest('.kartu-layanan-admin'))">
-                        Hapus
-                    </button>
-                </div>
-            `;
-
-            // Sisipkan sebelum elemen #layananKosong agar urutan rapi
-            const container = document.getElementById('containerLayanan');
-            const kosong    = document.getElementById('layananKosong');
-            container.insertBefore(kartuBaru, kosong);
+                    <div class="kartu-layanan-admin-body">
+                        <p class="kartu-layanan-admin-deskripsi">${deskripsi || '—'}</p>
+                        <div class="kartu-layanan-admin-detail">
+                            ${badgeKomponen}
+                            <span class="badge-biria" style="background:#e0f2fe; color:#0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                                ${durasi}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="kartu-layanan-admin-aksi">
+                        <button class="tombol-edit-layanan" onclick="editLayanan(this.closest('.kartu-layanan-admin'))">Edit</button>
+                        <button class="tombol-hapus-layanan" onclick="browseHapus(this)">Hapus</button>
+                    </div>
+                `;
+                
+                document.getElementById('containerLayanan').appendChild(kartuBaru);
+                alert('Layanan baru berhasil ditambahkan!');
+            }
+            
+            // Bersihkan form dan sinkronkan teks halaman kosong
+            cekKosong();
+            resetForm();
+        } else {
+            alert(json.message || 'Gagal menyimpan data ke server.');
         }
 
     } catch (err) {
-        console.error('simpanLayanan: fetch gagal —', err);
-        alert('Koneksi bermasalah. Coba lagi.');
-        return;
+        console.error('Proses simpanLayanan gagal:', err);
+        alert('Terjadi gangguan jaringan atau error sistem server.');
     }
-
-    cekKosong();
-    resetForm();
 }
 
+// Helper khusus untuk tombol hapus pada kartu baru yang di-append JS
+function browseHapus(btnElement) {
+    hapusLayanan(btnElement.closest('.kartu-layanan-admin'));
+}
 
-// ── HAPUS ─────────────────────────────────────────────────────
+// ── 3. FUNGSI HAPUS (SOFT DELETE) ───────────────────────────
+/**
+ * Konfirmasi penghapusan, cek validitas relasi transaksi ke backend, 
+ * lalu hapus kartu dari layar dengan efek animasi transisi halus.
+ * @param {HTMLElement} kartuEl - Elemen kartu .kartu-layanan-admin
+ */
 async function hapusLayanan(kartuEl) {
-    const id   = kartuEl.dataset.id;
+    const id = kartuEl.dataset.id;
     const nama = kartuEl.dataset.nama;
 
-    if (!confirm(`Hapus layanan "${nama}"?\nLayanan yang masih digunakan pesanan aktif tidak bisa dihapus.`)) return;
-
-    // ✅ Kirim sebagai FormData
-    const form = new FormData();
-    form.append('action', 'hapus');
-    form.append('id', id);
-
-    try {
-        // ✅ URL mengarah ke layanan.php bukan /api/
-        const res  = await fetch(URL_BACKEND, { method: 'POST', body: form });
-        const json = await res.json();
-
-        // ✅ Cek key 'sukses' sesuai response PHP
-        if (!json.sukses) {
-            alert(json.pesan || 'Gagal menghapus layanan.');
-            return;
-        }
-
-    } catch (err) {
-        console.error('hapusLayanan: fetch gagal —', err);
-        alert('Koneksi bermasalah. Coba lagi.');
+    if (!confirm(`Hapus layanan "${nama}"? Sistem hanya akan menonaktifkannya agar riwayat pesanan lama member tidak rusak.`)) {
         return;
     }
 
-    // Animasi keluar lalu hapus dari DOM
-    kartuEl.style.transition = 'opacity 0.3s, transform 0.3s';
-    kartuEl.style.opacity    = '0';
-    kartuEl.style.transform  = 'scale(0.95)';
-    setTimeout(() => {
-        kartuEl.remove();
-        cekKosong();
-    }, 300);
+    try {
+        const response = await fetch(`layanan.php?action=hapus&id=${id}`, { 
+            method: 'POST' 
+        });
+        const json = await response.json();
+
+        if (json.success) {
+            // Efek Animasi Fade Out & Shrink Scale via JavaScript Inline CSS
+            kartuEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            kartuEl.style.opacity = '0';
+            kartuEl.style.transform = 'scale(0.9)';
+            
+            // Tunggu animasi CSS selesai baru hapus node elemen dari DOM pohon HTML
+            setTimeout(() => { 
+                kartuEl.remove(); 
+                cekKosong(); 
+            }, 400);
+        } else {
+            // Menampilkan pesan gagal dari backend jika layanan masih dipakai pesanan aktif
+            alert(json.message || 'Gagal menghapus layanan.');
+        }
+    } catch (err) {
+        console.error('Proses hapusLayanan gagal:', err);
+        alert('Koneksi bermasalah. Silakan periksa jaringan server Apache kamu.');
+    }
 }
 
-
-// ── RESET FORM ────────────────────────────────────────────────
+// ── 4. FUNGSI RESET FORM ────────────────────────────────────
+/**
+ * Membersihkan seluruh isi input form dan mengembalikan title form ke default.
+ */
 function resetForm() {
-    modeEdit    = false;
+    modeEdit = false;
     idEditAktif = null;
-
-    document.getElementById('judulFormLayanan').textContent    = 'Tambah Layanan';
-    document.getElementById('inputNamaLayanan').value          = '';
-    document.getElementById('inputTarifLayanan').value         = '';
-    document.getElementById('inputSatuanLayanan').value        = 'kg';
-    document.getElementById('inputDeskripsiLayanan').value     = '';
-    document.getElementById('inputDurasiLayanan').value        = '';
-    document.getElementById('tombolBatal').style.display       = 'none';
+    
+    document.getElementById('judulFormLayanan').textContent = 'Tambah Layanan';
+    document.getElementById('inputNamaLayanan').value = '';
+    document.getElementById('inputTarifLayanan').value = '';
+    document.getElementById('inputSatuanLayanan').value = 'kg';
+    document.getElementById('inputDeskripsiLayanan').value = '';
+    document.getElementById('inputDurasiLayanan').value = '';
+    
+    // Sembunyikan kembali tombol batal
+    document.getElementById('tombolBatal').style.display = 'none';
 }
 
-
-// ── CEK KOSONG ────────────────────────────────────────────────
+// ── 5. FUNGSI CEK KOSONG ────────────────────────────────────
+/**
+ * Memantau jumlah total komponen kartu layanan di layar secara berkala.
+ */
 function cekKosong() {
-    // ✅ Hitung hanya kartu di dalam #containerLayanan
-    const jumlah = document.querySelectorAll(
-        '#containerLayanan .kartu-layanan-admin'
-    ).length;
-    document.getElementById('layananKosong').style.display = jumlah > 0 ? 'none' : 'block';
-}
-
-
-// ── HELPER: escape HTML untuk innerHTML yang aman ─────────────
-// Mencegah XSS jika nama layanan mengandung karakter < > & " '
-function escHtml(str) {
-    if (!str) return '';
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    const jumlahKartu = document.querySelectorAll('.kartu-layanan-admin').length;
+    const infoKosongEl = document.getElementById('layananKosong');
+    
+    if (jumlahKartu > 0) {
+        infoKosongEl.style.display = 'none';
+    } else {
+        infoKosongEl.style.display = 'block';
+    }
 }
