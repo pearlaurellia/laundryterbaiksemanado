@@ -110,10 +110,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $estimasi_biaya = ($estimasi_berat * $layananTerpilih['tarif_per_kg']) + $biaya_kurir;
         }
 
+        // FORMAT FEEDBACK UNTUK RESPONS AJAX MODAL
         $labelHarga = $estimasi_biaya !== null 
             ? 'Rp ' . number_format($estimasi_biaya, 0, ',', '.') . ' (Estimasi, Belum Final)' 
             : 'Dihitung admin setelah ditimbang';
 
+        // DETEKSI AJAX INTERCEPTOR (Sesuai Fase 7.4)
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
             echo json_encode([
@@ -140,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sukses = true;
     } else {
+        // Balasan error validasi jika dikirim lewat sistem AJAX
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
             echo json_encode([
@@ -151,14 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── Helper untuk badge status layanan ────────────────────────
-$status_badge_class = [
-    'menunggu_konfirmasi' => 'badge-status-baru',
-    'dikonfirmasi'        => 'badge-status-dikonfirmasi',
-    'sedang_dicuci'       => 'badge-status-diproses',
-    'siap_diambil'        => 'badge-status-selesai',
-    'sedang_diantar'      => 'badge-status-diproses',
-];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -177,13 +172,14 @@ $status_badge_class = [
     <?php include '../includes/header-member.php'; ?>
 
     <!-- HERO FORM -->
-    <section class="hero-form" style="display: flex; align-items: center; justify-content: center;">
+    <section class="hero-form" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
         
         <!-- DEKORASI BULAT -->
         <div class="bulat-atas-form"></div>
+        <div class="bulat-ditengah-form"></div>
         <div class="bulat-besar-form"><h2>CleanCo</h2></div>
 
-        <div style="position: relative; z-index: 2; width: 100%; max-width: 700px; padding: 0 20px;">
+        <div style="position: relative; z-index: 2; width: 100%; max-width: 700px; padding: 40px 20px;">
             
             <!-- HEADER -->
             <div style="text-align: center; margin-bottom: 40px;">
@@ -204,7 +200,7 @@ $status_badge_class = [
                      data-opsi-pengantaran="<?= htmlspecialchars($pesanan_baru['opsi_pengantaran'] ?? '') ?>"
                      data-kecamatan="<?= htmlspecialchars($pesanan_baru['kecamatan'] ?? '') ?>"
                      data-estimasi-biaya="<?= (isset($pesanan_baru['estimasi_biaya']) && $pesanan_baru['estimasi_biaya'] !== null) ? $pesanan_baru['estimasi_biaya'] : 'null' ?>"
-                     data-no-wa-admin="<?= htmlspecialchars($pesanan_baru['no_wa_admin'] ?? '') ?>">
+                     data-no-wa-admin="<?= htmlspecialchars($no_whatsapp_admin) ?>">
 
                     <!-- ERROR BOX -->
                     <?php if (!empty($errors)): ?>
@@ -297,7 +293,7 @@ $status_badge_class = [
                                 Kecamatan Tujuan
                             </label>
                             <select id="inputKecamatan" name="kecamatan" 
-                                    style="width: 100%; padding: 12px 20px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: #333; background: white; box-shadow: var(--shadow); outline: none;">
+                                    style="width: 100%; padding: 12px 20px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: #333; background: white; box-shadow: var(--shadow); outline: none; cursor: pointer;">
                                 <option value="">-- Pilih Kecamatan --</option>
                                 <?php foreach ($kecamatan_list as $kec): ?>
                                     <option value="<?= htmlspecialchars($kec) ?>"
@@ -332,14 +328,14 @@ $status_badge_class = [
                         </div>
                     </div>
 
-                    <!-- 5. KOTAK ESTIMASI -->
-                    <div id="kotakEstimasi" class="kotak-estimasi-harga">
-                        <p class="estimasi-harga-teks" id="teksEstimasiHarga">
+                    <!-- 5. KOTAK ESTIMASI HARGA -->
+                    <div id="kotakEstimasi" class="kotak-estimasi-harga" style="padding: 16px 20px; border-radius: 0 16px 16px 16px; margin-bottom: 24px;">
+                        <p class="estimasi-harga-teks" id="teksEstimasiHarga" style="margin: 0;">
                             Harga akan dihitung admin setelah pakaian ditimbang.
                         </p>
                     </div>
 
-                    <!-- 6. CATATAN -->
+                    <!-- 6. CATATAN KHUSUS -->
                     <div style="margin-bottom: 28px;">
                         <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block;">
                             Catatan Khusus <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 400;">(opsional)</span>
@@ -352,7 +348,7 @@ $status_badge_class = [
                     <!-- 7. TOMBOL KIRIM -->
                     <button type="button" class="tombol-submit-form tombol-kirim-pesanan" 
                             onclick="kirimPesananForm(event)"
-                            style="width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.5px;">
+                            style="width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.5px; background: white; color: var(--birutua);">
                         ✨ Kirim Pesanan
                     </button>
 
@@ -390,11 +386,25 @@ $status_badge_class = [
             </div>
         </div>
 
-        <div class="popup-tombol-group" style="justify-content:center; gap:14px; display: flex; padding: 0 36px 28px;">
-            <a href="status.php" class="tombol-submit-form" style="text-decoration:none; text-align:center; padding: 12px 24px; background: var(--birutua); color: white; border-radius: 8px; margin-top: 0;">
+        <div class="popup-tombol-group" style="justify-content:center; gap:12px; display:flex; flex-wrap:wrap; padding: 0 36px 28px;">
+            <a id="tombolKonfirmasiWa"
+               href="#"
+               target="_blank"
+               style="display:none; align-items:center; gap:8px; text-decoration:none;
+                      padding:10px 18px; background:#25D366; color:white;
+                      border-radius:8px; font-weight:600; font-size:0.9rem;">
+                💬 Konfirmasi via WhatsApp
+            </a>
+            <a href="status.php"
+               style="text-decoration:none; text-align:center;
+                      padding:10px 18px; background:var(--birutua); color:white;
+                      border-radius:8px; font-weight:600; font-size:0.9rem;">
                 Lihat Status
             </a>
-            <button class="tombol-batal-layanan" onclick="pesanLagi()" style="display:inline-block; padding: 12px 24px; cursor: pointer;">
+            <button onclick="pesanLagi()"
+                    style="padding:10px 18px; cursor:pointer; border-radius:8px;
+                           font-weight:600; font-size:0.9rem; border:1.5px solid #ccc;
+                           background:white; color:#444;">
                 Pesan Lagi
             </button>
         </div>
