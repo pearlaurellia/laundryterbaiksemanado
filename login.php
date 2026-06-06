@@ -66,6 +66,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'includes/header.php'; 
 ?>
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CleanCo</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
     <section class="hero-form">
         <div class="konten-form">
             <h1 class="judul-form">Masuk Akun CleanCo</h1>
@@ -90,12 +101,15 @@ include 'includes/header.php';
                 
                 <div class="grup-input-form-login">
                     <label for="password" class="label-form-login">Password :</label>
-                    <input type="password" 
-                            id="password" 
-                            name="password" 
-                            class="input-form-login" 
-                            placeholder="Masukkan password" 
-                            required>
+                    <div class="password-wrapper">
+                        <input type="password" 
+                                id="password" 
+                                name="password" 
+                                class="input-form-login" 
+                                placeholder="Masukkan password" 
+                                required>
+                        <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                    </div>
                     <a href="#" class="lupa-password" style="font-family: 'DM Sans', sans-serif;">Lupa password?</a>
                 </div>
                 
@@ -111,5 +125,23 @@ include 'includes/header.php';
         <div class="bulat-ditengah-form"></div>
         <div class="bulat-besar-form"><h2>CleanCo</h2></div>
     </section>
+
+    <script>
+    function togglePassword(element) {
+        const wrapper = element.parentElement;
+        const input = wrapper.querySelector('input');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            element.classList.remove('fa-eye-slash');
+            element.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            element.classList.remove('fa-eye');
+            element.classList.add('fa-eye-slash');
+        }
+    }
+    </script>
+
 </body>
 </html>

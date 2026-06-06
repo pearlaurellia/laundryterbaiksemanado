@@ -4394,3 +4394,83 @@ body {
         justify-content: center;
     }
 }
+
+/* ============================================
+   SHOW/HIDE PASSWORD TOGGLE
+   ============================================ */
+
+/* Wrapper untuk field password */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Input password dengan space untuk ikon */
+.password-wrapper .input-form-login,
+.password-wrapper .form-input {
+    width: 100%;
+    padding-right: 45px;
+}
+
+/* Ikon toggle password */
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    z-index: 10;
+    background: transparent;
+}
+
+.toggle-password:hover {
+    color: var(--birutua, #0d3f8a);
+}
+
+/* Untuk grup input yang memiliki link lupa password */
+.grup-input-form-login {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+/* Link lupa password */
+.lupa-password {
+    position: absolute;
+    right: 0;
+    bottom: -25px;
+    font-size: 12px;
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.lupa-password:hover {
+    color: var(--tealmudabanget, #0d3f8a);
+}
+
+/* Variasi untuk form lain yang menggunakan class berbeda */
+.password-group {
+    position: relative;
+}
+
+.password-group input {
+    padding-right: 45px;
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #aaa;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.toggle-password-icon:hover {
+    color: var(--birutua);
+}
