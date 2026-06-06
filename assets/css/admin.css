@@ -1,0 +1,496 @@
+.bulat-atas-admin {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    border-radius: 50%;
+    left: 5%;
+    top: 35%;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
+}
+
+.bulat-ditengah-admin {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    background-color: white;
+    border-radius: 50%;
+    left: 22%;
+    bottom: 40%;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
+}
+
+.bulat-besar-admin {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background-color: white;
+    border-radius: 50%;
+    left: -20px;
+    bottom: -70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
+
+}
+
+.bulat-besar-admin h2 {
+    color: #3f3e3a;
+    font-size: 2.5rem;
+    margin-right: 5px;
+    margin-bottom: 70px; 
+    filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.15));
+}
+
+.kartu-body-admin {
+    background-color: white;
+    border-radius: 0 0 12px 12px;
+    padding: 5px 20px 5px;
+    flex-grow: 1;
+    position: relative;
+    margin-top: -20px;
+}
+
+.kartu-body-admin p {
+    color: #514F44;
+    font-size: xx-large;
+    text-align: center;
+}
+
+.bulat-harga-admin {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 80px;
+    height: 80px;
+    background-color: #10567F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.bulat-kecil-admin {
+    position: absolute;
+    bottom: 60px;
+    right: 80px;
+    width: 30px;
+    height: 30px;
+    background-color: #10567F;
+    border-radius: 50%;
+}
+
+.konten-hero-admin {
+    width: 100%;
+    display: flex; 
+    justify-content: flex-end; 
+    position: relative;
+    z-index: 2;
+}
+
+.kartu-member-admin {
+  display: flex;
+  background-color: white;
+  border-radius: 20px;
+  overflow: hidden;
+  max-width: 1050px;
+  width: 100%;
+  margin: 0 auto 20px auto;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  color: #514F44;
+}
+
+.kartu-layanan-admin-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.kartu-layanan-admin {
+    background-color: #52c49c;
+    border-radius: 0px 20px 20px 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+
+.kartu-layanan-admin-header {
+    background-color: #b5d5f5;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0px 20px 0px 20px;
+}
+
+.kartu-layanan-admin-header-featured {
+    background-color: #3b82f6;
+}
+
+.kartu-layanan-admin-header-featured .kartu-layanan-admin-nama,
+.kartu-layanan-admin-header-featured .kartu-layanan-admin-tarif {
+    color: white;
+}
+
+.kartu-layanan-admin-nama {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.kartu-layanan-admin-tarif {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--birutua);
+}
+
+
+.kartu-layanan-admin-body {
+    background-color: white;
+    margin: 0 14px;
+    border-radius: 0 0 0 0;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.kartu-layanan-admin-deskripsi {
+    color: #514F44;
+    font-size: 0.95rem;
+    margin: 0;
+    flex: 1;
+}
+
+.kartu-layanan-admin-detail {
+    display: flex;
+    gap: 8px;
+    flex-wrap:   wrap;
+    justify-content: flex-end;
+}
+
+
+.kartu-layanan-admin-aksi {
+    background-color: white;
+    margin: 0 14px 14px;
+    border-radius: 0 0 12px 12px;
+    padding: 10px 16px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* ================================
+   HALAMAN MEMBER ADMIN
+   ================================ */
+
+
+.member-search-wrapper {
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 2;
+}
+
+.member-search {
+    background-color: rgba(255,255,255,0.2) !important;
+    color: white !important;
+    border-radius: 20px 0px 20px 0px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    width: 100%;
+    box-shadow: none !important;
+}
+
+.member-search::placeholder { color: rgba(255,255,255,0.6); }
+.member-search:focus         { outline: none; border-color: rgba(255,255,255,0.7); }
+
+
+.item-member {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 0px 16px 16px 16px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.item-member:hover {
+    background-color: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.item-member.aktif-dipilih {
+    background-color: white;
+    border-color: white;
+    box-shadow: var(--shadow);
+}
+
+.item-member.aktif-dipilih .item-pesanan-nama { color: var(--birutua); }
+.item-member.aktif-dipilih .item-pesanan-waktu { color: #666; }
+.item-member.aktif-dipilih .item-member-sub { color: #888; }
+
+.item-member-sub {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    margin: 2px 0 0 0;
+}
+
+
+.badge-status-member {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.badge-member-aktif   { background-color: #52c49c; color: #1a4d3a; }
+.badge-member-nonaktif { background-color: #f87171; color: #7f1d1d; }
+
+
+.member-stat-angka {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a4d3a;
+    margin: 8px 0 0 0;
+    line-height: 1;
+}
+
+.member-stat-sub {
+    font-size: 0.85rem;
+    color: #1a4d3a;
+    margin: 4px 0 0 0;
+    opacity: 0.7;
+}
+
+
+.baris-riwayat-singkat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+}
+
+.baris-riwayat-singkat:last-child { border-bottom: none; }
+
+.riwayat-kode {
+    font-weight: 700;
+    color: var(--birutua);
+    font-size: 0.85rem;
+    min-width: 80px;
+}
+
+.riwayat-layanan {
+    color: #555;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.riwayat-total {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.riwayat-status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+
+.tombol-aktifkan-member,
+.tombol-nonaktif-member,
+.tombol-wa-member {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 20px 0px 20px 0px;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.tombol-aktifkan-member {
+    background-color: #52c49c;
+    color: #1a4d3a;
+}
+
+.tombol-aktifkan-member:hover { background-color: #3aaf87; }
+
+.tombol-nonaktif-member {
+    background-color: #FFD1D1;
+    color: #D32F2F;
+}
+
+.tombol-nonaktif-member:hover { background-color: #ffb3b3; }
+
+.tombol-wa-member {
+    background-color: #DDEEFF;
+    color: var(--birutua);
+}
+
+.tombol-wa-member:hover { background-color: #b5d5f5; }
+
+.halaman-layanan {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+
+
+.form-layanan {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    z-index: 2;
+}
+
+.layanan-sidebar .judul-sidebar {
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+
+.input-tarif-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 20px 0px 20px 0px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.prefix-tarif {
+    padding: 0 12px;
+    color: #888;
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.input-tarif {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-left: 1px solid #eee;
+    flex: 1;
+}
+
+
+.layanan-sidebar select.input-form {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+}
+
+.tombol-form-layanan {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.tombol-batal-layanan {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px 0px 20px 0px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tombol-batal-layanan:hover {
+    background-color: rgba(255,255,255,0.35);
+}
+
+
+.layanan-kanan {
+    flex: 1;
+    background-color: white;
+    padding: 40px 50px;
+    overflow-y: auto;
+}
+
+
+.layanan-kanan-header {
+    margin-bottom: 28px;
+}
+
+.judul-layanan-kanan {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.6rem;
+    color: var(--birutua);
+    margin: 0 0 6px 0;
+}
+
+.subjudul-layanan-kanan {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.tombol-edit-layanan,
+.tombol-hapus-layanan {
+    padding: 8px 24px;
+    border: none;
+    border-radius: 20px 0px 20px 0px;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+}
+
+.tombol-edit-layanan {
+    background-color: #DDEEFF;
+    color: var(--birutua);
+}
+
+.tombol-edit-layanan:hover {
+    background-color: #b5d5f5;
+}
+
+.tombol-hapus-layanan {
+    background-color: #FFD1D1;
+    color: #D32F2F;
+}
+
+.tombol-hapus-layanan:hover {
+    background-color: #ffb3b3;
+}
+
+
+.layanan-kosong {
+    text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+}
