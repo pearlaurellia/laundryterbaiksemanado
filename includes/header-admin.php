@@ -13,6 +13,27 @@
 <body>
 
 <header class="header">
+
+    <!-- Hamburger Button (visible only on mobile) -->
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Mobile dropdown (merges both nav-left and nav-right) -->
+    <div class="mobile-menu" id="mobile-menu">
+        <ul>
+            <li><a href="dashboard.php" class="tombol-daun"><b>Dashboard</b></a></li>
+            <li><a href="pesanan.php" class="tombol-daun"><b>Kelola Pesanan</b></a></li>
+            <li><a href="member.php" class="tombol-daun"><b>Member</b></a></li>
+            <li><a href="laporan.php" class="tombol-daun"><b>Laporan</b></a></li>
+            <li><a href="layanan.php" class="tombol-daun"><b>Layanan</b></a></li>
+            <li><a href="edit-info.php" class="tombol-daun"><b>Info Website</b></a></li>
+            <li><a href="../logout.php" class="tombol-daun"><b>Logout</b></a></li>
+        </ul>
+    </div>
+
     <nav class="nav-left">
         <ul>
             <li>
@@ -43,3 +64,21 @@
         </ul>
     </div>
 </header>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+    });
+
+    // Close menu when any link is clicked
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            mobileMenu.classList.remove('open');
+        });
+    });
+</script>

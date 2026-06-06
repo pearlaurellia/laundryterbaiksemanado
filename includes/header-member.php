@@ -30,6 +30,25 @@ if (isset($_SESSION['id_user'])) {
 <body>
 
 <header class="header">
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Mobile dropdown (merges both nav-left and nav-right) -->
+    <div class="mobile-menu" id="mobile-menu">
+        <ul>
+            <li><a href="dashboard.php" class="tombol-daun">Beranda</a></li>
+            <li><a href="pesan.php" class="tombol-daun">Buat Pesanan</a></li>
+            <li><a href="status.php" class="tombol-daun">Cek Status Pesanan</a></li>
+            <li><a href="riwayat.php" class="tombol-daun">Riwayat Pesanan</a></li>
+            <li><a href="profil.php" class="tombol-daun">Profil</a></li>
+            <li><a href="../logout.php" class="tombol-daun">Logout</a></li>
+        </ul>
+    </div>
+
     <nav class="nav-left">
         <ul>
             <li>
@@ -84,3 +103,21 @@ if (isset($_SESSION['id_user'])) {
         </ul>
     </div>
 </header>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+    });
+
+    // Close menu when any link is clicked
+    mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            mobileMenu.classList.remove('open');
+        });
+    });
+</script>
