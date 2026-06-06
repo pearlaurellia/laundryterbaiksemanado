@@ -40,13 +40,23 @@ include 'includes/header.php';
         
         <div class="kartu-layanan-container">
             <?php 
-            // 3. Looping data layanan dari database
+            $icon_map = [
+                'Reguler'   => 'icon-laundry.svg',
+                'Express'   => 'icon-mesin.svg',
+                'Dry Clean' => 'icon-baju.svg',
+            ];
+
             foreach ($dataLayanan as $index => $layanan): 
-                // Opsional: Membuat kartu kedua di tengah memiliki class 'featured' seperti desain aslimu
                 $kelasKartu = ($index % 3 == 1) ? 'kartu-layanan-featured' : 'kartu-layanan';
+                $icon_file = $icon_map[$layanan['nama_layanan']] ?? 'icon-laundry.svg';
             ?>
                 <div class="<?= $kelasKartu ?>">
-                    <div class="kartu-header"> <?= htmlspecialchars($layanan['nama_layanan']) ?> </div>
+                    <div class="kartu-header">
+                        <img src="assets/images/<?= $icon_file ?>" 
+                             alt="" 
+                             style="width:30px; height:30px; vertical-align:middle; margin-right:8px;">
+                        <?= htmlspecialchars($layanan['nama_layanan']) ?>
+                    </div>
                     <div class="kartu-body">
                         <p> <?= htmlspecialchars($layanan['deskripsi']) ?> </p>
                         <p> Layanan: </p>
@@ -87,12 +97,14 @@ include 'includes/header.php';
     </section>
 
 <?php if (!empty($infoWeb['no_whatsapp'])): ?>
-    <a href="https://wa.me/<?= htmlspecialchars($infoWeb['no_whatsapp']) ?>" target="_blank" class="tombol-wa-mengambang" style="position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; padding: 15px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;">
+    <a href="https://wa.me/<?= htmlspecialchars($infoWeb['no_whatsapp']) ?>" 
+       target="_blank" 
+       class="tombol-wa-mengambang" 
+       style="position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; padding: 15px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;">
         Hubungi via WhatsApp
     </a>
-    <?php endif; ?>
+<?php endif; ?>
 
 <?php 
-// PANGGIL FOOTER DI SINI UNTUK MENUTUP KERANGKA HTML
 include 'includes/footer.php'; 
 ?>
