@@ -98,11 +98,39 @@ if (isset($_SESSION['id_user'])) {
                 <a href="profil.php" class="tombol-daun">Profil</a>
             </li>
             <li>
-                <a href="../logout.php" class="tombol-daun">Logout</a>
-            </li>
+                <a href=# onclick="bukaLogoutPopup(); return false;" class="tombol-daun">Logout</a>
         </ul>
     </div>
 </header>
+
+<!-- Di bagian paling akhir header-member.php, setelah semua konten header -->
+
+<!-- Modal Konfirmasi Logout -->
+<div class="overlay-popup" id="overlayLogoutPopup" style="display:none;" onclick="tutupLogoutPopup()"></div>
+<div class="popup-konfirmasi" id="popupLogoutKonfirmasi" style="display:none;">
+    <h3 class="popup-judul">Konfirmasi Logout</h3>
+    <p class="popup-teks">Apakah Anda yakin ingin keluar dari sistem?</p>
+    <div class="popup-tombol-group">
+        <button type="button" class="popup-tombol-batal" onclick="tutupLogoutPopup()">Batal</button>
+        <button type="button" class="popup-tombol-konfirm" onclick="konfirmasiLogout()">Ya, Logout</button>
+    </div>
+</div>
+
+<script>
+function bukaLogoutPopup() {
+    document.getElementById('overlayLogoutPopup').style.display = 'block';
+    document.getElementById('popupLogoutKonfirmasi').style.display = 'block';
+}
+
+function tutupLogoutPopup() {
+    document.getElementById('overlayLogoutPopup').style.display = 'none';
+    document.getElementById('popupLogoutKonfirmasi').style.display = 'none';
+}
+
+function konfirmasiLogout() {
+    window.location.href = '../logout.php';
+}
+</script>
 
 <script>
     const hamburger = document.getElementById('hamburger');

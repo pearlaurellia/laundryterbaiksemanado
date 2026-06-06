@@ -30,7 +30,7 @@
             <li><a href="laporan.php" class="tombol-daun"><b>Laporan</b></a></li>
             <li><a href="layanan.php" class="tombol-daun"><b>Layanan</b></a></li>
             <li><a href="edit-info.php" class="tombol-daun"><b>Info Website</b></a></li>
-            <li><a href="../logout.php" class="tombol-daun"><b>Logout</b></a></li>
+            <li><a href="#" onclick="bukaLogoutPopup(); return false;" class="tombol-daun"><b>Logout</b></a></li>
         </ul>
     </div>
 
@@ -59,11 +59,37 @@
     <div class="nav-right">
         <ul>
             <li>
-                <a href="../logout.php" class="tombol-daun"><b> Logout </b></a>
+                <a href="#" onclick="bukaLogoutPopup(); return false;" class="tombol-daun"><b> Logout </b></a>
             </li>
         </ul>
     </div>
 </header>
+
+<div class="overlay-popup" id="overlayLogoutPopup" style="display:none;" onclick="tutupLogoutPopup()"></div>
+<div class="popup-konfirmasi" id="popupLogoutKonfirmasi" style="display:none;">
+    <h3 class="popup-judul">Konfirmasi Logout</h3>
+    <p class="popup-teks">Apakah Anda yakin ingin keluar dari sistem?</p>
+    <div class="popup-tombol-group">
+        <button type="button" class="popup-tombol-batal" onclick="tutupLogoutPopup()">Batal</button>
+        <button type="button" class="popup-tombol-konfirm" onclick="konfirmasiLogout()">Ya, Logout</button>
+    </div>
+</div>
+
+<script>
+function bukaLogoutPopup() {
+    document.getElementById('overlayLogoutPopup').style.display = 'block';
+    document.getElementById('popupLogoutKonfirmasi').style.display = 'block';
+}
+
+function tutupLogoutPopup() {
+    document.getElementById('overlayLogoutPopup').style.display = 'none';
+    document.getElementById('popupLogoutKonfirmasi').style.display = 'none';
+}
+
+function konfirmasiLogout() {
+    window.location.href = '../logout.php';
+}
+</script>
 
 <script>
     const hamburger = document.getElementById('hamburger');
