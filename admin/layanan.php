@@ -98,49 +98,52 @@ include '../includes/header-admin.php';
 
     <section class="halaman-layanan">
 
-        <div class="layanan-sidebar">
+        <!-- SIDEBAR - Tema sama dengan pesanan.php -->
+        <div class="pesanan-sidebar">
             <h2 class="judul-sidebar" id="judulFormLayanan">Tambah Layanan</h2>
-            <div class="form-layanan" id="formLayanan">
 
-                <div class="grup-input-form">
-                    <label class="label-form">Nama Layanan</label>
-                    <input type="text" class="input-form input-form-sidebar" id="inputNamaLayanan" placeholder="cth: Reguler, Express...">
+            <div class="form-layanan" id="formLayanan" style="display: flex; flex-direction: column; gap: 4px; position: relative; z-index: 2;">
+                
+                <div class="grup-input-form" style="width: 100%; margin-bottom: 12px;">
+                    <label class="label-form" style="color: white; font-size: 0.85rem; margin-top: 0;">Nama Layanan</label>
+                    <input type="text" class="input-form input-form-sidebar" id="inputNamaLayanan" placeholder="cth: Reguler, Express..." style="width: 100%; margin: 0;">
                 </div>
 
-                <div class="grup-input-form">
-                    <label class="label-form">Tarif</label>
-                    <div class="input-tarif-wrapper">
-                        <span class="prefix-tarif">Rp</span>
-                        <input type="number" class="input-form input-tarif" id="inputTarifLayanan" placeholder="0" min="0" step="500">
+                <div class="grup-input-form" style="width: 100%; margin-bottom: 12px;">
+                    <label class="label-form" style="color: white; font-size: 0.85rem; margin-top: 0;">Tarif</label>
+                    <div class="input-tarif-wrapper" style="display: flex; align-items: center; background: white; border-radius: 20px 0 20px 0; box-shadow: var(--shadow); overflow: hidden;">
+                        <span class="prefix-tarif" style="padding: 0 12px; color: #888; font-weight: 500;">Rp</span>
+                        <input type="number" class="input-tarif" id="inputTarifLayanan" placeholder="0" min="0" step="500" style="flex: 1; padding: 12px 16px; border: none; border-left: 1px solid #eee; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none;">
                     </div>
                 </div>
 
-                <div class="grup-input-form">
-                    <label class="label-form">Satuan</label>
-                    <select class="input-form input-form-sidebar" id="inputSatuanLayanan">
+                <div class="grup-input-form" style="width: 100%; margin-bottom: 12px;">
+                    <label class="label-form" style="color: white; font-size: 0.85rem; margin-top: 0;">Satuan</label>
+                    <select class="input-form input-form-sidebar" id="inputSatuanLayanan" style="width: 100%; margin: 0; appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%23888%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 16px center; cursor: pointer;">
                         <option value="kg">per Kg</option>
                         <option value="item">per Item</option>
                     </select>
                 </div>
 
-                <div class="grup-input-form">
-                    <label class="label-form">Deskripsi Singkat</label>
-                    <input type="text" class="input-form input-form-sidebar" id="inputDeskripsiLayanan" placeholder="cth: Paket lengkap dan terjangkau">
+                <div class="grup-input-form" style="width: 100%; margin-bottom: 12px;">
+                    <label class="label-form" style="color: white; font-size: 0.85rem; margin-top: 0;">Deskripsi Singkat</label>
+                    <input type="text" class="input-form input-form-sidebar" id="inputDeskripsiLayanan" placeholder="cth: Paket lengkap dan terjangkau" style="width: 100%; margin: 0;">
                 </div>
 
-                <div class="grup-input-form">
-                    <label class="label-form">Estimasi Durasi</label>
-                    <input type="text" class="input-form input-form-sidebar" id="inputDurasiLayanan" placeholder="cth: 1-2 hari, 6-8 jam">
+                <div class="grup-input-form" style="width: 100%; margin-bottom: 16px;">
+                    <label class="label-form" style="color: white; font-size: 0.85rem; margin-top: 0;">Estimasi Durasi</label>
+                    <input type="text" class="input-form input-form-sidebar" id="inputDurasiLayanan" placeholder="cth: 1-2 hari, 6-8 jam" style="width: 100%; margin: 0;">
                 </div>
 
-                <div class="tombol-form-layanan">
-                    <button type="button" class="tombol-submit-form" id="tombolSimpan" onclick="simpanLayanan()">Simpan</button>
-                    <button type="button" class="tombol-batal-layanan" id="tombolBatal" onclick="resetForm()" style="display:none;">Batal</button>
+                <div class="tombol-form-layanan" style="display: flex; gap: 12px; margin-top: 8px; position: relative; z-index: 2;">
+                    <button type="button" class="tombol-submit-form" id="tombolSimpan" onclick="simpanLayanan()" style="flex: 1; padding: 12px; font-size: 0.9rem; background: white; color: var(--birutua); border: none; border-radius: 20px 0 20px 0; font-weight: 600; cursor: pointer; box-shadow: var(--shadow);">Simpan</button>
+                    <button type="button" class="tombol-batal-layanan" id="tombolBatal" onclick="resetForm()" style="display:none; padding: 12px 20px; font-size: 0.9rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px 0 20px 0; cursor: pointer;">Batal</button>
                 </div>
 
             </div>
         </div>
 
+        <!-- KANAN - Daftar Layanan -->
         <div class="layanan-kanan">
             <div class="layanan-kanan-header">
                 <h2 class="judul-layanan-kanan">Daftar Layanan</h2>
@@ -152,7 +155,7 @@ include '../includes/header-admin.php';
                     $isNonaktif = ($l['status'] === 'nonaktif');
                 ?>
                     <div class="kartu-layanan-admin" 
-                         style="<?= $isNonaktif ? 'opacity: 0.6; background: #f3f4f6;' : '' ?>"
+                         style="<?= $isNonaktif ? 'opacity: 0.6; background: #e5e7eb;' : '' ?>"
                          data-id="<?= $l['id'] ?>"
                          data-nama="<?= htmlspecialchars($l['nama_layanan']) ?>"
                          data-tarif="<?= (int)$l['tarif_per_kg'] ?>"
@@ -160,10 +163,12 @@ include '../includes/header-admin.php';
                          data-deskripsi="<?= htmlspecialchars($l['deskripsi']) ?>"
                          data-durasi="<?= htmlspecialchars($l['durasi'] ?? '') ?>">
 
-                        <div class="kartu-layanan-admin-header">
+                        <div class="kartu-layanan-admin-header" style="<?= $isNonaktif ? 'background: #d1d5db;' : '' ?>">
                             <span class="kartu-layanan-admin-nama">
                                 <?= htmlspecialchars($l['nama_layanan']) ?> 
-                                <?= $isNonaktif ? '<small style="color:red;">(Nonaktif)</small>' : '' ?>
+                                <?php if ($isNonaktif): ?>
+                                    <small style="color:#ef4444; font-weight:600;">(Nonaktif)</small>
+                                <?php endif; ?>
                             </span>
                             <span class="kartu-layanan-admin-tarif">Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / <?= htmlspecialchars($l['satuan']) ?></span>
                         </div>
@@ -178,7 +183,7 @@ include '../includes/header-admin.php';
                                 <?php else: ?>
                                     <span class="badge-hijau">Dry Clean</span>
                                 <?php endif; ?>
-                                <span class="badge-biria" style="background:#e0f2fe; color:#0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                                <span class="badge-biru">
                                     <?= htmlspecialchars($l['durasi'] ?: '—') ?>
                                 </span>
                             </div>

@@ -79,7 +79,6 @@ foreach ($data_rekap as $row) {
 
     <?php include '../includes/header-admin.php'; ?>
 
-    <!-- SECTION 1: Hero dengan kartu statistik hari ini -->
     <section class="hero">
         <div class="konten-hero-admin">
             <div class="kartu-pesanan-container">
@@ -114,8 +113,8 @@ foreach ($data_rekap as $row) {
         <div class="bulat-besar-admin"><h2>CleanCo</h2></div>
     </section>
 
-    <!-- SECTION 2: Sejarah pesanan terakhir -->
     <section class="sejarah-pesanan">
+        <h3 class="judul-overview-layanan">Riwayat Pesanan</h3>
         <div class="kartu-sejarah-container">
             <?php if (empty($sejarah_pesanan)): ?>
                 <p style="color:#aaa; padding: 20px;">Belum ada pesanan selesai.</p>

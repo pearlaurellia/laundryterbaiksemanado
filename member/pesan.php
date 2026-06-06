@@ -171,26 +171,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include '../includes/header-member.php'; ?>
 
-    <!-- HERO FORM -->
-    <section class="hero-form" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-        
-        <!-- DEKORASI BULAT -->
-        <div class="bulat-atas-form"></div>
-        <div class="bulat-ditengah-form"></div>
-        <div class="bulat-besar-form"><h2>CleanCo</h2></div>
+    <section class="riwayat-section">
+        <div class="riwayat-header">
+            <h1 class="judul-overview-layanan">Buat Pesanan Baru</h1>
+            <p class="status-subjudul" style="text-align:center; margin-top:8px;">
+                Isi form di bawah untuk memulai pesanan laundry kamu.
+            </p>
+        </div>
 
-        <div style="position: relative; z-index: 2; width: 100%; max-width: 700px; padding: 40px 20px;">
-            
-            <!-- HEADER -->
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: white; margin: 0 0 8px; filter: drop-shadow(var(--shadow));">
-                    Buat Pesanan Baru
-                </h1>
-                <p style="color: rgba(255,255,255,0.75); font-size: 1rem; margin: 0;">
-                    Isi form di bawah untuk memulai pesanan laundry kamu.
-                </p>
-            </div>
-
+        <div class="form-pesanan-container" style="border: 2px solid #52c49c; border-radius: 12px;">
             <form id="formPesan" method="POST" action="pesan.php">
                 <div id="formPesanContainer"
                      data-sukses="<?= $sukses ? 'true' : 'false' ?>"
@@ -204,18 +193,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- ERROR BOX -->
                     <?php if (!empty($errors)): ?>
-                        <div style="background: rgba(255,209,209,0.2); border: 1px solid rgba(255,209,209,0.5); border-radius: 0 12px 12px 0; border-left: 4px solid #f87171; padding: 14px 18px; margin-bottom: 24px;">
+                        <div class="error-box">
                             <?php foreach ($errors as $err): ?>
-                                <p style="color: #fca5a5; margin: 4px 0; font-size: 0.9rem;">⚠ <?= htmlspecialchars($err) ?></p>
+                                <p class="error-message">⚠ <?= htmlspecialchars($err) ?></p>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
 
                     <!-- 1. PILIH LAYANAN -->
-                    <div style="margin-bottom: 32px;">
-                        <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; display: block;">
-                            Pilih Layanan
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label" style="color: #333;">Pilih Layanan</label>
                         <div class="grid-pilih-layanan" id="gridLayanan">
                             <?php
                             $total_layanan = count($layanan_list);
@@ -250,15 +237,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <!-- 2. OPSI PENGANTARAN -->
-                    <div style="margin-bottom: 24px;">
-                        <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; display: block;">
-                            Opsi Pengantaran
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label" style="color: #333">Opsi Pengantaran</label>
                         <div class="grid-opsi-pengantaran">
                             <label class="kartu-opsi-pengantaran" onclick="gantiOpsiPengantaran('ambil_sendiri')" style="cursor: pointer;">
                                 <input type="radio" name="opsi_pengantaran" value="ambil_sendiri" onchange="gantiOpsiPengantaran('ambil_sendiri')">
                                 <div class="kartu-opsi-isi">
-                                    <span class="kartu-opsi-ikon">🏬</span>
                                     <span class="kartu-opsi-label">Ambil Sendiri</span>
                                     <span class="kartu-opsi-biaya" style="color: #10b981;">Gratis</span>
                                 </div>
@@ -267,7 +251,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="kartu-opsi-pengantaran dipilih-opsi" onclick="gantiOpsiPengantaran('kurir')" style="cursor: pointer;">
                                 <input type="radio" name="opsi_pengantaran" value="kurir" checked onchange="gantiOpsiPengantaran('kurir')">
                                 <div class="kartu-opsi-isi">
-                                    <span class="kartu-opsi-ikon">🛵</span>
                                     <span class="kartu-opsi-label">Kurir Laundry</span>
                                     <span class="kartu-opsi-biaya" style="color: #f59e0b;">+ Rp 10.000</span>
                                 </div>
@@ -278,22 +261,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- INFO KURIR -->
                     <div class="info-kurir-wrapper" id="infoKurir">
                         <p class="info-kurir-teks">
-                            💡 Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
+                            - Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
                         </p>
                         <p class="info-kurir-teks">
-                            📍 Layanan kurir tersedia untuk kecamatan:
+                            - Layanan kurir tersedia untuk kecamatan:
                             <strong><?= htmlspecialchars(implode(', ', $kecamatan_list)) ?></strong>
                         </p>
                     </div>
 
                     <!-- 3. ALAMAT (KURIR) -->
-                    <div id="containerAlamat" style="margin-bottom: 8px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block;">
-                                Kecamatan Tujuan
-                            </label>
-                            <select id="inputKecamatan" name="kecamatan" 
-                                    style="width: 100%; padding: 12px 20px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: #333; background: white; box-shadow: var(--shadow); outline: none; cursor: pointer;">
+                    <div id="containerAlamat" class="form-group">
+                        <div class="form-group">
+                            <label class="form-label" style="color: #333">Kecamatan Tujuan *</label>
+                            <select id="inputKecamatan" name="kecamatan" class="form-select" style="border: 2px solid #59c57c">
                                 <option value="">-- Pilih Kecamatan --</option>
                                 <?php foreach ($kecamatan_list as $kec): ?>
                                     <option value="<?= htmlspecialchars($kec) ?>"
@@ -303,53 +283,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div style="margin-bottom: 16px;">
-                            <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block;">
-                                Alamat Lengkap
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label" style="color: #333">Alamat Lengkap *</label>
                             <input type="text" id="inputAlamat" name="alamat_pengantaran" 
                                    placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan..."
                                    value="<?= !$sukses ? htmlspecialchars($alamat_pengantaran ?? '') : '' ?>"
-                                   style="width: 100%; padding: 12px 20px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: #333; background: white; box-shadow: var(--shadow); outline: none;">
+                                   class="form-input" style="border: 2px solid #59c57c">
                         </div>
                     </div>
 
                     <!-- 4. ESTIMASI BERAT -->
-                    <div style="margin-bottom: 24px;">
-                        <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block;">
-                            Estimasi Berat <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 400;">(opsional)</span>
+                    <div class="form-group">
+                        <label class="form-label" style="color: #333">
+                            Estimasi Berat 
+                            <span class="form-label-opsional">(opsional)</span>
                         </label>
-                        <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="berat-wrapper">
                             <input type="number" id="inputEstimasiBerat" name="estimasi_berat" 
                                    placeholder="0" min="0" step="0.1"
                                    value="<?= !$sukses && isset($estimasi_berat) ? $estimasi_berat : '' ?>"
-                                   style="width: 130px; padding: 12px 16px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; color: var(--birutua); background: white; box-shadow: var(--shadow); outline: none;">
-                            <span style="color: white; font-size: 0.95rem;">kg</span>
+                                   class="form-input-berat" style="border: 2px solid #59c57c">
+                            <span class="berat-satuan">kg</span>
                         </div>
                     </div>
 
                     <!-- 5. KOTAK ESTIMASI HARGA -->
-                    <div id="kotakEstimasi" class="kotak-estimasi-harga" style="padding: 16px 20px; border-radius: 0 16px 16px 16px; margin-bottom: 24px;">
-                        <p class="estimasi-harga-teks" id="teksEstimasiHarga" style="margin: 0;">
+                    <div id="kotakEstimasi" class="kotak-estimasi-harga">
+                        <p class="estimasi-harga-teks" id="teksEstimasiHarga">
                             Harga akan dihitung admin setelah pakaian ditimbang.
                         </p>
                     </div>
 
                     <!-- 6. CATATAN KHUSUS -->
-                    <div style="margin-bottom: 28px;">
-                        <label style="color: white; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block;">
-                            Catatan Khusus <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 400;">(opsional)</span>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Catatan Khusus 
+                            <span class="form-label-opsional">(opsional)</span>
                         </label>
                         <textarea id="inputCatatan" name="catatan" 
                                   placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."
-                                  style="width: 100%; min-height: 100px; padding: 14px 18px; border: none; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: #333; background: white; box-shadow: var(--shadow); outline: none; resize: vertical;"><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
+                                  class="form-textarea" style="border: 2px solid #59c57c"><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
                     </div>
 
                     <!-- 7. TOMBOL KIRIM -->
                     <button type="button" class="tombol-submit-form tombol-kirim-pesanan" 
-                            onclick="kirimPesananForm(event)"
-                            style="width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.5px; background: white; color: var(--birutua);">
-                        ✨ Kirim Pesanan
+                            onclick="kirimPesananForm(event)" style="border: 2px solid #59c57c">
+                        Kirim Pesanan
                     </button>
 
                 </div>
@@ -386,25 +365,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="popup-tombol-group" style="justify-content:center; gap:12px; display:flex; flex-wrap:wrap; padding: 0 36px 28px;">
+        <div class="popup-tombol-group">
             <a id="tombolKonfirmasiWa"
                href="#"
                target="_blank"
-               style="display:none; align-items:center; gap:8px; text-decoration:none;
-                      padding:10px 18px; background:#25D366; color:white;
-                      border-radius:8px; font-weight:600; font-size:0.9rem;">
+               class="popup-tombol-wa">
                 💬 Konfirmasi via WhatsApp
             </a>
-            <a href="status.php"
-               style="text-decoration:none; text-align:center;
-                      padding:10px 18px; background:var(--birutua); color:white;
-                      border-radius:8px; font-weight:600; font-size:0.9rem;">
+            <a href="status.php" class="popup-tombol-status">
                 Lihat Status
             </a>
-            <button onclick="pesanLagi()"
-                    style="padding:10px 18px; cursor:pointer; border-radius:8px;
-                           font-weight:600; font-size:0.9rem; border:1.5px solid #ccc;
-                           background:white; color:#444;">
+            <button onclick="pesanLagi()" class="popup-tombol-pesan-lagi">
                 Pesan Lagi
             </button>
         </div>
