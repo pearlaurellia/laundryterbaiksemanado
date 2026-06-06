@@ -121,7 +121,7 @@ foreach ($data_rekap as $row) {
                 <p style="color:#aaa; padding: 20px;">Belum ada pesanan selesai.</p>
             <?php else: ?>
                 <?php foreach ($sejarah_pesanan as $p): ?>
-                    <div class="kartu-sejarah">
+                    <div class="kartu-sejarah" style="min-height:150px;">
                         <div class="sejarah-body">
                             <div class="grup-keterangan">
                                 <span class="badge-biru"><?= date('H:i l, d-m-Y', strtotime($p['created_at'])) ?></span>
