@@ -110,7 +110,7 @@ include 'includes/header.php';
                                 required>
                         <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
                     </div>
-                    <a href="#" class="lupa-password" style="font-family: 'DM Sans', sans-serif;">Lupa password?</a>
+                    <a href="lupa-password.php" class="lupa-password" style="font-family: 'DM Sans', sans-serif;">Lupa password?</a>
                 </div>
                 
                 <button type="submit" class="tombol-submit-form">Masuk</button>
