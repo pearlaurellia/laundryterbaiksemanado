@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </div>
 
-        <div class="form-pesanan-container" style="border: 2px solid #52c49c; border-radius: 12px;">
+        <div class="form-pesanan-container"  style="border: 2px solid #52c49c">
             <form id="formPesan" method="POST" action="pesan.php">
                 <div id="formPesanContainer"
                      data-sukses="<?= $sukses ? 'true' : 'false' ?>"
@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- 1. PILIH LAYANAN -->
                     <div class="form-group">
-                        <label class="form-label" style="color: #333;">Pilih Layanan</label>
+                        <label class="form-label" style="color: #333">Pilih Layanan</label>
                         <div class="grid-pilih-layanan" id="gridLayanan">
                             <?php
                             $total_layanan = count($layanan_list);
@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="radio" name="opsi_pengantaran" value="ambil_sendiri" onchange="gantiOpsiPengantaran('ambil_sendiri')">
                                 <div class="kartu-opsi-isi">
                                     <span class="kartu-opsi-label">Ambil Sendiri</span>
-                                    <span class="kartu-opsi-biaya" style="color: #10b981;">Gratis</span>
+                                    <span class="kartu-opsi-biaya">Gratis</span>
                                 </div>
                             </label>
 
@@ -252,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="radio" name="opsi_pengantaran" value="kurir" checked onchange="gantiOpsiPengantaran('kurir')">
                                 <div class="kartu-opsi-isi">
                                     <span class="kartu-opsi-label">Kurir Laundry</span>
-                                    <span class="kartu-opsi-biaya" style="color: #f59e0b;">+ Rp 10.000</span>
+                                    <span class="kartu-opsi-biaya">+ Rp 10.000</span>
                                 </div>
                             </label>
                         </div>
@@ -261,10 +261,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- INFO KURIR -->
                     <div class="info-kurir-wrapper" id="infoKurir">
                         <p class="info-kurir-teks">
-                            - Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
+                            Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
                         </p>
                         <p class="info-kurir-teks">
-                            - Layanan kurir tersedia untuk kecamatan:
+                            Layanan kurir tersedia untuk kecamatan:
                             <strong><?= htmlspecialchars(implode(', ', $kecamatan_list)) ?></strong>
                         </p>
                     </div>
@@ -272,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- 3. ALAMAT (KURIR) -->
                     <div id="containerAlamat" class="form-group">
                         <div class="form-group">
-                            <label class="form-label" style="color: #333">Kecamatan Tujuan *</label>
-                            <select id="inputKecamatan" name="kecamatan" class="form-select" style="border: 2px solid #59c57c">
+                            <label class="form-label" style="color: #333">Kecamatan Tujuan</label>
+                            <select id="inputKecamatan" name="kecamatan" class="form-select">
                                 <option value="">-- Pilih Kecamatan --</option>
                                 <?php foreach ($kecamatan_list as $kec): ?>
                                     <option value="<?= htmlspecialchars($kec) ?>"
@@ -284,11 +284,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" style="color: #333">Alamat Lengkap *</label>
+                            <label class="form-label" style="color: #333">Alamat Lengkap</label>
                             <input type="text" id="inputAlamat" name="alamat_pengantaran" 
                                    placeholder="Jl. Nama Jalan, No. Rumah, Lingkungan..."
                                    value="<?= !$sukses ? htmlspecialchars($alamat_pengantaran ?? '') : '' ?>"
-                                   class="form-input" style="border: 2px solid #59c57c">
+                                   class="form-input">
                         </div>
                     </div>
 
@@ -296,38 +296,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label class="form-label" style="color: #333">
                             Estimasi Berat 
-                            <span class="form-label-opsional">(opsional)</span>
+                            <span class="form-label-opsional" style="color: #333">(opsional)</span>
                         </label>
                         <div class="berat-wrapper">
                             <input type="number" id="inputEstimasiBerat" name="estimasi_berat" 
-                                   placeholder="0" min="0" step="0.1"
-                                   value="<?= !$sukses && isset($estimasi_berat) ? $estimasi_berat : '' ?>"
-                                   class="form-input-berat" style="border: 2px solid #59c57c">
+                                   placeholder="0" min="0" step="0.1" value="0"
+                                   class="form-input-berat"
+                                   oninput="hitungEstimasiHarga()">
                             <span class="berat-satuan">kg</span>
                         </div>
                     </div>
 
                     <!-- 5. KOTAK ESTIMASI HARGA -->
                     <div id="kotakEstimasi" class="kotak-estimasi-harga">
-                        <p class="estimasi-harga-teks" id="teksEstimasiHarga">
-                            Harga akan dihitung admin setelah pakaian ditimbang.
+                        <p class="estimasi-harga-teks" style="color: #333; style="margin: 0;" id="teksEstimasiHarga">
+                            Masukkan estimasi berat untuk melihat perkiraan harga
                         </p>
                     </div>
 
                     <!-- 6. CATATAN KHUSUS -->
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="form-label" style="color: #333">
                             Catatan Khusus 
-                            <span class="form-label-opsional">(opsional)</span>
+                            <span class="form-label-opsional" style="color: #333">(opsional)</span>
                         </label>
                         <textarea id="inputCatatan" name="catatan" 
                                   placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."
-                                  class="form-textarea" style="border: 2px solid #59c57c"><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
+                                  class="form-textarea"><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
                     </div>
 
                     <!-- 7. TOMBOL KIRIM -->
                     <button type="button" class="tombol-submit-form tombol-kirim-pesanan" 
-                            onclick="kirimPesananForm(event)" style="border: 2px solid #59c57c">
+                            onclick="kirimPesananForm(event)">
                         Kirim Pesanan
                     </button>
 
@@ -380,6 +380,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
         </div>
     </div>
+
+    <script>
+    // Data tarif dari layanan yang dipilih
+    let tarifPerKg = 0;
+    let biayaKurir = 0;
+
+    // Fungsi untuk update tarif berdasarkan layanan yang dipilih
+    function updateTarifLayanan() {
+        const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
+        if (selectedCard) {
+            tarifPerKg = parseInt(selectedCard.dataset.tarif) || 0;
+        }
+        hitungEstimasiHarga();
+    }
+
+    // Fungsi untuk update biaya kurir berdasarkan opsi pengantaran
+    function updateBiayaKurir() {
+        const selectedOpsi = document.querySelector('input[name="opsi_pengantaran"]:checked');
+        if (selectedOpsi && selectedOpsi.value === 'kurir') {
+            biayaKurir = 10000;
+        } else {
+            biayaKurir = 0;
+        }
+        hitungEstimasiHarga();
+    }
+
+    // Fungsi utama hitung estimasi harga
+    function hitungEstimasiHarga() {
+        const beratInput = document.getElementById('inputEstimasiBerat');
+        let berat = parseFloat(beratInput.value);
+        
+        // Validasi berat
+        if (isNaN(berat) || berat <= 0) {
+            document.getElementById('teksEstimasiHarga').innerHTML = 
+                '- Masukkan estimasi berat untuk melihat perkiraan harga';
+            return;
+        }
+        
+        // Hitung total
+        const total = (berat * tarifPerKg) + biayaKurir;
+        
+        // Format Rupiah
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+        
+        // Tampilkan hasil
+        let estimasiText = `Estimasi harga: ${formatter.format(total)}<br>`;
+        estimasiText += `<small style="font-size: 0.75rem; color: #888;">`;
+        estimasiText += `(${berat} kg × Rp ${tarifPerKg.toLocaleString('id-ID')} / kg)`;
+        if (biayaKurir > 0) {
+            estimasiText += ` + biaya kurir Rp ${biayaKurir.toLocaleString('id-ID')}`;
+        }
+        estimasiText += `</small>`;
+        
+        document.getElementById('teksEstimasiHarga').innerHTML = estimasiText;
+    }
+
+    // Override fungsi pilihLayanan yang sudah ada
+    const originalPilihLayanan = window.pilihLayanan;
+    window.pilihLayanan = function(element) {
+        if (originalPilihLayanan) originalPilihLayanan(element);
+        updateTarifLayanan();
+    };
+
+    // Override fungsi gantiOpsiPengantaran yang sudah ada
+    const originalGantiOpsi = window.gantiOpsiPengantaran;
+    window.gantiOpsiPengantaran = function(opsi) {
+        if (originalGantiOpsi) originalGantiOpsi(opsi);
+        setTimeout(updateBiayaKurir, 100);
+    };
+
+    // Inisialisasi saat halaman加载
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTarifLayanan();
+        updateBiayaKurir();
+        
+        // Setup event listener untuk input berat
+        const beratInput = document.getElementById('inputEstimasiBerat');
+        if (beratInput) {
+            beratInput.addEventListener('input', hitungEstimasiHarga);
+        }
+    });
+    </script>
 
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>

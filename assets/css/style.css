@@ -1491,7 +1491,7 @@ body {
 .kartu-opsi-pengantaran {
     cursor: pointer;
     border-radius: 0px 16px 16px 16px;
-    border: 2px solid #419a7b;
+    border: 2px solid #6d6d6d;
     background-color: rgba(255,255,255,0.15);
     transition: all 0.2s;
     overflow: hidden;
@@ -1516,8 +1516,8 @@ body {
     padding: 18px 14px;
 }
 
-.kartu-opsi-label { font-weight: 600; color: #333; font-size: 0.95rem; }
-.kartu-opsi-biaya { font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500; }
+.kartu-opsi-label { font-weight: 600; color: #6d6d6d; font-size: 0.95rem; }
+.kartu-opsi-biaya { font-size: 0.85rem; color: #6d6d6d; font-weight: 500; }
 
 
 .info-kurir-wrapper {
@@ -1545,7 +1545,6 @@ body {
     background-color: rgba(255,255,255,0.12);
     border-radius: 0px 16px 16px 16px;
     padding: 16px 20px;
-    margin-bottom: 4px;
     transition: all 0.3s;
 }
 
@@ -1558,7 +1557,6 @@ body {
     color: rgba(255,255,255,0.75);
     font-size: 0.9rem;
     margin: 0;
-    line-height: 1.6;
 }
 
 
@@ -3156,7 +3154,7 @@ img {
 
 
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 10px;
 }
 
 .form-label {
@@ -3372,3 +3370,4 @@ img {
 .toggle-password-icon:hover {
     color: var(--birutua);
 }
+
