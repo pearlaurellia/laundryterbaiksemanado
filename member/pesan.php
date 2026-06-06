@@ -370,7 +370,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                href="#"
                target="_blank"
                class="popup-tombol-wa">
-                💬 Konfirmasi via WhatsApp
+                Konfirmasi via WhatsApp
             </a>
             <a href="status.php" class="popup-tombol-status">
                 Lihat Status
