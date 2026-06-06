@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     $action = $_GET['action'];
 
     if ($action === 'simpan_kontak') {
-        $stmt = $pdo->prepare("UPDATE info_website SET no_whatsapp = ?, no_telepon = ? WHERE id = 1");
-        $stmt->execute([trim($_POST['no_whatsapp']), trim($_POST['no_telepon'])]);
+        $stmt = $pdo->prepare("UPDATE info_website SET no_whatsapp = ? WHERE id = 1");
+        $stmt->execute([trim($_POST['no_whatsapp'])]);
     }
     elseif ($action === 'simpan_jam') {
         $stmt = $pdo->prepare("UPDATE info_website SET jam_operasional = ? WHERE id = 1");
@@ -81,10 +81,6 @@ include '../includes/header-admin.php';
                 <span class="edit-info-label" style="color: #999; font-size: 0.85rem; display: block; margin-bottom: 5px;">Nomor WhatsApp</span>
                 <p class="edit-info-nilai" style="font-weight: 600; color: #333;"><?= htmlspecialchars($info['no_whatsapp'] ?? '—') ?></p>
             </div>
-            <div class="edit-info-field">
-                <span class="edit-info-label" style="color: #999; font-size: 0.85rem; display: block; margin-bottom: 5px;">Nomor Telepon</span>
-                <p class="edit-info-nilai" style="font-weight: 600; color: #333;"><?= htmlspecialchars($info['no_telepon'] ?? '—') ?></p>
-            </div>
         </div>
 
         <form method="POST" action="edit-info.php?action=simpan_kontak" id="formKontak" style="display:none;">
@@ -93,10 +89,6 @@ include '../includes/header-admin.php';
                     <label class="edit-info-label" for="inputWA">Nomor WhatsApp</label>
                     <input type="text" id="inputWA" name="no_whatsapp" class="edit-info-input" value="<?= htmlspecialchars($info['no_whatsapp'] ?? '') ?>" placeholder="cth: 6281234567890">
                     <span class="edit-info-hint" style="font-size:0.75rem; color:#aaa; display:block; margin-top:4px;">Format: 62xxx tanpa tanda +</span>
-                </div>
-                <div class="edit-info-field">
-                    <label class="edit-info-label" for="inputTelp">Nomor Telepon</label>
-                    <input type="text" id="inputTelp" name="no_telepon" class="edit-info-input" value="<?= htmlspecialchars($info['no_telepon'] ?? '') ?>" placeholder="cth: 08123456789">
                 </div>
             </div>
             <div class="edit-info-aksi" style="margin-top: 20px; display: flex; gap: 10px;">

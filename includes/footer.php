@@ -1,10 +1,26 @@
+<?php
+// 1. Ambil data dari tabel info_website jika koneksi $pdo tersedia
+if (isset($pdo)) {
+    // Jalankan query hanya jika variabel $info_website belum didefinisikan di file utama
+    if (!isset($info_website)) {
+        $stmtFooter = $pdo->query("SELECT nama_usaha, alamat, no_whatsapp FROM info_website LIMIT 1");
+        $info_website = $stmtFooter->fetch() ?: [];
+    }
+}
+
+// 2. Fallback (Cadangan data) jika database kosong agar tampilan tidak rusak/kosong
+$nama_laundry   = !empty($info_website['nama_usaha']) ? htmlspecialchars($info_website['nama_usaha']) : 'CleanCo';
+$alamat_laundry = !empty($info_website['alamat']) ? htmlspecialchars($info_website['alamat']) : 'Jl. Clean & Fresh No. 12';
+$wa_laundry     = !empty($info_website['no_whatsapp']) ? htmlspecialchars($info_website['no_whatsapp']) : '';
+?>
+
 <footer class="footer-utama">
     <div class="bulat-footer-kecil"></div>
     <div class="bulat-footer-besar"></div>
 
     <div class="footer-konten">
         <div class="footer-kolom brand-kolom">
-            <h2 class="footer-judul">Laundry Bersih</h2>
+            <h2 class="footer-judul"><?= $nama_laundry ?></h2>
             <p class="footer-deskripsi">Memberikan layanan laundry terbaik, tercepat, dan terpercaya untuk pakaian kesayangan Anda.</p>
         </div>
         
@@ -21,15 +37,19 @@
         <div class="footer-kolom">
             <h3 class="footer-subjudul">Hubungi Kami</h3>
             <ul class="footer-kontak">
-                <li>📍 Jl. Clean & Fresh No. 12</li>
-                <li>📞 +62 812 3456 7890</li>
-                <li>✉️ halo@laundrybersih.com</li>
+                <li>📍 <?= $alamat_laundry ?></li>
+                
+                <?php if (!empty($wa_laundry)): ?>
+                    <li>💬 <?= $wa_laundry ?> (WhatsApp)</li>
+                <?php endif; ?>
+                
+                <li>✉️ halo@cleanco.com</li>
             </ul>
         </div>
     </div>
 
     <div class="footer-bottom">
-        <p>&copy; <?= date('Y') ?> Laundry Bersih. All rights reserved.</p>
+        <p>&copy; <?= date('Y') ?> <?= $nama_laundry ?>. All rights reserved.</p>
     </div>
 </footer>
 

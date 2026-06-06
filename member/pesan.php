@@ -19,7 +19,13 @@ $kecamatan_list = [];
 if ($info && !empty($info['kecamatan_dilayani'])) {
     $kecamatan_list = json_decode($info['kecamatan_dilayani'], true) ?: [];
 }
-$no_whatsapp_admin = $info['no_whatsapp'] ?? '';
+
+// ── STERILISASI NOMOR WHATSAPP ADMIN DI BACKEND ──
+$no_whatsapp_raw = $info['no_whatsapp'] ?? '';
+$no_whatsapp_admin_clean = preg_replace('/\D/', '', $no_whatsapp_raw);
+if (strpos($no_whatsapp_admin_clean, '0') === 0) {
+    $no_whatsapp_admin_clean = '62' . substr($no_whatsapp_admin_clean, 1);
+}
 
 // ── Handler POST ────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -52,12 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($opsi_pengantaran === 'kurir') {
-        if (empty($kecamatan)) {
-            $errors[] = 'Kecamatan wajib diisi untuk layanan kurir.';
-        }
-        if (empty($alamat_pengantaran)) {
-            $errors[] = 'Alamat lengkap wajib diisi untuk layanan kurir.';
-        }
+        if (empty($kecamatan)) { $errors[] = 'Kecamatan wajib diisi untuk layanan kurir.'; }
+        if (empty($alamat_pengantaran)) { $errors[] = 'Alamat lengkap wajib diisi untuk layanan kurir.'; }
     }
 
     // ── Proses jika tidak ada error ──────────────────────────
@@ -84,25 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )
         ");
         $stmtInsert->execute([
-            $kode_pesanan,
-            $id_member,
-            $id_layanan,
-            $opsi_pengantaran,
+            $kode_pesanan, $id_member, $id_layanan, $opsi_pengantaran,
             $opsi_pengantaran === 'kurir' ? $alamat_pengantaran : null,
             $opsi_pengantaran === 'kurir' ? $kecamatan : null,
-            $estimasi_berat,
-            !empty($catatan_khusus) ? $catatan_khusus : null,
-            $biaya_kurir,
+            $estimasi_berat, !empty($catatan_khusus) ? $catatan_khusus : null, $biaya_kurir,
         ]);
 
         $id_pesanan_baru = $pdo->lastInsertId();
 
-        $stmtRiwayat = $pdo->prepare("
-            INSERT INTO riwayat_status (
-                id_pesanan, status_lama, status_baru,
-                dilakukan_oleh, changed_at
-            ) VALUES (?, NULL, 'menunggu_konfirmasi', 'member', NOW())
-        ");
+        $stmtRiwayat = $pdo->prepare("INSERT INTO riwayat_status (id_pesanan, status_lama, status_baru, dilakukan_oleh, changed_at) VALUES (?, NULL, 'menunggu_konfirmasi', 'member', NOW())");
         $stmtRiwayat->execute([$id_pesanan_baru]);
 
         $estimasi_biaya = null;
@@ -110,12 +102,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $estimasi_biaya = ($estimasi_berat * $layananTerpilih['tarif_per_kg']) + $biaya_kurir;
         }
 
-        // FORMAT FEEDBACK UNTUK RESPONS AJAX MODAL
         $labelHarga = $estimasi_biaya !== null 
             ? 'Rp ' . number_format($estimasi_biaya, 0, ',', '.') . ' (Estimasi, Belum Final)' 
             : 'Dihitung admin setelah ditimbang';
 
-        // DETEKSI AJAX INTERCEPTOR (Sesuai Fase 7.4)
+        // SINKRONISASI TEMPLAT TEXT WHATSAPP (Format bullet-point sesuai permintaan)
+        $nama_member_wa = $_SESSION['nama'] ?? 'Member';
+        $label_opsi_wa  = ($opsi_pengantaran === 'kurir') ? 'Kurir ke ' . $kecamatan : 'Ambil Sendiri';
+
+        $teks_wa_format = "Halo Admin CleanCo! 👋\n" .
+                          "Saya baru saja membuat pesanan baru:\n" .
+                          "• Kode Pesanan : #{$kode_pesanan}\n" .
+                          "• Nama         : {$nama_member_wa}\n" .
+                          "• Layanan      : {$layananTerpilih['nama_layanan']}\n" .
+                          "• Pengantaran  : {$label_opsi_wa}\n" .
+                          "Mohon konfirmasinya. Terima kasih!";
+        
+        $url_wa_final = "https://wa.me/{$no_whatsapp_admin_clean}?text=" . urlencode($teks_wa_format);
+
+        // DETEKSI AJAX INTERCEPTOR
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
             echo json_encode([
@@ -125,7 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'nama_layanan' => $layananTerpilih['nama_layanan'],
                     'opsi_pengantaran' => $opsi_pengantaran,
                     'kecamatan' => $kecamatan,
-                    'total_estimasi' => $labelHarga
+                    'total_estimasi' => $labelHarga,
+                    'wa_url' => $url_wa_final
                 ]
             ]);
             exit;
@@ -136,24 +142,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'nama_layanan'     => $layananTerpilih['nama_layanan'],
             'opsi_pengantaran' => $opsi_pengantaran,
             'kecamatan'        => $kecamatan,
-            'estimasi_biaya'   => $estimasi_biaya,
-            'no_wa_admin'      => $no_whatsapp_admin,
+            'estimasi_biaya'   => $labelHarga,
+            'url_wa'           => $url_wa_final
         ];
 
         $sukses = true;
     } else {
-        // Balasan error validasi jika dikirim lewat sistem AJAX
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
-            echo json_encode([
-                'success' => false,
-                'message' => implode("\n", $errors)
-            ]);
+            echo json_encode(['success' => false, 'message' => implode("\n", $errors)]);
             exit;
         }
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -172,9 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../includes/header-member.php'; ?>
 
     <section class="hero-form pesan-hero">
-
         <form id="formPesan" method="POST" action="pesan.php">
-
         <div id="formPesanContainer" class="konten-form konten-form-pesan"
              data-sukses="<?= $sukses ? 'true' : 'false' ?>"
              data-member-nama="<?= htmlspecialchars($_SESSION['nama'] ?? 'Member') ?>"
@@ -182,8 +181,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              data-nama-layanan="<?= htmlspecialchars($pesanan_baru['nama_layanan'] ?? '') ?>"
              data-opsi-pengantaran="<?= htmlspecialchars($pesanan_baru['opsi_pengantaran'] ?? '') ?>"
              data-kecamatan="<?= htmlspecialchars($pesanan_baru['kecamatan'] ?? '') ?>"
-             data-estimasi-biaya="<?= (isset($pesanan_baru['estimasi_biaya']) && $pesanan_baru['estimasi_biaya'] !== null) ? $pesanan_baru['estimasi_biaya'] : 'null' ?>"
-             data-no-wa-admin="<?= htmlspecialchars($no_whatsapp_admin) ?>"
+             data-estimasi-biaya="<?= htmlspecialchars($pesanan_baru['estimasi_biaya'] ?? '') ?>"
+             data-url-wa-final="<?= htmlspecialchars($pesanan_baru['url_wa'] ?? '') ?>"
+             data-no-wa-admin="<?= htmlspecialchars($no_whatsapp_admin_clean) ?>">
 
             <h1 class="judul-form judul-form-kiri">Buat Pesanan Baru</h1>
             <p class="subjudul-pesan">Isi form di bawah untuk memulai pesanan laundry kamu.</p>
@@ -217,12 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?= htmlspecialchars($l['nama_layanan']) ?>
                             </div>
                             <div class="kartu-pilih-body">
-                                <p class="kartu-pilih-tarif">
-                                    Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / kg
-                                </p>
-                                <p class="kartu-pilih-durasi">
-                                    <?= htmlspecialchars($l['deskripsi']) ?>
-                                </p>
+                                <p class="kartu-pilih-tarif">Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / kg</p>
+                                <p class="kartu-pilih-durasi"><?= htmlspecialchars($l['deskripsi']) ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -254,13 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="info-kurir-wrapper" id="infoKurir">
-                <p class="info-kurir-teks">
-                    💡 Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
-                </p>
-                <p class="info-kurir-teks">
-                    📍 Layanan kurir tersedia untuk kecamatan:
-                    <strong><?= htmlspecialchars(implode(', ', $kecamatan_list)) ?></strong>
-                </p>
+                <p class="info-kurir-teks">💡 Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.</p>
+                <p class="info-kurir-teks">📍 Layanan kurir tersedia untuk kecamatan: <strong><?= htmlspecialchars(implode(', ', $kecamatan_list)) ?></strong></p>
             </div>
 
             <div id="containerAlamat">
@@ -269,10 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <select class="input-form" id="inputKecamatan" name="kecamatan">
                         <option value="">-- Pilih Kecamatan --</option>
                         <?php foreach ($kecamatan_list as $kec): ?>
-                            <option value="<?= htmlspecialchars($kec) ?>"
-                                <?= (!$sukses && ($kecamatan ?? '') === $kec) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($kec) ?>
-                            </option>
+                            <option value="<?= htmlspecialchars($kec) ?>" <?= (!$sukses && ($kecamatan ?? '') === $kec) ? 'selected' : '' ?>><?= htmlspecialchars($kec) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -291,9 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="kotak-estimasi-harga" id="kotakEstimasi" style="padding: 15px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
-                <p class="estimasi-harga-teks" id="teksEstimasiHarga">
-                    Harga akan dihitung admin setelah pakaian ditimbang.
-                </p>
+                <p class="estimasi-harga-teks" id="teksEstimasiHarga">Harga akan dihitung admin setelah pakaian ditimbang.</p>
             </div>
 
             <div class="grup-input-form">
@@ -301,9 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea class="input-form input-textarea" id="inputCatatan" name="catatan" placeholder="cth: pisahkan baju putih, ada noda di bagian kerah..."><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
             </div>
 
-            <button type="button" class="tombol-submit-form tombol-kirim-pesanan" onclick="kirimPesananForm(event)">
-                Kirim Pesanan
-            </button>
+            <button type="button" class="tombol-submit-form tombol-kirim-pesanan" onclick="kirimPesananForm(event)">Kirim Pesanan</button>
         </div>
         </form>
 
@@ -322,52 +306,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="popup-sukses-rincian">
-            <div class="popup-rincian-baris">
-                <span>Nomor Pesanan</span>
-                <strong id="popupNoPesanan">—</strong>
-            </div>
-            <div class="popup-rincian-baris">
-                <span>Layanan</span>
-                <strong id="popupLayanan">—</strong>
-            </div>
-            <div class="popup-rincian-baris">
-                <span>Pengantaran</span>
-                <strong id="popupPengantaran">—</strong>
-            </div>
-            <div class="popup-rincian-baris">
-                <span>Estimasi Biaya</span>
-                <strong id="popupEstimasi">—</strong>
-            </div>
+            <div class="popup-rincian-baris"><span>Nomor Pesanan</span><strong id="popupNoPesanan">—</strong></div>
+            <div class="popup-rincian-baris"><span>Layanan</span><strong id="popupLayanan">—</strong></div>
+            <div class="popup-rincian-baris"><span>Pengantaran</span><strong id="popupPengantaran">—</strong></div>
+            <div class="popup-rincian-baris"><span>Estimasi Biaya</span><strong id="popupEstimasi">—</strong></div>
         </div>
 
         <div class="popup-tombol-group" style="justify-content:center; gap:12px; display:flex; flex-wrap:wrap; margin-top:20px;">
-         <a id="tombolKonfirmasiWa"
-            href="#"
-            target="_blank"
-            style="display:none; align-items:center; gap:8px; text-decoration:none;
-                   padding:10px 18px; background:#25D366; color:white;
-                   border-radius:8px; font-weight:600; font-size:0.9rem;">
+            <a id="tombolKonfirmasiWa" href="<?= htmlspecialchars($pesanan_baru['url_wa'] ?? '#') ?>" target="_blank" style="display:<?= $sukses ? 'inline-flex' : 'none' ?>; align-items:center; gap:8px; text-decoration:none; padding:10px 18px; background:#25D366; color:white; border-radius:8px; font-weight:600; font-size:0.9rem;">
                 Konfirmasi Pesanan via WhatsApp
-        </a>
-        <a href="status.php"
-           style="text-decoration:none; text-align:center;
-                  padding:10px 18px; background:var(--birutua); color:white;
-                  border-radius:8px; font-weight:600; font-size:0.9rem;">
-            Lihat Status
-        </a>
-        <button onclick="pesanLagi()"
-                style="padding:10px 18px; cursor:pointer; border-radius:8px;
-                       font-weight:600; font-size:0.9rem; border:1.5px solid #ccc;
-                       background:white; color:#444;">
-            Pesan Lagi
-        </button>
-      </div>
+            </a>
+            <a href="status.php" style="text-decoration:none; text-align:center; padding:10px 18px; background:var(--birutua); color:white; border-radius:8px; font-weight:600; font-size:0.9rem;">Lihat Status</a>
+            <button onclick="pesanLagi()" style="padding:10px 18px; cursor:pointer; border-radius:8px; font-weight:600; font-size:0.9rem; border:1.5px solid #ccc; background:white; color:#444;">Pesan Lagi</button>
+        </div>
     </div>
 
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>
     <script src="../assets/js/pesan-member.js"></script>
-
     <?php include '../includes/footer.php'; ?>
 </body>
 </html>

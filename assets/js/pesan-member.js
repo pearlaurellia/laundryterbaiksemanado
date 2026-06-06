@@ -32,7 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof hitungEstimasi === 'function') hitungEstimasi();
 
-    // 2. INTERCEPTOR EVENT SUBMIT FORM (Sesuai Aturan Fase 7.4)
+    // 2. KONDISI FALLBACK: Jika halaman memuat ulang secara tradisional (Non-AJAX)
+    if (container.dataset.sukses === 'true') {
+        tampilkanPopupSukses(container.dataset.urlWaFinal);
+    }
+
+    // 3. INTERCEPTOR EVENT SUBMIT FORM VIA AJAX FETCH
     formPesan.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -45,16 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const memberNama = container.dataset.memberNama || 'Member';
         const noWaAdmin  = container.dataset.noWaAdmin  || '';
-        const kecamatan  = document.getElementById('inputKecamatan')
-                           ? document.getElementById('inputKecamatan').value
-                           : '';
-        const labelOpsi  = opsi === 'kurir'
-                           ? 'Kurir ke ' + kecamatan
-                           : 'Ambil Sendiri';
+        const kecamatan  = document.getElementById('inputKecamatan') ? document.getElementById('inputKecamatan').value : '';
+        const labelOpsi  = opsi === 'kurir' ? 'Kurir ke ' + kecamatan : 'Ambil Sendiri';
 
-        const noWaBersih = noWaAdmin.replace(/\D/g, '');
+        // PERBAIKAN FATAL: Bersihkan nomor dan paksa format internasional 62
+        let noWaBersih = noWaAdmin.replace(/\D/g, '');
+        if (noWaBersih.startsWith('0')) {
+            noWaBersih = '62' + noWaBersih.slice(1);
+        }
 
-    
         // Kirim data form ke backend via Fetch POST
         try {
             const formData = new FormData(formPesan);
@@ -69,13 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 document.getElementById('popupNoPesanan').textContent   = '#' + result.data.kode_pesanan;
                 document.getElementById('popupLayanan').textContent     = result.data.nama_layanan;
-                document.getElementById('popupPengantaran').textContent = result.data.opsi_pengantaran === 'kurir'
-                                                              ? 'Kurir Antar-Jemput'
-                                                              : 'Ambil Mandiri';
+                document.getElementById('popupPengantaran').textContent = result.data.opsi_pengantaran === 'kurir' ? 'Kurir Antar-Jemput' : 'Ambil Mandiri';
                 document.getElementById('popupEstimasi').textContent    = result.data.total_estimasi;
 
-                // Siapkan URL WhatsApp di tombol popup (bukan auto-buka)
-                if (noWaBersih) {
+                // Tentukan Link WhatsApp akhir (Prioritas URL dari backend, fallback rakit mandiri)
+                let urlWaFinal = result.data.wa_url || '#';
+                if (!result.data.wa_url && noWaBersih) {
                     const pesanWa = encodeURIComponent(
                         'Halo Admin CleanCo! 👋\n' +
                         'Saya baru saja membuat pesanan baru:\n' +
@@ -85,15 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         '• Pengantaran  : ' + labelOpsi + '\n' +
                         'Mohon konfirmasinya. Terima kasih!'
                     );
-                    const tombolWa = document.getElementById('tombolKonfirmasiWa');
-                    if (tombolWa) {
-                        tombolWa.href = 'https://wa.me/' + noWaBersih + '?text=' + pesanWa;
-                        tombolWa.style.display = 'inline-flex';
-                     }
-                 }
+                    urlWaFinal = 'https://wa.me/' + noWaBersih + '?text=' + pesanWa;
+                }
 
-                 document.getElementById('overlayPopup').style.display = 'block';
-                 document.getElementById('popupSukses').style.display  = 'block';
+                // Munculkan Popup Modal Sukses
+                tampilkanPopupSukses(urlWaFinal);
+
             } else {
                 alert(result.message || 'Gagal menyimpan pesanan ke database.');
             }
@@ -104,6 +104,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+/**
+ * Global Helper: Membuka Jendela Modal Sukses & Mengisi Link WhatsApp
+ */
+function tampilkanPopupSukses(urlWhatsApp) {
+    const tombolWa = document.getElementById('tombolKonfirmasiWa');
+    if (tombolWa && urlWhatsApp && urlWhatsApp !== '#') {
+        tombolWa.href = urlWhatsApp;
+        tombolWa.style.display = 'inline-flex';
+    }
+    
+    const overlay = document.getElementById('overlayPopup');
+    const popup = document.getElementById('popupSukses');
+    if (overlay) overlay.style.display = 'block';
+    if (popup) popup.style.display = 'block';
+}
 
 /**
  * Global Function: Mengurusi perpindahan kelas aktif pada komponen kartu
