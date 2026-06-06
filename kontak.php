@@ -16,7 +16,7 @@ $info = $stmt->fetch();
                 <p>Butuh bantuan atau ingin pesan layanan? Kami siap membantu dengan cepat dan ramah.</p>
                 <ul>
                     <li>
-                        <a href="https://wa.me/6282172567295" target="_blank">▸ Hubungi di <u>WhatsApp</u></a>
+                        <a href="https://wa.me/<?= htmlspecialchars($info['no_whatsapp'] ?? '') ?>" target="_blank">▸ Hubungi di <u>WhatsApp</u></a>
                     </li>
                     <li>
                         <a href="https://instagram.com/cleanco" target="_blank">▸ <u>Follow</u> Instagram kami</a>

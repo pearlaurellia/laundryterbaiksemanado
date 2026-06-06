@@ -3371,3 +3371,15 @@ img {
     color: var(--birutua);
 }
 
+.info-kontak-detail {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-kontak-detail p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+}

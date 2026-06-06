@@ -3,7 +3,7 @@
 if (isset($pdo)) {
     // Jalankan query hanya jika variabel $info_website belum didefinisikan di file utama
     if (!isset($info_website)) {
-        $stmtFooter = $pdo->query("SELECT nama_usaha, alamat, no_whatsapp FROM info_website LIMIT 1");
+        $stmtFooter = $pdo->query("SELECT nama_usaha, alamat, no_whatsapp, jam_operasional FROM info_website LIMIT 1");
         $info_website = $stmtFooter->fetch() ?: [];
     }
 }
@@ -12,6 +12,8 @@ if (isset($pdo)) {
 $nama_laundry   = !empty($info_website['nama_usaha']) ? htmlspecialchars($info_website['nama_usaha']) : 'CleanCo';
 $alamat_laundry = !empty($info_website['alamat']) ? htmlspecialchars($info_website['alamat']) : 'Jl. Clean & Fresh No. 12';
 $wa_laundry     = !empty($info_website['no_whatsapp']) ? htmlspecialchars($info_website['no_whatsapp']) : '';
+$jam_laundry    = !empty($info_website['jam_operasional']) ? htmlspecialchars($info_website['jam_operasional']) : '';
+
 ?>
 
 <footer class="footer-utama">
@@ -44,6 +46,9 @@ $wa_laundry     = !empty($info_website['no_whatsapp']) ? htmlspecialchars($info_
                 <?php endif; ?>
                 
                 <li>✉️ halo@cleanco.com</li>
+                <?php if (!empty($jam_laundry)): ?>
+                    <li>🕐 <?= $jam_laundry ?></li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>
