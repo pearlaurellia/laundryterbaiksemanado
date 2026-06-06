@@ -1,3 +1,11 @@
+<?php
+// 1. Hitung pesanan baru yang berstatus 'menunggu_konfirmasi' jika koneksi $pdo aktif
+$jumlahBadgeAdmin = 0;
+if (isset($pdo)) {
+    $stmtBadgeAdmin = $pdo->query("SELECT COUNT(*) FROM pesanan WHERE status_pesanan = 'menunggu_konfirmasi'");
+    $jumlahBadgeAdmin = $stmtBadgeAdmin->fetchColumn() ?: 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,25 +17,34 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght=0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
 <header class="header">
 
-    <!-- Hamburger Button (visible only on mobile) -->
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span>
         <span></span>
         <span></span>
     </button>
 
-    <!-- Mobile dropdown (merges both nav-left and nav-right) -->
     <div class="mobile-menu" id="mobile-menu">
         <ul>
             <li><a href="dashboard.php" class="tombol-daun"><b>Dashboard</b></a></li>
-            <li><a href="pesanan.php" class="tombol-daun"><b>Kelola Pesanan</b></a></li>
+            
+            <li>
+                <a href="pesanan.php" class="tombol-daun" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <b>Kelola Pesanan</b>
+                    <?php if ($jumlahBadgeAdmin > 0): ?>
+                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; line-height: 1;">
+                            <?= $jumlahBadgeAdmin ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            
             <li><a href="member.php" class="tombol-daun"><b>Member</b></a></li>
             <li><a href="laporan.php" class="tombol-daun"><b>Laporan</b></a></li>
             <li><a href="layanan.php" class="tombol-daun"><b>Layanan</b></a></li>
@@ -41,9 +58,18 @@
             <li>
                 <a href="dashboard.php" class="tombol-daun"><b> Dashboard </b></a>
             </li>
+            
             <li>
-                <a href="pesanan.php" class="tombol-daun"><b> Kelola Pesanan </b></a>
+                <a href="pesanan.php" class="tombol-daun" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <b> Kelola Pesanan </b>
+                    <?php if ($jumlahBadgeAdmin > 0): ?>
+                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; line-height: 1;">
+                            <?= $jumlahBadgeAdmin ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
             </li>
+            
             <li>
                 <a href="member.php" class="tombol-daun"><b> Member </b></a>
             </li>
