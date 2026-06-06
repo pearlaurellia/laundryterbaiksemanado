@@ -28,15 +28,12 @@ include 'includes/header.php';
                 // 3. Looping data dari database
                 if (count($dataLayanan) > 0): 
                     foreach ($dataLayanan as $layanan): 
-                        // Menentukan gaya kartu berdasarkan nama layanan (untuk estetika visual)
+                        // Menentukan gaya kartu (opsional: kartu dengan id 2 atau tertentu bisa diberi gaya 'featured')
                         $isFeatured = (stripos($layanan['nama_layanan'], 'express') !== false);
                         $headerClass = $isFeatured ? 'kartu-layanan-admin-header kartu-layanan-admin-header-featured' : 'kartu-layanan-admin-header';
                         
-                        // 1. Mengambil data satuan langsung dari kolom database hasil input admin
-                        $satuan = htmlspecialchars($layanan['satuan'] ?? 'kg');
-
-                        // 2. Mengambil durasi dinamis dari database (jika kosong, gunakan fallback otomatis)
-                        $durasiTampil = !empty($layanan['durasi']) ? htmlspecialchars($layanan['durasi']) : ($isFeatured ? '6-8 jam' : '1-2 hari');
+                        // Menentukan satuan tarif (contoh: jika nama mengandung 'dry', mungkin satuannya per item, selain itu per kg)
+                        $satuan = htmlspecialchars($layanan['satuan']);
                 ?>
                 
                 <div class="kartu-layanan-admin"
@@ -59,10 +56,9 @@ include 'includes/header.php';
                                 <span class="badge-hijau">Setrika</span>
                             <?php else: ?>
                                 <span class="badge-hijau">Dry Clean</span>
-                                <span class="badge-hijau">Per Item</span>
                             <?php endif; ?>
                             
-                            <span class="badge-biru"><?= $durasiTampil ?></span>
+                            <span class="badge-biru"><?= $isFeatured ? '6-8 jam' : '1-2 hari' ?></span>
                         </div>
                     </div>
                 </div>

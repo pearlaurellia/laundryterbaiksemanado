@@ -61,7 +61,7 @@ if (isset($pdo)) {
             
             <li>
                 <a href="pesanan.php" class="tombol-daun" style="display: inline-flex; align-items: center; gap: 8px;">
-                    <b> Kelola Pesanan </b>
+                    <b>Kelola Pesanan</b>
                     <?php if ($jumlahBadgeAdmin > 0): ?>
                         <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; line-height: 1;">
                             <?= $jumlahBadgeAdmin ?>
