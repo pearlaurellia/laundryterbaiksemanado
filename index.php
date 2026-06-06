@@ -69,7 +69,7 @@ include 'includes/header.php';
                         
                         <div class="bulat-kecil"></div>
                         <div class="bulat-harga">
-                            <?= number_format($layanan['tarif_per_kg'], 0, ',', '.') ?>k<br>/kg
+                            <?= number_format($layanan['tarif_per_kg'], 0, ',', '.') ?>k<br>/<?= htmlspecialchars($layanan['satuan']) ?>
                         </div>
                     </div>
                 </div>

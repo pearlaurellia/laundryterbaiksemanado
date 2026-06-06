@@ -83,7 +83,7 @@ $stmtReset->execute([$id_member]);
 
 // ── Query pesanan aktif dari DB ──────────────────────────────
 $stmtAktif = $pdo->prepare("
-    SELECT p.*, l.nama_layanan, l.tarif_per_kg
+    SELECT p.*, l.nama_layanan, l.tarif_per_kg, l.satuan
     FROM pesanan p
     JOIN layanan l ON p.id_layanan = l.id
     WHERE p.id_member = ?
@@ -199,7 +199,7 @@ $steps_ambil = [
                         <div class="rincian-biaya">
                             <p>Biaya:</p>
                             <?php if ($p['berat_aktual'] > 0): ?>
-                                <p>Berat = <?= number_format($p['berat_aktual'], 2) ?> kg :
+                                <p>Berat = <?= number_format($p['berat_aktual'], 2) ?> <?= htmlspecialchars($p['satuan']) ?> :
                                    Rp <?= number_format($p['total_harga'] - $p['biaya_kurir'], 0, ',', '.') ?>
                                 </p>
                             <?php else: ?>

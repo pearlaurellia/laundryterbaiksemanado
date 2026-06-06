@@ -13,7 +13,7 @@ if ($id_pesanan <= 0) {
 // ── Query detail pesanan (hanya milik member yang login) ────
 $stmtPesanan = $pdo->prepare("
     SELECT p.*, u.nama AS nama_member, u.no_hp,
-           l.nama_layanan, l.tarif_per_kg
+           l.nama_layanan, l.tarif_per_kg, l.satuan
     FROM pesanan p
     JOIN users u   ON p.id_member  = u.id
     JOIN layanan l ON p.id_layanan = l.id
@@ -266,7 +266,7 @@ $labelTimeline = [
                     <p class="detail-label" style="margin-bottom:12px;">Rincian Biaya Final</p>
                     <p class="rincian-baris">
                         <?= htmlspecialchars($p['nama_layanan']) ?>
-                        (<?= $p['berat_aktual'] ?> kg &times;
+                        (<?= $p['berat_aktual'] ?> <?= htmlspecialchars($p['satuan']) ?> &times;
                         <?= formatRupiah($p['tarif_per_kg']) ?>) :
                         <?= formatRupiah($biayaLayanan) ?>
                     </p>
@@ -281,7 +281,7 @@ $labelTimeline = [
                     </p>
                     <div class="berat-aktual-badge">
                         <span>⚖️ Berat Aktual</span>
-                        <strong><?= $p['berat_aktual'] ?> kg</strong>
+                        <strong><?= $p['berat_aktual'] ?> <?= htmlspecialchars($p['satuan']) ?></strong>
                     </div>
                 </div>
                 <?php endif; ?>

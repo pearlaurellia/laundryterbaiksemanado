@@ -83,7 +83,7 @@ if (isset($_GET['action'])) {
 
     if ($_GET['action'] === 'ambil_semua') {
         $stmt = $pdo->query("
-            SELECT p.*, u.nama, u.email, u.no_hp, l.nama_layanan, l.tarif_per_kg 
+            SELECT p.*, u.nama, u.email, u.no_hp, l.nama_layanan, l.tarif_per_kg, l.satuan
             FROM pesanan p 
             JOIN users u ON p.id_member = u.id 
             JOIN layanan l ON p.id_layanan = l.id
@@ -106,6 +106,7 @@ if (isset($_GET['action'])) {
                 'telpon' => $p['no_hp'],
                 'layanan' => $p['nama_layanan'],
                 'tarifLayanan' => (float)$p['tarif_per_kg'],
+                'satuan'       => $p['satuan'], 
                 'pengiriman' => $p['opsi_pengantaran'] === 'kurir' ? 'Kurir Laundry' : 'Ambil Sendiri',
                 'tarifKirim' => (float)$p['biaya_kurir'],
                 'note' => $p['catatan_khusus'],
@@ -219,7 +220,7 @@ $badge_class = [
                     <p class="detail-label">Input Berat Aktual Cucian</p>
                     <div class="input-berat-wrapper">
                         <input type="number" class="input-berat" id="inputBerat" placeholder="0" min="0" step="0.1" oninput="hitungBiaya()">
-                        <span class="satuan-berat">kg</span>
+                        <span class="satuan-berat" id="satuanBerat">kg</span>
                     </div>
                     <p class="input-berat-hint">* Rincian tagihan dihitung otomatis</p>
                 </div>

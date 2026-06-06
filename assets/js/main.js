@@ -96,6 +96,9 @@ async function bukaPesanan(id, el) {
     document.getElementById('detailPengiriman').textContent  = p.pengiriman;
     document.getElementById('detailNote').textContent        = p.note || '— Tidak ada catatan —';
     
+    const elSatuan = document.getElementById('satuanBerat');
+    if (elSatuan) elSatuan.textContent = p.satuan || 'kg';
+
     // Sinkronisasi isian angka timbangan berat
     const inputBerat = document.getElementById('inputBerat');
     if (inputBerat) inputBerat.value = p.berat || '';
@@ -165,7 +168,7 @@ function hitungBiaya() {
     const rincianKirim = document.getElementById('rincianKirim');
     const rincianTotal = document.getElementById('rincianTotal');
 
-    if (rincianLayanan) rincianLayanan.textContent = `Layanan : ${_fmt(subtotalLayanan)} (${berat} kg x ${_fmt(p.tarifLayanan)})`;
+    if (rincianLayanan) rincianLayanan.textContent = `Layanan : ${_fmt(subtotalLayanan)} (${berat} ${p.satuan || 'kg'} x ${_fmt(p.tarifLayanan)})`;
     if (rincianKirim) rincianKirim.textContent = `Pengiriman : ${_fmt(p.tarifKirim)}`;
     if (rincianTotal) rincianTotal.textContent = `Total : ${_fmt(totalSemua)}`;
 }

@@ -81,7 +81,7 @@ $info = $stmtInfo->fetch();
                         <p><?= htmlspecialchars($lyn['deskripsi']) ?></p>
                         <div class="bulat-kecil"></div>
                         <div class="bulat-harga">
-                            Rp <?= number_format($lyn['tarif_per_kg'], 0, ',', '.') ?>/kg
+                            Rp <?= number_format($lyn['tarif_per_kg'], 0, ',', '.') ?>/<?= htmlspecialchars($lyn['satuan']) ?>
                         </div>
                     </div>
                 </div>

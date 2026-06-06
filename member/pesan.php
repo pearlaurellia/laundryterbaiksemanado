@@ -224,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                     <div class="kartu-pilih-body">
                                         <p class="kartu-pilih-tarif">
-                                            Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / kg
+                                            Rp <?= number_format($l['tarif_per_kg'], 0, ',', '.') ?> / <?= htmlspecialchars($l['satuan']) ?>
                                         </p>
                                         <p class="kartu-pilih-durasi">
                                             <?= htmlspecialchars($l['deskripsi']) ?>
