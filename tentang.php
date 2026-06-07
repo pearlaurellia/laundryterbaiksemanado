@@ -79,7 +79,7 @@
 
             <div class="kartu-pesanan-aktif" style="margin: 0; border-radius: 0px 20px 20px 20px; flex-wrap: wrap;">
                 <div style="flex: 1 1 250px; min-height: 250px; background-color: #E6F0FA;">
-                    <img src="assets/images/foto-intan.jpg" alt="Foto Dimas" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
+                    <img src="assets/images/foto-intan.jpeg" alt="Foto Dimas" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
                 </div>
                 <div style="flex: 2 1 400px; padding: 30px 40px; display: flex; flex-direction: column; justify-content: center; background-color: white;">
                     <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: var(--birutua); margin: 0 0 10px;">Intan Kasu</h2>
