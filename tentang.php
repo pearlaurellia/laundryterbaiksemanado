@@ -19,7 +19,7 @@
         <div class="bulat-besar-form"></div>
 
         <div class="konten-form" style="text-align: center;">
-            <h1 class="judul-form" style="margin-bottom: 16px; font-size: 3.5rem;">Tim CleanCo</h1>
+            <h1 class="judul-form" style="margin-bottom: 16px; font-size: 3.5rem;">Tim Laundry 3J</h1>
             <p style="color: rgba(255, 255, 255, 0.85); font-size: 1.1rem; max-width: 650px; line-height: 1.6;">
                 Empat pembuat website ini membawa peran berbeda untuk menghasilkan halaman yang bersih dan fungsional.
             </p>

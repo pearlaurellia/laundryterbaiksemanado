@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Password - CleanCo</title>
+    <title>Lupa Password - Laundry 3J</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
-        <div class="bulat-besar-form"><h2>CleanCo</h2></div>
+        <div class="bulat-besar-form"><h2>Laundry 3J</h2></div>
     </section>
 
     <?php include 'includes/footer.php'; ?>

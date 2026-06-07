@@ -20,7 +20,7 @@ if (isset($_SESSION['id_user'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - CleanCo</title>
+    <title>Dashboard - Laundry 3J</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

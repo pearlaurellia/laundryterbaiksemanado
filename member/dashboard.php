@@ -51,8 +51,7 @@ $info = $stmtInfo->fetch();
         <div class="konten-hero">
             <div class="teks-hero">
                 <h1>Halo, <span><?= htmlspecialchars($_SESSION['nama']) ?>!</span></h1>
-                <p>Pesan layanan laundry kapan saja, pantau status cucian secara real-time,
-                   dan ambil pakaian bersih, siap pakai.</p>
+                <p>Terima kasih telah memilih Laundry 3J, Jepat, Jersih, Japi, untuk kebutuhan pakaian Anda.</p>
             </div>
             <div class="tombol-hero">
                 <a href="pesan.php" class="tombol-daun">Pesan Sekarang</a>
@@ -61,7 +60,7 @@ $info = $stmtInfo->fetch();
         </div>
         <div class="bulat-atas"></div>
         <div class="bulat-ditengah"></div>
-        <div class="bulat-besar"><h2>CleanCo</h2></div>
+        <div class="bulat-besar"><h2>Laundry 3J</h2></div>
     </section>
 
     <!-- LAYANAN OVERVIEW — dari database -->
@@ -215,8 +214,8 @@ $info = $stmtInfo->fetch();
         </div>
         <div class="kontak-preview-kanan">
             <div class="brand-atas">
-                <h2><?= htmlspecialchars($info['nama_usaha'] ?? 'CleanCo.') ?></h2>
-                <p>Based in Manado, Indonesia.<br>CleanCo 2026</p>
+                <h2><?= htmlspecialchars($info['nama_usaha'] ?? 'Laundry 3J.') ?></h2>
+                <p>Based in Manado, Indonesia.<br>Laundry 3J 2026</p>
             </div>
             <div class="brand-bawah">
                 <p>Lokasi Kami:<br><?= htmlspecialchars($info['alamat'] ?? '-') ?></p>

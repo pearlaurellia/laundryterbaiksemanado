@@ -9,7 +9,7 @@ if (isset($pdo)) {
 }
 
 // 2. Fallback (Cadangan data) jika database kosong agar tampilan tidak rusak/kosong
-$nama_laundry   = !empty($info_website['nama_usaha']) ? htmlspecialchars($info_website['nama_usaha']) : 'CleanCo';
+$nama_laundry   = !empty($info_website['nama_usaha']) ? htmlspecialchars($info_website['nama_usaha']) : 'Laundry 3J';
 $alamat_laundry = !empty($info_website['alamat']) ? htmlspecialchars($info_website['alamat']) : 'Jl. Clean & Fresh No. 12';
 $wa_laundry     = !empty($info_website['no_whatsapp']) ? htmlspecialchars($info_website['no_whatsapp']) : '';
 $jam_laundry    = !empty($info_website['jam_operasional']) ? htmlspecialchars($info_website['jam_operasional']) : '';
@@ -39,15 +39,15 @@ $jam_laundry    = !empty($info_website['jam_operasional']) ? htmlspecialchars($i
         <div class="footer-kolom">
             <h3 class="footer-subjudul">Hubungi Kami</h3>
             <ul class="footer-kontak">
-                <li>📍 <?= $alamat_laundry ?></li>
+                <li> <?= $alamat_laundry ?></li>
                 
                 <?php if (!empty($wa_laundry)): ?>
-                    <li>💬 <?= $wa_laundry ?> (WhatsApp)</li>
+                    <li> <?= $wa_laundry ?> (WhatsApp)</li>
                 <?php endif; ?>
                 
-                <li>✉️ halo@cleanco.com</li>
+                <li> halo@Laundry 3J.com</li>
                 <?php if (!empty($jam_laundry)): ?>
-                    <li>🕐 <?= $jam_laundry ?></li>
+                    <li> <?= $jam_laundry ?></li>
                 <?php endif; ?>
             </ul>
         </div>

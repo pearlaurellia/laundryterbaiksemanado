@@ -19,7 +19,7 @@ include 'includes/header.php';
     <section class="hero">
         <div class="konten-hero">
             <div class="teks-hero">
-                <h1>Laundry Mudah, <br> <span> Kapan Saja </span></h1>
+                <h1>Laundry 3J <br> <span> Jepat, Jersih, Japi </span></h1>
                 <p> Pesan layanan laundry kapan saja, pantau status cucian secara real-time, dan ambil pakaian bersih, siap pakai. </p>
             </div>
 
@@ -31,7 +31,7 @@ include 'includes/header.php';
         
         <div class="bulat-atas"></div>
         <div class="bulat-ditengah"></div>
-        <div class="bulat-besar"><h2> CleanCo </h2></div>
+        <div class="bulat-besar"><h2> Laundry 3J </h2></div>
     </section>
 
     <section class="layanan-overview">
@@ -87,8 +87,8 @@ include 'includes/header.php';
 
         <div class="kontak-preview-kanan">
             <div class="brand-atas">
-                <h2> <?= htmlspecialchars($infoWeb['nama_usaha'] ?? 'CleanCo.') ?> </h2>
-                <p> Based in Manado, Indonesia. <br> CleanCo <?= date('Y') ?> </p>
+                <h2> <?= htmlspecialchars($infoWeb['nama_usaha'] ?? 'Laundry 3J.') ?> </h2>
+                <p> Based in Manado, Indonesia. <br> Laundry 3J <?= date('Y') ?> </p>
             </div>
             <div class="brand-bawah">
                 <p> Lokasi Kami: <br> <?= nl2br(htmlspecialchars($infoWeb['alamat'] ?? 'Wanea, Teling Atas, Jln. Manado')) ?> </p>

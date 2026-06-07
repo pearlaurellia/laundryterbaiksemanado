@@ -71,13 +71,13 @@ include 'includes/header.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CleanCo</title>
+    <title>Login - Laundry 3J</title>
 </head>
 <body>
 
     <section class="hero-form">
         <div class="konten-form">
-            <h1 class="judul-form">Masuk Akun CleanCo</h1>
+            <h1 class="judul-form">Masuk Akun Laundry 3J</h1>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error" style="background: #ffe3e3; color: #cc0000; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: left; border-left: 4px solid #cc0000;">
@@ -126,7 +126,7 @@ include 'includes/header.php';
         
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
-        <div class="bulat-besar-form"><h2>CleanCo</h2></div>
+        <div class="bulat-besar-form"><h2>Laundry 3J</h2></div>
     </section>
 
     <script>

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Password Baru - CleanCo</title>
+    <title>Buat Password Baru - Laundry 3J</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
-        <div class="bulat-besar-form"><h2>CleanCo</h2></div>
+        <div class="bulat-besar-form"><h2>Laundry 3J</h2></div>
     </section>
 
     <script>

@@ -13,7 +13,7 @@ $info = $stmt->fetch();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontak - CleanCo</title>
+    <title>Kontak - Laundry 3J</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,14 +27,14 @@ $info = $stmt->fetch();
     <section class="hero">
         <div class="konten-hero">
             <div class="teks-hero">
-                <h1>Hubungi Kami <br><span> CleanCo </span></h1>
+                <h1>Hubungi Kami <br><span> Laundry 3J </span></h1>
                 <p>Butuh bantuan atau ingin pesan layanan? Kami siap membantu dengan cepat dan ramah.</p>
                 <ul>
                     <li>
                         <a href="https://wa.me/<?= htmlspecialchars($info['no_whatsapp']) ?>" target="_blank">▸ Hubungi di <u>WhatsApp</u></a>
                     </li>
                     <li>
-                        <a href="https://instagram.com/cleanco" target="_blank">▸ <u>Follow</u> Instagram kami</a>
+                        <a href="https://instagram.com/Laundry 3J" target="_blank">▸ <u>Follow</u> Instagram kami</a>
                     </li>
                 </ul>
             </div>
