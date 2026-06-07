@@ -30,9 +30,8 @@ $jam_laundry    = !empty($info_website['jam_operasional']) ? htmlspecialchars($i
             <h3 class="footer-subjudul">Layanan Kami</h3>
             <ul class="footer-links">
                 <li><a href="#">Cuci Reguler</a></li>
-                <li><a href="#">Cuci Kilat</a></li>
-                <li><a href="#">Setrika Saja</a></li>
-                <li><a href="#">Cuci Sepatu</a></li>
+                <li><a href="#">Cuci Express</a></li>
+                <li><a href="#">Dry Clean</a></li>
             </ul>
         </div>
 
@@ -45,7 +44,7 @@ $jam_laundry    = !empty($info_website['jam_operasional']) ? htmlspecialchars($i
                     <li> <?= $wa_laundry ?> (WhatsApp)</li>
                 <?php endif; ?>
                 
-                <li> halo@Laundry 3J.com</li>
+                <li> halo@Laundry3J.com</li>
                 <?php if (!empty($jam_laundry)): ?>
                     <li> <?= $jam_laundry ?></li>
                 <?php endif; ?>
