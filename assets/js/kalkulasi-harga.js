@@ -1,8 +1,8 @@
 'use strict';
 
-let tarifAktif = 0;
-let namaLayananAktif = '';
-let biayaKurir = 0;
+window.tarifAktif = 0;
+window.namaLayananAktif = '';
+window.biayaKurir = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     const selectLayanan = document.getElementById('inputLayananId');
@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const optionTerpilih = this.options[this.selectedIndex];
             
             if (optionTerpilih && this.value !== '') {
-                tarifAktif = parseFloat(optionTerpilih.dataset.tarif) || 0;
-                namaLayananAktif = optionTerpilih.dataset.nama || '';
+                window.tarifAktif = parseFloat(optionTerpilih.dataset.tarif) || 0;
+                window.namaLayananAktif = optionTerpilih.dataset.nama || '';
             } else {
-                tarifAktif = 0;
-                namaLayananAktif = '';
+                window.tarifAktif = 0;
+                window.namaLayananAktif = '';
             }
             hitungEstimasi();
         });
@@ -32,14 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (this.value === 'kurir') {
                 if (containerAlamat) containerAlamat.style.display = 'block';
-                biayaKurir = 10000;
-                
+                window.biayaKurir = 10000;
                 if (inputAlamat) inputAlamat.setAttribute('required', 'required');
                 if (inputKecamatan) inputKecamatan.setAttribute('required', 'required');
             } else {
                 if (containerAlamat) containerAlamat.style.display = 'none';
-                biayaKurir = 0;
-                
+                window.biayaKurir = 0;
                 if (inputAlamat) {
                     inputAlamat.value = '';
                     inputAlamat.removeAttribute('required');
@@ -58,16 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
             hitungEstimasi();
         });
     }
+
     const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
     if (selectedCard) {
-        tarifAktif = parseFloat(selectedCard.dataset.tarif) || 0;
-        namaLayananAktif = selectedCard.dataset.nama || '';
+        window.tarifAktif = parseFloat(selectedCard.dataset.tarif) || 0;
+        window.namaLayananAktif = selectedCard.dataset.nama || '';
         window.satuanAktif = selectedCard.dataset.satuan || 'kg';
         const labelSatuan = document.getElementById('labelSatuan');
         if (labelSatuan) labelSatuan.textContent = window.satuanAktif;
     }
-
-
 });
 
 function hitungEstimasi() {
@@ -80,11 +77,10 @@ function hitungEstimasi() {
     const berat = parseFloat(inputBerat.value) || 0;
     const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
 
-    if (berat <= 0 || tarifAktif === 0) {
+    if (berat <= 0 || window.tarifAktif === 0) {
         kotakEstimasi.classList.remove('kotak-estimasi-ada');
         kotakEstimasi.style.background = '#f9fafb';
         kotakEstimasi.style.borderColor = '#e5e7eb';
-        
         teksEstimasiHarga.innerHTML = `
             <span style="color: #6b7280; font-style: italic; font-size: 0.9rem;">
                 Harga total akhir akan dihitung oleh admin setelah pakaian ditimbang secara aktual di outlet.
@@ -93,19 +89,18 @@ function hitungEstimasi() {
         return;
     }
 
-    const biayaLayanan = berat * tarifAktif;
-    const totalHargaEstimasi = biayaLayanan + biayaKurir;
+    const biayaLayanan = berat * window.tarifAktif;
+    const totalHargaEstimasi = biayaLayanan + window.biayaKurir;
 
     kotakEstimasi.classList.add('kotak-estimasi-ada');
-    
-    kotakEstimasi.style.background = '#f0fdf4'; 
+    kotakEstimasi.style.background = '#f0fdf4';
     kotakEstimasi.style.borderColor = '#bbf7d0';
 
     teksEstimasiHarga.innerHTML = `
         <div style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #1e293b; line-height: 1.6;">
             <strong style="color: #16a34a; font-size: 1rem; display: block; margin-bottom: 6px;">📋 Ringkasan Estimasi Biaya</strong>
-            <span>Layanan: <strong>${namaLayananAktif}</strong> (${berat} ${window.satuanAktif || 'kg'} × ${fmt(tarifAktif)}) = <strong>${fmt(biayaLayanan)}</strong></span><br>
-            ${biayaKurir > 0 ? `<span>Biaya Kurir Antar-Jemput = <strong>${fmt(biayaKurir)}</strong></span><br>` : ''}
+            <span>Layanan: <strong>${window.namaLayananAktif}</strong> (${berat} ${window.satuanAktif || 'kg'} × ${fmt(window.tarifAktif)}) = <strong>${fmt(biayaLayanan)}</strong></span><br>
+            ${window.biayaKurir > 0 ? `<span>Biaya Kurir Antar-Jemput = <strong>${fmt(window.biayaKurir)}</strong></span><br>` : ''}
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cdcde0; font-size: 1.05rem;">
                 <strong>Total Pembayaran: <span style="color: #0d3f8a;">${fmt(totalHargaEstimasi)}</span></strong>
             </div>
