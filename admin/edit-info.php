@@ -1,5 +1,4 @@
 <?php
-// 1. Inisialisasi Sistem Keamanan & Database
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
@@ -9,9 +8,7 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
     redirect('../login.php');
 }
 
-// ============================================================
 // [POST] LOGIKA BACKEND HANDLER - PROSES UPDATE DATA PER SEKSI
-// ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     $action = $_GET['action'];
 
@@ -37,9 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     exit;
 }
 
-// ============================================================
 // [GET] AMBIL DATA PROFIL WEBSITE DARI DATABASE
-// ============================================================
 $stmt = $pdo->query("SELECT * FROM info_website WHERE id = 1");
 $info = $stmt->fetch();
 
@@ -81,7 +76,7 @@ include '../includes/header-admin.php';
             </div>
         <?php endif; ?>
 
-        <!-- KARTU 1: KONTAK -->
+        <!-- KONTAK -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -118,7 +113,7 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- KARTU 2: JAM OPERASIONAL -->
+        <!-- JAM OPERASIONAL -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -150,7 +145,7 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- KARTU 3: NAMA USAHA & ALAMAT -->
+        <!-- NAMA USAHA & ALAMAT -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -196,7 +191,7 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- KARTU 4: KECAMATAN -->
+        <!-- KECAMATAN -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>

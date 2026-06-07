@@ -3,10 +3,10 @@ require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Memanfaatkan file proteksi admin yang sudah ada di struktur folder
+// file proteksi admin
 require_once '../includes/admin-check.php'; 
 
-// ── Kartu hero ──────────────────────────────────────────────
+// Kartu hero
 // 1. Total Pesanan Hari Ini (Berdasarkan pesanan masuk baru)
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE DATE(created_at) = CURDATE()");
 $stmt->execute();
@@ -22,7 +22,7 @@ $stmt = $pdo->prepare("SELECT SUM(total_harga) FROM pesanan WHERE status_pembaya
 $stmt->execute();
 $omzet_hari_ini = $stmt->fetchColumn() ?: 0;
 
-// ── Sejarah pesanan (5 Terakhir Selesai) ───────────────────────
+// Sejarah pesanan (5 Terakhir Selesai) 
 $stmt = $pdo->prepare("
     SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
     FROM pesanan p 
@@ -35,7 +35,7 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $sejarah_pesanan = $stmt->fetchAll() ?: [];
 
-// ── Preview member aktif (5 Terakhir Bergabung) ───────────────
+// Preview member aktif (5 Terakhir Bergabung)
 $stmt = $pdo->prepare("
     SELECT * FROM users 
     WHERE role = 'member' AND status_akun = 'aktif' 
@@ -45,11 +45,11 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $member_aktif = $stmt->fetchAll() ?: [];
 
-// ── Rekapitulasi ────────────────────────────────────────────
+// Rekapitulasi
 $dari_tanggal   = $_GET['dari_tanggal'] ?? date('Y-m-d');
 $sampai_tanggal = $_GET['sampai_tanggal'] ?? date('Y-m-d');
 
-// Mengubah filter berdasarkan updated_at agar performa rekap finansial akurat
+// Mengubah filter berdasarkan updated_at
 $stmt = $pdo->prepare("
     SELECT p.*, u.nama AS nama_pelanggan, l.nama_layanan
     FROM pesanan p
@@ -61,7 +61,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$dari_tanggal, $sampai_tanggal]);
 $data_rekap = $stmt->fetchAll() ?: [];
 
-// Hitung total rekapitulasi secara presisi
+// Hitung total rekapitulasi 
 $total_omzet_rekap = 0; 
 $total_berat_rekap = 0;
 
@@ -79,6 +79,7 @@ foreach ($data_rekap as $row) {
 
     <?php include '../includes/header-admin.php'; ?>
 
+    <!-- SECTION 1: Hero -->
     <section class="hero">
         <div class="konten-hero-admin">
             <div class="kartu-pesanan-container">
@@ -113,6 +114,7 @@ foreach ($data_rekap as $row) {
         <div class="bulat-besar-admin"><h2>Laundry 3J</h2></div>
     </section>
 
+    <!-- SECTION 2: Sejarah Pesanan -->
     <section class="sejarah-pesanan">
         <h3 class="judul-overview-layanan">Riwayat Pesanan</h3>
         <div class="kartu-sejarah-container">

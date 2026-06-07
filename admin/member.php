@@ -1,13 +1,10 @@
 <?php
-// 1. Inisialisasi Sistem Keamanan & Database
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
-require_once '../includes/admin-check.php'; // Proteksi hak akses admin
+require_once '../includes/admin-check.php'; 
 
-// ============================================================
 // [POST] ENDPOINT API HANDLER - UNTUK TOGGLE STATUS AKUN
-// ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'toggle_status') {
     header('Content-Type: application/json');
     
@@ -21,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
 
     try {
-        // Alur Kerja Skenario B: Proteksi Akun Fiktif
-        // Tambahkan pengisian alasan banned otomatis jika di-nonaktifkan
+
+        // Pengisian alasan banned otomatis jika di-nonaktifkan
         $alasan = ($statusBaru === 'nonaktif') ? 'Terindikasi melakukan pelanggaran / pesanan fiktif.' : null;
         
         $stmtToggle = $pdo->prepare("
@@ -40,9 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
 }
 
-// ============================================================
 // [GET] AMBIL DATA AGREGAT UNTUK TAMPILAN HALAMAN
-// ============================================================
+
 $stmt = $pdo->prepare("
     SELECT 
         u.*,

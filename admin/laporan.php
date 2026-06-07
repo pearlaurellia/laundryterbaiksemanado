@@ -1,16 +1,15 @@
 <?php
-// 1 & 2. Proteksi Akses Admin & Koneksi Database (Native PHP)
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 require_once '../includes/admin-check.php';
 
-// 3. Baca Filter Bulan & Tahun (Default: Masa Sekarang)
+// Filter Bulan & Tahun (Default: Masa Sekarang)
 $bulanPilihan = $_GET['bulan'] ?? date('m');
 $tahunPilihan = $_GET['tahun'] ?? date('Y');
 
 try {
-    // 4. Query Rekap Omzet per Hari (Hanya pesanan yang Lunas)
+    // Query Rekap Omzet per Hari (Hanya pesanan yang Lunas)
     $stmtHarian = $pdo->prepare("
         SELECT DATE(updated_at) AS tanggal,
                COUNT(*) AS jumlah_pesanan,
@@ -25,7 +24,7 @@ try {
     $stmtHarian->execute([$bulanPilihan, $tahunPilihan]);
     $rekapHarian = $stmtHarian->fetchAll();
 
-    // 5. Query Rekap Omzet per Jenis Layanan
+    // Query Rekap Omzet per Jenis Layanan
     $stmtLayanan = $pdo->prepare("
         SELECT l.nama_layanan,
                COUNT(p.id) AS jumlah,
@@ -41,7 +40,7 @@ try {
     $stmtLayanan->execute([$bulanPilihan, $tahunPilihan]);
     $rekapLayanan = $stmtLayanan->fetchAll();
 
-    // 6. Hitung Akumulasi Total Keseluruhan untuk Kartu Ringkasan
+    // Hitung Akumulasi Total Keseluruhan untuk Kartu Ringkasan
     $totalOmzetKeseluruhan   = 0;
     $totalPesananKeseluruhan = 0;
     $maxOmzetHarian          = 1;
@@ -73,7 +72,7 @@ include '../includes/header-admin.php';
 
 <div class="halaman-pesanan" style="min-height: 100vh;">
     
-    <!-- SIDEBAR - Tema Gradient sama dengan pesanan.php -->
+    <!-- SIDEBAR -->
     <div class="pesanan-sidebar">
         <h2 class="judul-sidebar">Filter Laporan</h2>
         
@@ -237,6 +236,5 @@ include '../includes/header-admin.php';
 </div>
 
 <?php 
-// Panggil footer untuk menutup tag body dan html secara valid
 include '../includes/footer.php'; 
 ?>
