@@ -56,7 +56,7 @@
                     </div>
                     <p style="font-size: 1.1rem; color: #514F44; margin: 0 0 20px;"><strong>NIM:</strong> 240211060076 </p>
                     <div class="detail-catatan-wrapper" style="margin: 0;">
-                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Kode yang bersih, hasil yang rapi."</p>
+                        <p class="detail-catatan-isi" style="font-size: 1rem; margin: 0;">"Hari ini berjuang, Hari esok ber-uang."</p>
                     </div>
                 </div>
             </div>
