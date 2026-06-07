@@ -93,16 +93,17 @@ function hitungEstimasi() {
     const totalHargaEstimasi = biayaLayanan + window.biayaKurir;
 
     kotakEstimasi.classList.add('kotak-estimasi-ada');
-    kotakEstimasi.style.background = '#f0fdf4';
-    kotakEstimasi.style.borderColor = '#bbf7d0';
+    kotakEstimasi.style.background = '#ffffff';
+    kotakEstimasi.style.borderColor = '#52c49c';
+    kotakEstimasi.style.borderWidth = "2px";
 
     teksEstimasiHarga.innerHTML = `
-        <div style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #1e293b; line-height: 1.6;">
-            <strong style="color: #16a34a; font-size: 1rem; display: block; margin-bottom: 6px;">📋 Ringkasan Estimasi Biaya</strong>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #7b7b7b; line-height: 1.6;">
+            <strong style="font-family: 'Bricolage Grotesque', sans-serif; color: #7b7b7b; font-size: 0.9rem; display: block; margin-bottom: 6px;">Ringkasan Estimasi Biaya</strong>
             <span>Layanan: <strong>${window.namaLayananAktif}</strong> (${berat} ${window.satuanAktif || 'kg'} × ${fmt(window.tarifAktif)}) = <strong>${fmt(biayaLayanan)}</strong></span><br>
             ${window.biayaKurir > 0 ? `<span>Biaya Kurir Antar-Jemput = <strong>${fmt(window.biayaKurir)}</strong></span><br>` : ''}
-            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cdcde0; font-size: 1.05rem;">
-                <strong>Total Pembayaran: <span style="color: #0d3f8a;">${fmt(totalHargaEstimasi)}</span></strong>
+            <div style= "font-size: 0.9rem;">
+                <strong>Total Pembayaran: <span style="color: #52c49c;">${fmt(totalHargaEstimasi)}</span></strong>
             </div>
             <small style="color: #ef4444; font-weight: bold; display: block; margin-top: 4px;">* Catatan: Harga belum final (menunggu timbangan resmi toko).</small>
         </div>
