@@ -1059,6 +1059,10 @@ body {
     color: var(--birutua);
 }
 
+.item-pesanan.aktif-dipilih .item-pesanan-kode {
+    color: var(--birutua) !important;
+}
+
 .item-pesanan.aktif-dipilih .item-pesanan-waktu {
     color: #666;
 }

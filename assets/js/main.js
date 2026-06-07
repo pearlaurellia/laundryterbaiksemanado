@@ -89,12 +89,12 @@ async function bukaPesanan(id, el) {
     document.getElementById('detailUsername').textContent    = p.username;
     document.getElementById('detailWaktu').textContent       = p.waktu;
     document.getElementById('detailNamaLengkap').textContent = p.namaLengkap;
-    document.getElementById('detailAlamat').textContent      = p.alamat || '—';
-    document.getElementById('detailKecamatan').textContent   = p.kecamatan || '—';
+    document.getElementById('detailAlamat').textContent      = p.alamat || '-';
+    document.getElementById('detailKecamatan').textContent   = p.kecamatan || '-';
     document.getElementById('detailTelpon').textContent      = p.telpon;
     document.getElementById('detailLayanan').textContent     = p.layanan;
     document.getElementById('detailPengiriman').textContent  = p.pengiriman;
-    document.getElementById('detailNote').textContent        = p.note || '— Tidak ada catatan —';
+    document.getElementById('detailNote').textContent        = p.note || '- Tidak ada catatan -';
     
     const elSatuan = document.getElementById('satuanBerat');
     if (elSatuan) elSatuan.textContent = p.satuan || 'kg';
@@ -229,7 +229,7 @@ async function muatTimelineKlien(id) {
                 <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">
                     <span style="color:var(--tealmuda); font-weight:bold;">[${_labelStatus[r.status_baru] || r.status_baru}]</span> 
                     <small style="opacity:0.7; float:right;">${r.changed_at}</small>
-                    <p style="margin:2px 0 0; font-size:0.8rem; opacity:0.9;">Oleh: ${r.dilakukan_oleh} — ${r.keterangan || ''}</p>
+                    <p style="margin:2px 0 0; font-size:0.8rem; opacity:0.9;">Oleh: ${r.dilakukan_oleh}: ${r.keterangan || ''}</p>
                 </div>
             `).join('');
         } else {
@@ -271,9 +271,9 @@ function renderListPesanan(filterStatus) {
                     <span class="${badgeKelas}">${_labelStatus[p.status] || p.status}</span>
                     <span class="item-pesanan-waktu">${p.waktu}</span>
                 </div>
-                <p class="item-pesanan-kode">#${p.kode}</p>
+                <p class="item-pesanan-kode" style="color:#ffffff"><strong>#${p.kode}</strong></p>
                 <p class="item-pesanan-nama">${p.nama}</p>
-                <small style="color:rgba(255,255,255,0.6); font-size:0.8rem;">📦 ${p.layanan}</small>
+                <small style="color:rgba(255,255,255,0.6); font-size:0.8rem;">${p.layanan}</small>
             </div>
         `);
     });
