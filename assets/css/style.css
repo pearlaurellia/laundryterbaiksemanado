@@ -112,7 +112,7 @@ body {
     position: absolute;
     width: 80px;
     height: 80px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: 5%;
     top: 35%;
@@ -123,7 +123,7 @@ body {
     position: absolute;
     width: 110px;
     height: 110px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: 22%;
     bottom: 40%;
@@ -134,12 +134,12 @@ body {
     position: absolute;
     width: 250px;
     height: 250px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: -20px;
     bottom: -70px;
     display: flex;
-    align-items: center;
+    align-items: center;    
     justify-content: center;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);   
 
@@ -302,7 +302,7 @@ body {
     position: absolute;
     width: 90px;
     height: 90px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     bottom: 30%;
     right: 25%;
@@ -312,7 +312,7 @@ body {
     position: absolute;
     width: 280px;
     height: 280px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     bottom: -100px; 
     right: -40px;
@@ -736,7 +736,7 @@ body {
     position: absolute;
     width: 90px;
     height: 90px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     bottom: 180px;
     left: 50%;
@@ -748,7 +748,7 @@ body {
     position: absolute;
     width: 200px;
     height: 200px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     bottom: -70px;
     left: 90%;
@@ -801,8 +801,8 @@ body {
 
 .hero-form {
     background: linear-gradient(var(--birutua), var(--tealtua));
-    padding: 120px 80px 80px 80px;
-    min-height: 100vh;
+    padding: 0px 80px 80px 80px;
+    min-height: 90vh;
     position: relative;
     overflow: hidden;
 }
@@ -900,7 +900,7 @@ body {
     position: absolute;
     width: 80px;
     height: 80px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: 5%;
     top: 35%;
@@ -911,7 +911,7 @@ body {
     position: absolute;
     width: 110px;
     height: 110px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: 22%;
     bottom: 20%;
@@ -922,7 +922,7 @@ body {
     position: absolute;
     width: 250px;
     height: 250px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.066);
     border-radius: 50%;
     right: -20px;
     bottom: -70px;
@@ -3465,9 +3465,9 @@ img {
 }
 
 .alert-success {
-    background-color: rgba(82, 196, 156, 0.15);
-    border-left: 4px solid #52c49c;
-    color: #9fe1cb;
+    background-color: #ffffff;
+    color: var(--birutua);
+    border: var(--birutua) 2px solid;
 }
 
 .success-action {
@@ -3485,10 +3485,11 @@ img {
     font-size: 0.9rem;
     box-shadow: var(--shadow);
     transition: all 0.2s;
+    border: var(--birutua) 2px solid;
 }
 
 .tombol-login-sekarang:hover {
-    background-color: var(--tealmudabanget);
+    background-color: #b5d5f5;
 }
 
 .form-footer {

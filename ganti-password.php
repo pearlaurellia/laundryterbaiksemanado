@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($password_baru) || empty($konfirmasi_password)) {
         $error = 'Kolom password baru dan ulangi password wajib diisi!';
-    } elseif (strlen($password_baru) < 6) {
-        $error = 'Keamanan lemah! Password baru minimal sepanjang 6 karakter.';
+    } elseif (strlen($password_baru) < 8) {
+        $error = 'Keamanan lemah! Password baru minimal sepanjang 8 karakter.';
     } elseif ($password_baru !== $konfirmasi_password) {
         $error = 'Konfirmasi password baru tidak cocok, silakan ulangi.';
     } else {
@@ -62,10 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($sukses): ?>
                 <div class="alert alert-success">
-                    ✅ <strong>Selamat!</strong> Password Anda telah berhasil diperbarui di sistem.
+                    <strong>Selamat!</strong> Password Anda telah berhasil diperbarui di sistem.
                     <div class="success-action">
                         <a href="login.php" class="tombol-login-sekarang">
-                            🔐 Masuk Sekarang
+                            Masuk Sekarang
                         </a>
                     </div>
                 </div>
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if (!empty($error)): ?>
                     <div class="alert alert-error">
-                        ⚠️ <?= htmlspecialchars($error) ?>
+                         <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    name="password_baru" 
                                    class="input-form-login" 
                                    required 
-                                   placeholder="Minimal 6 Karakter">
+                                   placeholder="Minimal 8 Karakter">
                             <img src="assets/images/eye-close.png" 
                             class="toggle-password" 
                             onclick="togglePassword(this)"

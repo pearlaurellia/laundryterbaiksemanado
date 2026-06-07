@@ -80,7 +80,6 @@ include 'includes/header.php';
     <section class="kontak-preview">
         <div class="kontak-preview-kiri">
             <h1>Informasi Kontak dan <br> Media Sosial Kami </h1>
-            <a href="tentang.php" class="tombol-daun"><b> Kenali Tim Kami </b></a>
             <div class="bulat-tengah-satunya"></div>
             <div class="bulat-sudut"></div>
         </div>
