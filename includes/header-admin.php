@@ -35,10 +35,10 @@ if (isset($pdo)) {
             <li><a href="dashboard.php" class="tombol-daun"><b>Dashboard</b></a></li>
             
             <li>
-                <a href="pesanan.php" class="tombol-daun" style="display: inline-flex; align-items: center; gap: 8px;">
+                <a href="pesanan.php" class="tombol-daun">
                     <b>Kelola Pesanan</b>
                     <?php if ($jumlahBadgeAdmin > 0): ?>
-                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; line-height: 1;">
+                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; border-radius: 10px;">
                             <?= $jumlahBadgeAdmin ?>
                         </span>
                     <?php endif; ?>
@@ -60,10 +60,10 @@ if (isset($pdo)) {
             </li>
             
             <li>
-                <a href="pesanan.php" class="tombol-daun" style="display: inline-flex; align-items: center; gap: 8px;">
+                <a href="pesanan.php" class="tombol-daun">
                     <b>Kelola Pesanan</b>
                     <?php if ($jumlahBadgeAdmin > 0): ?>
-                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; line-height: 1;">
+                        <span class="badge-admin-count" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 7px; margin-bottom: 7px; border-radius: 10px; line-height: 1;">
                             <?= $jumlahBadgeAdmin ?>
                         </span>
                     <?php endif; ?>
