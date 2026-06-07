@@ -60,7 +60,7 @@ include '../includes/header-admin.php';
     <!-- DEKORASI -->
     <div class="bulat-atas-form" style="right: 8%; top: 25%;"></div>
     <div class="bulat-ditengah-form" style="right: 25%; bottom: 30%;"></div>
-    <div class="bulat-besar-form" style="right: -30px; bottom: -80px;"><h2>CleanCo</h2></div>
+    <div class="bulat-besar-form" style="right: -30px; bottom: -80px;"><h2>Laundry 3J</h2></div>
 
     <div style="position: relative; z-index: 2; width: 100%; max-width: 900px; margin: 0 auto;">
         
@@ -179,7 +179,7 @@ include '../includes/header-admin.php';
                     <div>
                         <label style="font-size: 0.78rem; font-weight: 700; color: var(--birutua); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 6px;">Nama Usaha</label>
                         <input type="text" name="nama_usaha" value="<?= htmlspecialchars($info['nama_usaha'] ?? '') ?>" 
-                               placeholder="cth: CleanCo Laundry"
+                               placeholder="cth: Laundry 3J Laundry"
                                style="width: 100%; padding: 12px 16px; border: 2px solid #d0d8e8; border-radius: 20px 0 20px 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none;">
                     </div>
                     <div>

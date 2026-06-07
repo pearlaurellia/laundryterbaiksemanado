@@ -110,7 +110,7 @@ foreach ($data_rekap as $row) {
         </div>
         <div class="bulat-atas-admin"></div>
         <div class="bulat-ditengah-admin"></div>
-        <div class="bulat-besar-admin"><h2>CleanCo</h2></div>
+        <div class="bulat-besar-admin"><h2>Laundry 3J</h2></div>
     </section>
 
     <section class="sejarah-pesanan">

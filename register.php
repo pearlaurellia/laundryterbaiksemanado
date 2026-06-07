@@ -64,7 +64,7 @@ include 'includes/header.php';
 ?>
     <section class="hero-form">
         <div class="konten-form">
-            <h1 class="judul-form">Daftar Akun CleanCo</h1>
+            <h1 class="judul-form">Daftar Akun Laundry 3J</h1>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error" style="background: rgba(239,68,68,0.15); border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px;">
@@ -147,7 +147,7 @@ include 'includes/header.php';
 
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
-        <div class="bulat-besar-form"><h2>CleanCo</h2></div>
+        <div class="bulat-besar-form"><h2>Laundry 3J</h2></div>
     </section>
 
     <?php if ($sukses): ?>
