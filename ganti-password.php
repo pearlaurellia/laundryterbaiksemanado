@@ -44,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buat Password Baru - CleanCo</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
@@ -63,10 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if ($sukses): ?>
                 <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <strong>Selamat!</strong> Password Anda telah berhasil diperbarui di sistem.
+                    ✅ <strong>Selamat!</strong> Password Anda telah berhasil diperbarui di sistem.
                     <div class="success-action">
                         <a href="login.php" class="tombol-login-sekarang">
-                            <i class="fas fa-sign-in-alt"></i> Masuk Sekarang
+                            🔐 Masuk Sekarang
                         </a>
                     </div>
                 </div>
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if (!empty($error)): ?>
                     <div class="alert alert-error">
-                        <i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
+                        ⚠️ <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
 
@@ -88,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="input-form-login" 
                                    required 
                                    placeholder="Minimal 6 Karakter">
-                            <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                            <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                         </div>
                     </div>
 
@@ -101,12 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="input-form-login" 
                                    required 
                                    placeholder="Ketik Ulang Password">
-                            <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                            <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                         </div>
                     </div>
 
                     <button type="submit" class="tombol-submit-form">
-                        <i class="fas fa-save"></i> Simpan Perubahan Kata Sandi
+                        💾 Simpan Perubahan Kata Sandi
                     </button>
                 </form>
             <?php endif; ?>
@@ -124,12 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.classList.remove('fa-eye-slash');
-            element.classList.add('fa-eye');
+            element.textContent = '🙈';
         } else {
             input.type = 'password';
-            element.classList.remove('fa-eye');
-            element.classList.add('fa-eye-slash');
+            element.textContent = '👁️';
         }
     }
     </script>

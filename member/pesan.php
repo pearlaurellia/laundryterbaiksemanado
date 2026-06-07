@@ -300,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                         <div class="berat-wrapper">
                             <input type="number" id="inputEstimasiBerat" name="estimasi_berat" 
-                                   placeholder="0" min="0" step="0.1" value="0"
+                                   placeholder="0" min="0" step="0.1" value=""
                                    class="form-input-berat"
                                    oninput="hitungEstimasiHarga()">
                             <span class="berat-satuan">kg</span>
