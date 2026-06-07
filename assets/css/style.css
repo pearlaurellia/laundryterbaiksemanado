@@ -3510,3 +3510,25 @@ img {
 .link-kembali i {
     margin-right: 6px;
 }
+
+.hero-form {
+    min-height: 100vh !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Untuk mobile, pastikan tetap full height */
+@media (max-width: 768px) {
+    .hero-form {
+        min-height: 100vh !important;
+        padding: 100px 20px 60px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-form {
+        min-height: 100vh !important;
+        padding: 80px 15px 50px !important;
+    }
+}
