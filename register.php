@@ -60,83 +60,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// PANGGIL HEADER DI SINI
 include 'includes/header.php'; 
 ?>
 
     <section class="hero-form">
-        <div class="konten-form konten-form-daftar">
-            <h1 class="judul-form judul-form-kiri">Daftar Akun</h1>
+        <div class="konten-form">
+            <h1 class="judul-form">Daftar Akun CleanCo</h1>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-error" style="background: #ffe3e3; color: #cc0000; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-                    <ul style="margin: 0; padding-left: 20px;">
-                        <?php foreach ($error as $e): ?>
-                            <li><?= $e ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+                <div class="alert alert-error" style="background: rgba(239,68,68,0.15); border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px;">
+                    <?php foreach ($error as $e): ?>
+                        <p style="margin: 4px 0; color: #fca5a5; font-size: 0.85rem;">⚠ <?= htmlspecialchars($e) ?></p>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 
             <form method="POST" action="register.php" id="formRegister">
-                <div class="grid-form-daftar">
-
-                    <div class="grup-input-form">
-                        <label for="nama" class="label-form">Nama Lengkap :</label>
-                        <input type="text" 
-                                id="nama" 
-                                name="nama" 
-                                class="input-form" 
-                                value="<?= bersihkan($_POST['nama'] ?? '') ?>" 
-                                placeholder="Masukkan nama lengkap" 
-                                required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label for="no_hp" class="label-form">Nomor Whatsapp :</label>
-                        <input type="text" 
-                                id="no_hp" 
-                                name="no_hp" 
-                                class="input-form" 
-                                value="<?= bersihkan($_POST['no_hp'] ?? '') ?>" 
-                                placeholder="08xxxxxxxxxx" 
-                                required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label for="email" class="label-form">Email :</label>
-                        <input type="email" 
-                                id="email" 
-                                name="email" 
-                                class="input-form" 
-                                value="<?= bersihkan($_POST['email'] ?? '') ?>" 
-                                placeholder="contoh@email.com" 
-                                required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label for="password" class="label-form">Password :</label>
-                        <input type="password" 
-                                id="password" 
-                                name="password" 
-                                class="input-form" 
-                                placeholder="Minimal 6 karakter" 
-                                required>
-                    </div>
-
-                    <div class="grup-input-form">
-                        <label for="konfirmasi_password" class="label-form">Verifikasi Password :</label>
-                        <input type="password" 
-                                id="konfirmasi_password" 
-                                name="konfirmasi_password" 
-                                class="input-form" 
-                                placeholder="Ulangi password" 
-                                required>
-                    </div>
-
+                <div class="grup-input-form-login">
+                    <label for="nama" class="label-form-login">Nama Lengkap</label>
+                    <input type="text" 
+                           id="nama" 
+                           name="nama" 
+                           class="input-form-login" 
+                           value="<?= htmlspecialchars($_POST['nama'] ?? '') ?>" 
+                           placeholder="Masukkan nama lengkap" 
+                           required>
                 </div>
-                <button type="submit" class="tombol-submit-form">Selesai</button>
+
+                <div class="grup-input-form-login" style="width:400px">
+                    <label for="no_hp" class="label-form-login">Nomor WhatsApp</label>
+                    <input type="tel" 
+                           id="no_hp" 
+                           name="no_hp" 
+                           class="input-form-login" 
+                           value="<?= htmlspecialchars($_POST['no_hp'] ?? '') ?>" 
+                           placeholder="08xxxxxxxxxx" 
+                           required>
+                </div>
+
+                <div class="grup-input-form-login">
+                    <label for="email" class="label-form-login">Email</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="input-form-login" 
+                           value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" 
+                           placeholder="contoh@email.com" 
+                           required>
+                </div>
+
+                <div class="grup-input-form-login">
+                    <label for="password" class="label-form-login">Password</label>
+                    <div class="password-wrapper" style="position: relative;">
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="input-form-login" 
+                               placeholder="Minimal 6 karakter" 
+                               required
+                               style="padding-right: 45px;">
+                        <i class="fas fa-eye-slash" 
+                           style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888;"
+                           onclick="togglePassword(this)"></i>
+                    </div>
+                </div>
+
+                <div class="grup-input-form-login">
+                    <label for="konfirmasi_password" class="label-form-login">Verifikasi Password</label>
+                    <div class="password-wrapper" style="position: relative;">
+                        <input type="password" 
+                               id="konfirmasi_password" 
+                               name="konfirmasi_password" 
+                               class="input-form-login" 
+                               placeholder="Ulangi password" 
+                               required
+                               style="padding-right: 45px;">
+                        <i class="fas fa-eye-slash" 
+                           style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888;"
+                           onclick="togglePassword(this)"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="tombol-submit-form">Daftar Sekarang</button>
             </form>
+
+            <p style="margin-top: 20px; text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+                Sudah punya akun? 
+                <a href="login.php" style="color: #38bdf8; text-decoration: none; font-weight: 600;">Masuk di sini</a>
+            </p>
         </div>
 
         <div class="bulat-atas-form"></div>
@@ -145,25 +156,35 @@ include 'includes/header.php';
     </section>
 
     <?php if ($sukses): ?>
-    <div class="overlay-popup" id="overlay"></div>
-
+    <div class="overlay-popup" id="overlayPopup" style="display: block;"></div>
     <div class="popup-sukses-pesanan" id="popupSukses" style="display: block;">
-        
         <div class="popup-sukses-atas">
-            <div class="popup-sukses-ikon">✨</div>
             <h3 class="popup-sukses-judul">Pendaftaran Berhasil!</h3>
             <p class="popup-sukses-sub">Akun kamu sudah dibuat. Silakan masuk untuk mulai memesan.</p>
         </div>
-
-        <div class="popup-tombol-group" style="justify-content: center; padding-top: 28px;">
-            <a href="login.php" class="tombol-daun" style="display: inline-block; text-align: center; background-color: var(--tealmuda); color: white;">
-                Masuk Sekarang
-            </a>
+        <div class="popup-tombol-group" style="justify-content: center;">
+            <a href="login.php" class="popup-tombol-konfirm" style="display: inline-block; padding: 10px 28px; background: #38bdf8; color: #0f172a; text-decoration: none; border-radius: 30px; font-weight: 600;">Masuk Sekarang</a>
         </div>
-
     </div>
     <?php endif; ?>
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+    function togglePassword(element) {
+        const wrapper = element.parentElement;
+        const input = wrapper.querySelector('input');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            element.classList.remove('fa-eye-slash');
+            element.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            element.classList.remove('fa-eye');
+            element.classList.add('fa-eye-slash');
+        }
+    }
+    </script>
     <script src="assets/js/form-validation.js"></script>
 </body>
 </html>
