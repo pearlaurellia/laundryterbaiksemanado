@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($no_hp)) {
         $error[] = 'Nomor HP wajib diisi.';
     }
-    if (strlen($password) < 6) {
-        $error[] = 'Password minimal 6 karakter.';
+    if (strlen($password) < 8) {
+        $error[] = 'Password minimal 8 karakter.';
     }
     if ($password !== $konfirm) {
         $error[] = 'Konfirmasi password tidak cocok.';
@@ -115,12 +115,17 @@ include 'includes/header.php';
                                id="password" 
                                name="password" 
                                class="input-form-login" 
-                               placeholder="Minimal 6 karakter" 
+                               placeholder="Minimal 8 karakter" 
                                required
                                style="padding-right: 45px;">
-                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
-                    </div>
-                </div>
+                              <img src="assets/images/eye-close.png"
+                                class="toggle-password"
+                                onclick="togglePassword(this)"
+                                data-open="assets/images/eye-close.png"
+                                data-close="assets/images/eye-open.png"
+                                width="20">
+                            </div>
+                        </div>
 
                 <div class="grup-input-form-login">
                     <label for="konfirmasi_password" class="label-form-login">Verifikasi Password</label>
@@ -132,7 +137,12 @@ include 'includes/header.php';
                                placeholder="Ulangi password" 
                                required
                                style="padding-right: 45px;">
-                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
+                              <img src="assets/images/eye-close.png"
+                                class="toggle-password"
+                                onclick="togglePassword(this)"
+                                data-open="assets/images/eye-close.png"
+                                data-close="assets/images/eye-open.png"
+                                width="20">
                     </div>
                 </div>
 
@@ -165,16 +175,16 @@ include 'includes/header.php';
     <?php endif; ?>
     
     <script>
-    function togglePassword(element) {
+     function togglePassword(element) {
         const wrapper = element.parentElement;
         const input = wrapper.querySelector('input');
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.textContent = '🙈';
+            element.src = element.dataset.close;
         } else {
             input.type = 'password';
-            element.textContent = '👁️';
+            element.src = element.dataset.open;
         }
     }
     </script>
