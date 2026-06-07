@@ -1,14 +1,5 @@
-/**
- * ============================================================
- * pesan-member.js — CleanCo Laundry
- * Ditujukan untuk: member/pesan.php
- * Murni Native JavaScript (Tanpa Library/Framework)
- * ============================================================
- */
-
 'use strict';
 
-// Scope global variabel window agar terbaca oleh kalkulasi-harga.js
 window.tarifAktif = 0;
 window.namaLayananAktif = '';
 window.biayaKurir = 0;
@@ -18,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('formPesanContainer');
     if (!formPesan || !container) return;
 
-    // 1. Ambil Data Kondisi Awal Kartu Pilihan Default
     const kartuAktif = document.querySelector('.kartu-pilih-layanan.dipilih');
     if (kartuAktif) {
         window.tarifAktif = parseFloat(kartuAktif.dataset.tarif) || 0;
@@ -32,12 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (typeof hitungEstimasi === 'function') hitungEstimasi();
 
-    // 2. KONDISI FALLBACK: Jika halaman memuat ulang secara tradisional (Non-AJAX)
     if (container.dataset.sukses === 'true') {
         tampilkanPopupSukses(container.dataset.urlWaFinal);
     }
 
-    // 3. INTERCEPTOR EVENT SUBMIT FORM VIA AJAX FETCH
     formPesan.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -53,13 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const kecamatan  = document.getElementById('inputKecamatan') ? document.getElementById('inputKecamatan').value : '';
         const labelOpsi  = opsi === 'kurir' ? 'Kurir ke ' + kecamatan : 'Ambil Sendiri';
 
-        // PERBAIKAN FATAL: Bersihkan nomor dan paksa format internasional 62
         let noWaBersih = noWaAdmin.replace(/\D/g, '');
         if (noWaBersih.startsWith('0')) {
             noWaBersih = '62' + noWaBersih.slice(1);
         }
 
-        // Kirim data form ke backend via Fetch POST
         try {
             const formData = new FormData(formPesan);
 
@@ -76,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('popupPengantaran').textContent = result.data.opsi_pengantaran === 'kurir' ? 'Kurir Antar-Jemput' : 'Ambil Mandiri';
                 document.getElementById('popupEstimasi').textContent    = result.data.total_estimasi;
 
-                // Tentukan Link WhatsApp akhir (Prioritas URL dari backend, fallback rakit mandiri)
                 let urlWaFinal = result.data.wa_url || '#';
                 if (!result.data.wa_url && noWaBersih) {
                     const pesanWa = encodeURIComponent(
@@ -91,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     urlWaFinal = 'https://wa.me/' + noWaBersih + '?text=' + pesanWa;
                 }
 
-                // Munculkan Popup Modal Sukses
                 tampilkanPopupSukses(urlWaFinal);
 
             } else {
@@ -105,9 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/**
- * Global Helper: Membuka Jendela Modal Sukses & Mengisi Link WhatsApp
- */
 function tampilkanPopupSukses(urlWhatsApp) {
     const tombolWa = document.getElementById('tombolKonfirmasiWa');
     if (tombolWa && urlWhatsApp && urlWhatsApp !== '#') {
@@ -121,9 +102,6 @@ function tampilkanPopupSukses(urlWhatsApp) {
     if (popup) popup.style.display = 'block';
 }
 
-/**
- * Global Function: Mengurusi perpindahan kelas aktif pada komponen kartu
- */
 function pilihLayanan(el) {
     document.querySelectorAll('.kartu-pilih-layanan').forEach(k => k.classList.remove('dipilih'));
     document.querySelectorAll('.kartu-pilih-header').forEach(h => h.classList.remove('kartu-pilih-header-biru'));
@@ -138,9 +116,6 @@ function pilihLayanan(el) {
     if (typeof hitungEstimasi === 'function') hitungEstimasi();
 }
 
-/**
- * Global Function: Mengurusi visibilitas form isian alamat
- */
 function gantiOpsiPengantaran(opsi) {
     document.querySelectorAll('.kartu-opsi-pengantaran').forEach(lbl => lbl.classList.remove('dipilih-opsi'));
 
@@ -166,9 +141,6 @@ function gantiOpsiPengantaran(opsi) {
     if (typeof hitungEstimasi === 'function') hitungEstimasi();
 }
 
-/**
- * Global Function: Jembatan pemicu klik tombol kustom form
- */
 function kirimPesananForm(e) {
     const form = document.getElementById('formPesan');
     if (form) {
@@ -176,9 +148,6 @@ function kirimPesananForm(e) {
     }
 }
 
-/**
- * Global Function: Mengosongkan total isi data form saat klik Pesan Lagi
- */
 function pesanLagi() {
     const formPesan = document.getElementById('formPesan');
     if (formPesan) {

@@ -3,7 +3,6 @@ session_start();
 require_once 'config/database.php';
 require_once 'config/functions.php';
 
-// SISTEM KEAMANAN: Jika belum lolos verifikasi di lupa-password.php, dilarang masuk!
 if (!isset($_SESSION['ijin_reset_email'])) {
     header('Location: lupa-password.php');
     exit;
@@ -12,7 +11,6 @@ if (!isset($_SESSION['ijin_reset_email'])) {
 $error = '';
 $sukses = false;
 
-// Logika POST khusus untuk memproses password baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_baru = isset($_POST['password_baru']) ? $_POST['password_baru'] : '';
     $konfirmasi_password = isset($_POST['konfirmasi_password']) ? $_POST['konfirmasi_password'] : '';

@@ -1,11 +1,3 @@
-/**
- * ============================================================
- * main.js — CleanCo Laundry
- * Core JS untuk admin/pesanan.php
- * Murni Native JavaScript (Tanpa Library/Framework)
- * ============================================================
- */
-
 'use strict';
 
 let dataPesanan = {};
@@ -33,9 +25,7 @@ const _kelasStatus = {
 
 const _fmt = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
-// ============================================================
-// DATA LOADING & SYNC MANAGEMENT
-// ============================================================
+
 async function muatDataPesanan() {
     try {
         const res  = await fetch('pesanan.php?action=ambil_semua');
@@ -71,9 +61,7 @@ async function _updateStatusPesanan(id, status, alasan, dibatalkanOleh, berat = 
     }
 }
 
-// ============================================================
-// BUKA DETAIL PESANAN PANEL KANAN
-// ============================================================
+
 async function bukaPesanan(id, el) {
     idAktif = id;
     const p = dataPesanan[id];
@@ -99,22 +87,18 @@ async function bukaPesanan(id, el) {
     const elSatuan = document.getElementById('satuanBerat');
     if (elSatuan) elSatuan.textContent = p.satuan || 'kg';
 
-    // Sinkronisasi isian angka timbangan berat
     const inputBerat = document.getElementById('inputBerat');
     if (inputBerat) inputBerat.value = p.berat || '';
 
-    // Saklar buka-tutup box timbangan berat
     const blokBerat = document.getElementById('blokInputBerat');
     if (blokBerat) {
         blokBerat.style.display = (p.status === 'dikonfirmasi' || p.berat > 0) ? 'block' : 'none';
     }
 
-    // Suntik komponen tombol aksi
     document.getElementById('statusAktifTeks').textContent = _labelStatus[p.status] || p.status;
     renderTombolAksiAdmin(p.status);
     hitungBiaya();
     
-    // Muat riwayat timeline aktivitas asinkronus
     await muatTimelineKlien(id);
 }
 
@@ -126,7 +110,6 @@ function renderTombolAksiAdmin(status) {
     if (!grupAksi) return;
     grupAksi.innerHTML = '';
 
-    // Manajemen visibilitas tombol pembatalan massal
     if (btnBatal && txtBatal) {
         btnBatal.style.display = (status !== 'dibatalkan' && status !== 'selesai') ? 'inline-block' : 'none';
         txtBatal.style.display = (status === 'dibatalkan') ? 'block' : 'none';
@@ -150,9 +133,7 @@ function renderTombolAksiAdmin(status) {
     }
 }
 
-// ============================================================
-// HITUNG BIAYA RINCIAN NOTA REAL-TIME
-// ============================================================
+
 function hitungBiaya() {
     const p = dataPesanan[idAktif];
     if (!p) return;
@@ -163,7 +144,6 @@ function hitungBiaya() {
     const subtotalLayanan = berat * p.tarifLayanan;
     const totalSemua = subtotalLayanan + p.tarifKirim;
 
-    // FIX SELEKTOR: Menggunakan ID rincian bawaan element HTML kamu yang sah
     const rincianLayanan = document.getElementById('rincianLayanan');
     const rincianKirim = document.getElementById('rincianKirim');
     const rincianTotal = document.getElementById('rincianTotal');
@@ -213,9 +193,6 @@ function kembaliKeList() {
     idAktif = null;
 }
 
-// ============================================================
-// TIMELINE LOADER MANAGEMENT
-// ============================================================
 async function muatTimelineKlien(id) {
     const box = document.getElementById('timelineKonten');
     if (!box) return;
@@ -240,9 +217,6 @@ async function muatTimelineKlien(id) {
     }
 }
 
-// ============================================================
-// FILTER LIST SIDEBAR PESANAN
-// ============================================================
 function filterPesanan(status, btn) {
     document.querySelectorAll('.tombol-filter').forEach(b => b.classList.remove('aktif'));
     btn.classList.add('aktif');
@@ -279,14 +253,10 @@ function renderListPesanan(filterStatus) {
     });
 }
 
-// ============================================================
-// BATALKAN PESANAN — ADMIN 
-// ============================================================
 function batalkanPesananAdmin(id) {
     const p = dataPesanan[id];
     if (!p) return;
 
-    // Mengikat radio button 'lainnya' dengan input field kustom
     const radios = document.querySelectorAll('input[name="alasanBatal"]');
     const wrapperLainnya = document.getElementById('wrapperAlasanLainnya');
     
@@ -322,7 +292,6 @@ async function eksekusiBatalAdmin() {
     await segarkanUlangDataDashboard();
 }
 
-// INITIALIZATION LISTENER
 document.addEventListener('DOMContentLoaded', async () => {
     if (typeof inisialisasiInteraksiGlobal === 'function') inisialisasiInteraksiGlobal();
 

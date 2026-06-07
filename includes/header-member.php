@@ -3,7 +3,6 @@ require_once __DIR__ . '/../config/session.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
 
-// Hitung pesanan yang belum dilihat member (untuk badge navbar)
 $jumlahBadge = 0;
 if (isset($_SESSION['id_user'])) {
     $stmtBadge = $pdo->prepare("
@@ -38,7 +37,6 @@ if (isset($_SESSION['id_user'])) {
         <span></span>
     </button>
 
-    <!-- Mobile dropdown (merges both nav-left and nav-right) -->
     <div class="mobile-menu" id="mobile-menu">
         <ul>
             <li><a href="dashboard.php" class="tombol-daun">Beranda</a></li>
@@ -104,9 +102,6 @@ if (isset($_SESSION['id_user'])) {
     </div>
 </header>
 
-<!-- Di bagian paling akhir header-member.php, setelah semua konten header -->
-
-<!-- Modal Konfirmasi Logout -->
 <div class="overlay-popup" id="overlayLogoutPopup" style="display:none;" onclick="tutupLogoutPopup()"></div>
 <div class="popup-konfirmasi" id="popupLogoutKonfirmasi" style="display:none;">
     <h3 class="popup-judul">Konfirmasi Logout</h3>
@@ -142,7 +137,6 @@ function konfirmasiLogout() {
         mobileMenu.classList.toggle('open');
     });
 
-    // Close menu when any link is clicked
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('open');

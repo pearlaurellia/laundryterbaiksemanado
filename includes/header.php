@@ -15,14 +15,12 @@
 
 <header class="header">
 
-    <!-- Hamburger Button (visible only on mobile) -->
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span>
         <span></span>
         <span></span>
     </button>
 
-    <!-- Mobile dropdown (merges both nav-left and nav-right) -->
     <div class="mobile-menu" id="mobile-menu">
         <ul>
             <li><a href="index.php" class="tombol-daun">Beranda</a></li>
@@ -34,7 +32,6 @@
         </ul>
     </div>
 
-    <!-- Desktop nav (unchanged) -->
     <nav class="nav-left">
         <ul>
             <li><a href="index.php" class="tombol-daun">Beranda</a></li>
@@ -61,7 +58,6 @@
         mobileMenu.classList.toggle('open');
     });
 
-    // Close menu when any link is clicked
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('open');

@@ -1,5 +1,4 @@
 <?php
-// 1. Hitung pesanan baru yang berstatus 'menunggu_konfirmasi' jika koneksi $pdo aktif
 $jumlahBadgeAdmin = 0;
 if (isset($pdo)) {
     $stmtBadgeAdmin = $pdo->query("SELECT COUNT(*) FROM pesanan WHERE status_pesanan = 'menunggu_konfirmasi'");
@@ -127,7 +126,6 @@ function konfirmasiLogout() {
         mobileMenu.classList.toggle('open');
     });
 
-    // Close menu when any link is clicked
     mobileMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('open');

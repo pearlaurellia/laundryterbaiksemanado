@@ -1,14 +1,11 @@
 <?php
-// Path langsung ke folder config karena file ini berada di root (folder luar)
 require_once 'config/session.php';
 require_once 'config/database.php';
 
-// 1 & 2. Query data layanan aktif untuk halaman publik
 $stmt = $pdo->prepare("SELECT * FROM layanan WHERE status='aktif' ORDER BY tarif_per_kg ASC");
 $stmt->execute();
 $dataLayanan = $stmt->fetchAll();
 
-// PANGGIL HEADER PUBLIK
 include 'includes/header.php'; 
 ?>
 
@@ -25,14 +22,11 @@ include 'includes/header.php';
             <div class="kartu-layanan-admin-container" id="containerLayanan">
 
                 <?php 
-                // 3. Looping data dari database
                 if (count($dataLayanan) > 0): 
                     foreach ($dataLayanan as $layanan): 
-                        // Menentukan gaya kartu (opsional: kartu dengan id 2 atau tertentu bisa diberi gaya 'featured')
                         $isFeatured = (stripos($layanan['nama_layanan'], 'express') !== false);
                         $headerClass = $isFeatured ? 'kartu-layanan-admin-header kartu-layanan-admin-header-featured' : 'kartu-layanan-admin-header';
                         
-                        // Menentukan satuan tarif (contoh: jika nama mengandung 'dry', mungkin satuannya per item, selain itu per kg)
                         $satuan = htmlspecialchars($layanan['satuan']);
                 ?>
                 
@@ -80,6 +74,5 @@ include 'includes/header.php';
     <script src="../assets/js/layanan-admin.js"></script>
 
 <?php 
-// PANGGIL FOOTER DI SINI UNTUK MENUTUP KERANGKA HTML
 include 'includes/footer.php'; 
 ?>

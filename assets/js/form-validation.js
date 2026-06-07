@@ -1,23 +1,7 @@
-/**
- * ============================================================
- * form-validation.js — CleanCo Laundry
- * Digunakan di: semua halaman yang memiliki form input data
- * Murni Native JavaScript (Tanpa Library/Framework)
- *
- * Fitur Utama:
- * - Validasi real-time via event 'blur' (pindah fokus)
- * - Pembuatan & penghapusan teks pesan error merah tepat di bawah input
- * - Validasi kecocokan password & konfirmasi password
- * - Penyesuaian jalur fetch agar sinkron dengan sistem file PHP native
- * ============================================================
- */
-
 'use strict';
 
-// Global state untuk menyimpan nilai asli edit info website
 const nilaiAsliInfo = {};
 
-// Mapping seksi info website → daftar id input (disesuaikan agar sinkron)
 const inputPerSeksi = {
     kontak : ['inputWaAdmin', 'inputEmailAdmin'],
     jam    : ['inputJamBuka', 'inputJamTutup', 'inputHariOperasional', 'inputCatatanJam'],
@@ -25,9 +9,7 @@ const inputPerSeksi = {
     kurir  : ['inputBiayaKurir', 'inputCatatanKurir']
 };
 
-// ── INIT EVENT LISTENERS (REAL-TIME VALIDATION ON BLUR) ──────
 document.addEventListener('DOMContentLoaded', () => {
-    // Cari semua input yang perlu divalidasi saat pindah fokus (blur)
     const inputsMintaValidasi = document.querySelectorAll(
         '#inputEmail, #inputPassword, #inputUsername, #inputNamaDepan, #inputNoWA, #inputNamaProfil, #inputNoHP'
     );
@@ -37,29 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
             validasiInputTunggal(input);
         });
         
-        // Bersihkan error secara real-time saat user mulai mengetik kembali
         input.addEventListener('input', () => {
             bersihkanErrorInput(input);
         });
     });
 });
 
-/**
- * Memeriksa validasi satu field secara terisolasi saat terjadi event blur.
- * Menghasilkan feedback instan (UX Cepat) di bawah input terkait.
- */
 function validasiInputTunggal(input) {
     const id = input.id;
     const nilai = input.value.trim();
 
     if (!nilai) {
-        // Abaikan pengecekan verifikasi password jika kolom utama kosong agar tidak double error
         if (id === 'inputVerifikasiPassword') return;
         tampilErrorDiBawahInput(input, 'Field ini tidak boleh kosong.');
         return;
     }
 
-    // Eksekusi aturan regex spesifik berdasarkan ID elemen input
     if (id === 'inputEmail' && !formatEmailValid(nilai)) {
         tampilErrorDiBawahInput(input, 'Format alamat email tidak valid.');
     } 
@@ -80,7 +55,6 @@ function validasiInputTunggal(input) {
     }
 }
 
-// ── FORM PESAN (member/pesan.php) ──────────────────────────
 function validasiFormPesan(opsiPengantaran) {
     const layananId = document.getElementById('inputLayananId').value;
     if (!layananId) {
@@ -103,7 +77,6 @@ function validasiFormPesan(opsiPengantaran) {
     return true;
 }
 
-// ── FORM LOGIN (login.php) ──────────────────────────────────
 function validasiFormLogin() {
     let statusValid = true;
     const emailEl = document.getElementById('inputEmail');
@@ -121,7 +94,6 @@ function validasiFormLogin() {
     return statusValid;
 }
 
-// ── FORM REGISTER (register.php) ───────────────────────────
 function validasiFormRegister() {
     let statusValid = true;
     
@@ -134,7 +106,6 @@ function validasiFormRegister() {
         { el: document.getElementById('inputVerifikasiPassword'), msg: 'Konfirmasi password wajib diisi.' }
     ];
 
-    // Cek kekosongan massal sebelum submit
     fields.forEach(field => {
         if (!field.el?.value.trim()) {
             tampilErrorDiBawahInput(field.el, field.msg);
@@ -142,10 +113,8 @@ function validasiFormRegister() {
         }
     });
 
-    // Jika ada yang kosong, langsung gagalkan submit tanpa cek kecocokan password
     if (!statusValid) return false;
 
-    // Cek kesesuaian password = konfirmasi sebelum submit
     const password = document.getElementById('inputPassword').value;
     const verifikasi = document.getElementById('inputVerifikasiPassword').value;
 
@@ -161,7 +130,6 @@ function validasiFormRegister() {
     return true;
 }
 
-// ── FORM PROFIL (member/profil.php) ────────────────────────
 function validasiFormProfil() {
     let statusValid = true;
     const namaEl = document.getElementById('inputNamaProfil');
@@ -179,22 +147,13 @@ function validasiFormProfil() {
     return statusValid;
 }
 
-
-// ============================================================
-// DYNAMIC UI INLINE ERROR INJECTION (HELPERS)
-// ============================================================
-
 function formatEmailValid(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/**
- * Membuat dan menyisipkan pesan error merah tepat di bawah elemen input terkait.
- */
 function tampilErrorDiBawahInput(inputEl, pesan) {
     if (!inputEl) return;
     
-    // Cari apakah sudah ada pesan error inline sebelumnya agar tidak duplikat
     let errorEl = inputEl.parentNode.querySelector('.error-message-inline');
     
     if (!errorEl) {
@@ -205,17 +164,13 @@ function tampilErrorDiBawahInput(inputEl, pesan) {
         errorEl.style.display = 'block';
         errorEl.style.marginTop = '4px';
         errorEl.style.fontWeight = '600';
-        // Sisipkan elemen tepat setelah kotak input
         inputEl.parentNode.insertBefore(errorEl, inputEl.nextSibling);
     }
     
     errorEl.textContent = pesan;
-    inputEl.style.borderColor = '#ef4444'; // Ubah border input menjadi merah
+    inputEl.style.borderColor = '#ef4444';
 }
 
-/**
- * Menghapus pesan error inline dan mengembalikan warna border input ke normal.
- */
 function bersihkanErrorInput(inputEl) {
     if (!inputEl) return;
     const errorEl = inputEl.parentNode.querySelector('.error-message-inline');
@@ -225,9 +180,6 @@ function bersihkanErrorInput(inputEl) {
     inputEl.style.borderColor = ''; 
 }
 
-/**
- * Fallback jika elemen penampung tidak siap, melontarkan alert atau teks panel global
- */
 function tampilErrorGlobal(pesan) {
     const el = document.getElementById('pesanError');
     if (el) {
@@ -238,11 +190,6 @@ function tampilErrorGlobal(pesan) {
         alert(pesan);
     }
 }
-
-
-// ============================================================
-// EDIT INFO WEBSITE LAYER (admin/edit-info.php)
-// ============================================================
 
 function toggleEditSeksi(seksi) {
     nilaiAsliInfo[seksi] = {};
@@ -278,7 +225,7 @@ function batalEditSeksi(seksi) {
                 el.setAttribute('readonly', true);
                 el.classList.add('input-readonly');
                 el.classList.remove('input-editable');
-                bersihkanErrorInput(el); // Bersihkan sisa error saat batal
+                bersihkanErrorInput(el);
             }
         });
     }
@@ -296,12 +243,7 @@ function batalEditSeksi(seksi) {
     if(btnSimpan) btnSimpan.style.display = 'none';
 }
 
-/**
- * Validasi lalu POST perubahan info website ke server.
- * PERBAIKAN: Mengubah routing palsu /api menjadi sistem query string parameter file lokal
- */
 async function simpanSeksi(seksi) {
-    // ── Validasi client-side murni per seksi ──
     if (seksi === 'kontak') {
         const waEl = document.getElementById('inputWaAdmin');
         const emailEl = document.getElementById('inputEmailAdmin');
@@ -355,7 +297,6 @@ async function simpanSeksi(seksi) {
         }
     }
 
-    // ── Mengompilasi paket data payload seksi ──
     const payload = {};
     inputPerSeksi[seksi].forEach(id => {
         const el = document.getElementById(id);
@@ -367,9 +308,7 @@ async function simpanSeksi(seksi) {
         payload['kecamatan_dilayani'] = [...checked].map(c => c.value);
     }
 
-    // ── EKSEKUSI FETCH POST (XAMPP Friendly) ──
     try {
-        // PERBAIKAN ROUTING: Mengubah /api/info-website/simpan menjadi edit-info.php?action=simpan_xxx
         const targetAction = (seksi === 'kurir') ? 'simpan_kurir' : 'simpan_' + seksi;
         const res = await fetch(`edit-info.php?action=${targetAction}`, {
             method : 'POST',

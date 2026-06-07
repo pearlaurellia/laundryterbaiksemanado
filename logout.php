@@ -1,15 +1,12 @@
 <?php
 require_once 'config/session.php';
 
-// Pastikan session dimulai
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Hapus semua data session
-$_SESSION = array();  // ← tambahkan ini
+$_SESSION = array();
 
-// Hapus session cookie
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -18,10 +15,8 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Hancurkan session
 session_destroy();
 
-// Redirect ke login
 header('Location: login.php');
 exit;
 ?>

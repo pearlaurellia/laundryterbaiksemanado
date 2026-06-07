@@ -8,11 +8,9 @@ $sukses    = false;
 $pesanan_baru = [];
 $errors    = [];
 
-// ── Query layanan aktif dari DB ─────────────────────────────
 $stmtLayanan = $pdo->query("SELECT * FROM layanan WHERE status = 'aktif' ORDER BY tarif_per_kg ASC");
 $layanan_list = $stmtLayanan->fetchAll() ?: [];
 
-// ── Query kecamatan dari info_website ───────────────────────
 $stmtInfo = $pdo->query("SELECT kecamatan_dilayani, no_whatsapp FROM info_website LIMIT 1");
 $info = $stmtInfo->fetch();
 $kecamatan_list = [];
@@ -21,7 +19,6 @@ if ($info && !empty($info['kecamatan_dilayani'])) {
 }
 $no_whatsapp_admin = $info['no_whatsapp'] ?? '';
 
-// ── Handler POST ────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $id_layanan         = (int) ($_POST['layanan_id'] ?? 0);
@@ -33,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           : null;
     $catatan_khusus     = bersihkan($_POST['catatan'] ?? '');
 
-    // ── Validasi server-side ─────────────────────────────────
     $layananValid    = false;
     $layananTerpilih = null;
     foreach ($layanan_list as $l) {
@@ -60,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ── Proses jika tidak ada error ──────────────────────────
     if (empty($errors)) {
 
         $biaya_kurir  = ($opsi_pengantaran === 'kurir') ? 10000 : 0;
@@ -110,12 +105,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $estimasi_biaya = ($estimasi_berat * $layananTerpilih['tarif_per_kg']) + $biaya_kurir;
         }
 
-        // FORMAT FEEDBACK UNTUK RESPONS AJAX MODAL
         $labelHarga = $estimasi_biaya !== null 
             ? 'Rp ' . number_format($estimasi_biaya, 0, ',', '.') . ' (Estimasi, Belum Final)' 
             : 'Dihitung admin setelah ditimbang';
 
-        // DETEKSI AJAX INTERCEPTOR (Sesuai Fase 7.4)
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
             echo json_encode([
@@ -142,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sukses = true;
     } else {
-        // Balasan error validasi jika dikirim lewat sistem AJAX
         if (isset($_GET['action']) && $_GET['action'] === 'submit_ajax') {
             header('Content-Type: application/json');
             echo json_encode([
@@ -191,7 +183,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      data-estimasi-biaya="<?= (isset($pesanan_baru['estimasi_biaya']) && $pesanan_baru['estimasi_biaya'] !== null) ? $pesanan_baru['estimasi_biaya'] : 'null' ?>"
                      data-no-wa-admin="<?= htmlspecialchars($no_whatsapp_admin) ?>">
 
-                    <!-- ERROR BOX -->
                     <?php if (!empty($errors)): ?>
                         <div class="error-box">
                             <?php foreach ($errors as $err): ?>
@@ -200,7 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     <?php endif; ?>
 
-                    <!-- 1. PILIH LAYANAN -->
                     <div class="form-group">
                         <label class="form-label" style="color: #333">Pilih Layanan</label>
                         <div class="grid-pilih-layanan" id="gridLayanan">
@@ -236,7 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="hidden" id="inputLayananId" name="layanan_id" value="<?= $id_default ?>">
                     </div>
 
-                    <!-- 2. OPSI PENGANTARAN -->
                     <div class="form-group">
                         <label class="form-label" style="color: #333">Opsi Pengantaran</label>
                         <div class="grid-opsi-pengantaran">
@@ -258,7 +247,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- INFO KURIR -->
                     <div class="info-kurir-wrapper" id="infoKurir">
                         <p class="info-kurir-teks">
                             Kurir akan menghubungi kamu via WhatsApp sebelum menjemput pakaian.
@@ -269,7 +257,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
                     </div>
 
-                    <!-- 3. ALAMAT (KURIR) -->
                     <div id="containerAlamat" class="form-group">
                         <div class="form-group">
                             <label class="form-label" style="color: #333">Kecamatan Tujuan</label>
@@ -292,7 +279,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- 4. ESTIMASI BERAT -->
                     <div class="form-group">
                         <label class="form-label" style="color: #333">
                             Estimasi Berat 
@@ -307,14 +293,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- 5. KOTAK ESTIMASI HARGA -->
                     <div id="kotakEstimasi" class="kotak-estimasi-harga">
                         <p class="estimasi-harga-teks" style="color: #333; style="margin: 0;" id="teksEstimasiHarga">
                             Masukkan estimasi berat untuk melihat perkiraan harga
                         </p>
                     </div>
 
-                    <!-- 6. CATATAN KHUSUS -->
                     <div class="form-group">
                         <label class="form-label" style="color: #333">
                             Catatan Khusus 
@@ -325,7 +309,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                   class="form-textarea"><?= !$sukses ? htmlspecialchars($catatan_khusus ?? '') : '' ?></textarea>
                     </div>
 
-                    <!-- 7. TOMBOL KIRIM -->
                     <button type="button" class="tombol-submit-form tombol-kirim-pesanan" 
                             onclick="kirimPesananForm(event)">
                         Kirim Pesanan
@@ -336,7 +319,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <!-- POPUP SUKSES -->
     <div class="overlay-popup" id="overlayPopup" style="display:none;"></div>
 
     <div class="popup-sukses-pesanan" id="popupSukses" style="display:none;">
@@ -382,11 +364,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-    // Data tarif dari layanan yang dipilih
     let tarifPerKg = 0;
     let biayaKurir = 0;
 
-    // Fungsi untuk update tarif berdasarkan layanan yang dipilih
     function updateTarifLayanan() {
         const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
         if (selectedCard) {
@@ -395,7 +375,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         hitungEstimasiHarga();
     }
 
-    // Fungsi untuk update biaya kurir berdasarkan opsi pengantaran
     function updateBiayaKurir() {
         const selectedOpsi = document.querySelector('input[name="opsi_pengantaran"]:checked');
         if (selectedOpsi && selectedOpsi.value === 'kurir') {
@@ -406,22 +385,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         hitungEstimasiHarga();
     }
 
-    // Fungsi utama hitung estimasi harga
     function hitungEstimasiHarga() {
         const beratInput = document.getElementById('inputEstimasiBerat');
         let berat = parseFloat(beratInput.value);
         
-        // Validasi berat
         if (isNaN(berat) || berat <= 0) {
             document.getElementById('teksEstimasiHarga').innerHTML = 
                 '- Masukkan estimasi berat untuk melihat perkiraan harga';
             return;
         }
         
-        // Hitung total
         const total = (berat * tarifPerKg) + biayaKurir;
         
-        // Format Rupiah
         const formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
@@ -429,7 +404,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             maximumFractionDigits: 0
         });
         
-        // Tampilkan hasil
         let estimasiText = `Estimasi harga: ${formatter.format(total)}<br>`;
         estimasiText += `<small style="font-size: 0.75rem; color: #888;">`;
         estimasiText += `(${berat} kg × Rp ${tarifPerKg.toLocaleString('id-ID')} / kg)`;
@@ -441,26 +415,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('teksEstimasiHarga').innerHTML = estimasiText;
     }
 
-    // Override fungsi pilihLayanan yang sudah ada
     const originalPilihLayanan = window.pilihLayanan;
     window.pilihLayanan = function(element) {
         if (originalPilihLayanan) originalPilihLayanan(element);
         updateTarifLayanan();
     };
 
-    // Override fungsi gantiOpsiPengantaran yang sudah ada
     const originalGantiOpsi = window.gantiOpsiPengantaran;
     window.gantiOpsiPengantaran = function(opsi) {
         if (originalGantiOpsi) originalGantiOpsi(opsi);
         setTimeout(updateBiayaKurir, 100);
     };
 
-    // Inisialisasi saat halaman加载
     document.addEventListener('DOMContentLoaded', function() {
         updateTarifLayanan();
         updateBiayaKurir();
         
-        // Setup event listener untuk input berat
         const beratInput = document.getElementById('inputEstimasiBerat');
         if (beratInput) {
             beratInput.addEventListener('input', hitungEstimasiHarga);

@@ -3,12 +3,10 @@ require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// Proteksi berlapis halaman admin
 if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
     redirect('../login.php');
 }
 
-// [POST] LOGIKA BACKEND HANDLER - PROSES UPDATE DATA PER SEKSI
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     $action = $_GET['action'];
 
@@ -34,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     exit;
 }
 
-// [GET] AMBIL DATA PROFIL WEBSITE DARI DATABASE
 $stmt = $pdo->query("SELECT * FROM info_website WHERE id = 1");
 $info = $stmt->fetch();
 
@@ -49,17 +46,14 @@ $semua_kecamatan = ['Wenang','Wanea','Tikala','Mapanget','Tuminting','Singkil','
 include '../includes/header-admin.php'; 
 ?>
 
-<!-- HERO SECTION -->
 <section class="hero-form" style="min-height: auto; padding: 100px 80px 60px;">
     
-    <!-- DEKORASI -->
     <div class="bulat-atas-form" style="right: 8%; top: 25%;"></div>
     <div class="bulat-ditengah-form" style="right: 25%; bottom: 30%;"></div>
     <div class="bulat-besar-form" style="right: -30px; bottom: -80px;"><h2>Laundry 3J</h2></div>
 
     <div style="position: relative; z-index: 2; width: 100%; max-width: 900px; margin: 0 auto;">
         
-        <!-- HEADER -->
         <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.5rem; color: white; margin: 0 0 8px; filter: drop-shadow(var(--shadow));">
                 Info Website
@@ -69,14 +63,12 @@ include '../includes/header-admin.php';
             </p>
         </div>
 
-        <!-- NOTIFIKASI SUKSES -->
         <?php if (isset($_GET['status']) && $_GET['status'] === 'sukses'): ?>
             <div style="background: rgba(209, 250, 229, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); border-left: 4px solid #10b981; border-radius: 0 12px 12px 0; padding: 14px 18px; margin-bottom: 24px; color: #6ee7b7; font-weight: 500; font-size: 0.9rem;">
                 ✓ Perubahan info website berhasil disimpan ke database.
             </div>
         <?php endif; ?>
 
-        <!-- KONTAK -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -89,7 +81,6 @@ include '../includes/header-admin.php';
                 </button>
             </div>
 
-            <!-- View Mode -->
             <div id="viewKontak">
                 <div style="margin-bottom: 8px;">
                     <span style="font-size: 0.78rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em;">Nomor WhatsApp</span>
@@ -97,7 +88,6 @@ include '../includes/header-admin.php';
                 </div>
             </div>
 
-            <!-- Edit Mode -->
             <form method="POST" action="edit-info.php?action=simpan_kontak" id="formKontak" style="display: none;">
                 <div style="margin-bottom: 16px;">
                     <label style="font-size: 0.78rem; font-weight: 700; color: var(--birutua); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 6px;">Nomor WhatsApp</label>
@@ -113,7 +103,6 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- JAM OPERASIONAL -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -145,7 +134,6 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- NAMA USAHA & ALAMAT -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
@@ -191,7 +179,6 @@ include '../includes/header-admin.php';
             </form>
         </div>
 
-        <!-- KECAMATAN -->
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>

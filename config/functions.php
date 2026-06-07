@@ -1,21 +1,17 @@
 <?php
-// Redirect ke halaman lain
 function redirect($url) {
     header("Location: $url");
     exit;
 }
 
-// Bersihkan input dari XSS
 function bersihkan($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-// Format rupiah: 43600 → "Rp 43.600"
 function formatRupiah($angka) {
     return 'Rp ' . number_format($angka, 0, ',', '.');
 }
 
-// Generate kode pesanan: LDR-20240601-001
 function generateKodePesanan($pdo) {
     $tanggal = date('Ymd');
     $prefix  = 'LDR-' . $tanggal . '-';

@@ -3,14 +3,12 @@ require_once '../includes/auth-check.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// ── Ambil ?id= dari URL, cast ke integer ────────────────────
 $id_pesanan = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id_pesanan <= 0) {
     redirect('status.php');
 }
 
-// ── Query detail pesanan (hanya milik member yang login) ────
 $stmtPesanan = $pdo->prepare("
     SELECT p.*, u.nama AS nama_member, u.no_hp,
            l.nama_layanan, l.tarif_per_kg, l.satuan
@@ -26,7 +24,6 @@ if (!$p) {
     redirect('status.php');
 }
 
-// ── Query riwayat_status untuk timeline ─────────────────────
 $stmtRiwayat = $pdo->prepare("
     SELECT * FROM riwayat_status
     WHERE id_pesanan = ?
@@ -35,12 +32,10 @@ $stmtRiwayat = $pdo->prepare("
 $stmtRiwayat->execute([$id_pesanan]);
 $riwayat = $stmtRiwayat->fetchAll() ?: [];
 
-// ── Variabel bantu ───────────────────────────────────────────
 $status         = $p['status_pesanan'];
-$opsi           = $p['opsi_pengantaran'];  // 'kurir' | 'ambil_sendiri'
+$opsi           = $p['opsi_pengantaran']; 
 $sudahDitimbang = ($p['berat_aktual'] > 0);
 
-// Label status → teks ramah
 $labelStatus = [
     'menunggu_konfirmasi' => 'Menunggu Konfirmasi',
     'dikonfirmasi'        => 'Dikonfirmasi',
@@ -51,7 +46,6 @@ $labelStatus = [
     'dibatalkan'          => 'Dibatalkan',
 ][$status] ?? $status;
 
-// Kelas badge status
 $kelasStatus = [
     'menunggu_konfirmasi' => 'badge-status-baru',
     'dikonfirmasi'        => 'badge-status-dikonfirmasi',
@@ -62,7 +56,6 @@ $kelasStatus = [
     'dibatalkan'          => 'badge-status-batal',
 ][$status] ?? '';
 
-// ── Steps progress bar sesuai opsi pengantaran ──────────────
 $stepsKurir = [
     ['key' => 'menunggu_konfirmasi', 'label' => 'Menunggu'],
     ['key' => 'dikonfirmasi',        'label' => 'Dikonfirmasi'],
@@ -83,7 +76,6 @@ foreach ($steps as $i => $step) {
     if ($step['key'] === $status) { $aktifIdx = $i; break; }
 }
 
-// ── Label timeline ───────────────────────────────────────────
 $labelTimeline = [
     'menunggu_konfirmasi' => 'Pesanan Dibuat',
     'dikonfirmasi'        => 'Pesanan Dikonfirmasi Admin',
@@ -112,10 +104,8 @@ $labelTimeline = [
 
     <section class="detail-pesanan-section">
 
-        <!-- Tombol kembali -->
         <a href="status.php" class="tombol-kembali-member">← Kembali ke Status</a>
 
-        <!-- ── BANNER STATUS KONDISIONAL ── -->
         <?php if ($status === 'siap_diambil'): ?>
             <div class="banner-status banner-hijau">
                 <span class="banner-ikon">✓</span>
@@ -140,7 +130,6 @@ $labelTimeline = [
             </div>
         <?php endif; ?>
 
-        <!-- ── HEADER PESANAN ── -->
         <div class="detail-pesanan-header">
             <div>
                 <h1 class="detail-pesanan-judul">
@@ -156,7 +145,6 @@ $labelTimeline = [
             </span>
         </div>
 
-        <!-- ── PROGRESS BAR ── -->
         <div class="progress-bar-wrapper">
             <div class="progress-bar-track">
                 <?php foreach ($steps as $i => $step):
@@ -177,10 +165,8 @@ $labelTimeline = [
             </div>
         </div>
 
-        <!-- ── INFO GRID ── -->
         <div class="detail-pesanan-grid">
 
-            <!-- Kiri: Info pesanan -->
             <div class="detail-pesanan-kiri">
                 <div class="detail-info-grid" style="margin-bottom:20px;">
 
@@ -242,11 +228,9 @@ $labelTimeline = [
                 </div>
             </div>
 
-            <!-- Kanan: Berat & Biaya + Timeline -->
             <div class="detail-pesanan-kanan">
 
                 <?php if (!$sudahDitimbang): ?>
-                <!-- Belum ditimbang -->
                 <div class="kotak-menunggu-timbang">
                     <div class="menunggu-ikon">⚖️</div>
                     <p class="menunggu-judul">Menunggu Penimbangan Admin</p>
@@ -256,7 +240,6 @@ $labelTimeline = [
                 </div>
 
                 <?php else: ?>
-                <!-- Sudah ditimbang: tampilkan rincian biaya final -->
                 <?php
                     $biayaLayanan = $p['berat_aktual'] * $p['tarif_per_kg'];
                     $biayaKurir   = (float)($p['biaya_kurir'] ?? 0);
@@ -286,7 +269,6 @@ $labelTimeline = [
                 </div>
                 <?php endif; ?>
 
-                <!-- Timeline riwayat status dari tabel riwayat_status -->
                 <div class="timeline-status">
                     <p class="detail-label" style="margin-bottom:14px;">Riwayat Status</p>
                     <div>
@@ -315,9 +297,9 @@ $labelTimeline = [
                     </div>
                 </div>
 
-            </div><!-- /.detail-pesanan-kanan -->
+            </div>
 
-        </div><!-- /.detail-pesanan-grid -->
+        </div>
 
     </section>
 

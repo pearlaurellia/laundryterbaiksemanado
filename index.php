@@ -2,17 +2,14 @@
 require_once 'config/session.php';
 require_once 'config/database.php';
 
-// 1. Query layanan aktif
 $stmtLayanan = $pdo->prepare("SELECT * FROM layanan WHERE status = 'aktif'");
 $stmtLayanan->execute();
 $dataLayanan = $stmtLayanan->fetchAll();
 
-// 2. Query informasi website
 $stmtInfo = $pdo->prepare("SELECT * FROM info_website WHERE id = 1");
 $stmtInfo->execute();
 $infoWeb = $stmtInfo->fetch();
 
-// PANGGIL HEADER DI SINI
 include 'includes/header.php';
 ?>
 

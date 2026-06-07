@@ -1,14 +1,5 @@
-/**
- * ============================================================
- * info-admin.js — CleanCo Laundry
- * Digunakan di: admin/edit-info.php
- * Murni Native JavaScript (Tanpa Library/Framework)
- * ============================================================
- */
-
 'use strict';
 
-// Objek mapper untuk mematikan dan menghidupkan form secara instan
 const _seksiMap = {
     kontak:    { form: 'formKontak',    view: 'viewKontak',    btn: 'btnEditKontak'    },
     jam:       { form: 'formJam',       view: 'viewJam',       btn: 'btnEditJam'       },
@@ -16,9 +7,6 @@ const _seksiMap = {
     kecamatan: { form: 'formKecamatan', view: 'viewKecamatan', btn: 'btnEditKecamatan' },
 };
 
-/**
- * Menyembunyikan tampilan teks biasa dan memunculkan form input edit
- */
 function bukaEdit(seksi) {
     const s = _seksiMap[seksi];
     if (s) {
@@ -28,9 +16,6 @@ function bukaEdit(seksi) {
     }
 }
 
-/**
- * Menyembunyikan form input edit dan mengembalikan ke tampilan teks biasa
- */
 function tutupEdit(seksi) {
     const s = _seksiMap[seksi];
     if (s) {

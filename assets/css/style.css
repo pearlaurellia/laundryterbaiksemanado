@@ -28,7 +28,7 @@ body {
     z-index: 100;
     width: 100%;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15);
-    position: sticky; /* Activates sticky behavior */
+    position: sticky;
 }
 
 .nav-left ul, .nav-right ul {
@@ -489,7 +489,7 @@ body {
     background-color: white;
     margin: 14px 14px 14px 14px;
     border-radius: 0 0 12px 12px;
-    padding: 15px 30px 5px; /* ganti 0px jadi 20px di bagian bawah */
+    padding: 15px 30px 5px;
     flex-grow: 1;
     position: relative;
     min-height: 150px;
@@ -1271,9 +1271,6 @@ body {
     margin: 0;
 }
 
-/* ================================
-   BADGE STATUS (pesanan.php)
-   ================================ */
 
 .badge-status {
     padding: 5px 14px;
@@ -1325,13 +1322,6 @@ body {
     opacity: 0.8;
 }
 
-/* ================================
-   HALAMAN LAYANAN ADMIN
-   ================================ */
-
-/* ================================
-   POP-UP KONFIRMASI (global)
-   ================================ */
 
 .overlay-popup {
     position: fixed;
@@ -1401,15 +1391,6 @@ body {
 }
 
 .popup-tombol-konfirm:hover { filter: brightness(0.9); }
-
-/* ================================
-   PESAN.PHP — HALAMAN PESAN MEMBER
-   ================================ */
-
-
-
-
-
 
 .grid-pilih-layanan {
     display: grid;
@@ -1682,10 +1663,6 @@ body {
     padding: 0 36px 28px;
 }
 
-/* ================================
-   DETAIL-PESANAN.PHP
-   ================================ */
-
 .detail-pesanan-section {
     padding: 100px 60px 60px;
     max-width: 1200px;
@@ -1744,9 +1721,7 @@ body {
     margin: 4px 0 0;
 }
 
-
 .badge-status-batal { background-color: #f87171; color: white; }
-
 
 .progress-bar-wrapper {
     background-color: #DDEEFF;
@@ -1925,10 +1900,6 @@ body {
     color: #aaa;
     margin: 0;
 }
-
-/* ================================
-   PROFIL.PHP
-   ================================ */
 
 .profil-hero {
     background: linear-gradient(var(--birutua), var(--tealtua));
@@ -2125,34 +2096,15 @@ body {
     margin: 6px 0 0;
 }
 
-/* ================================
-   STATUS.PHP — HALAMAN STATUS MEMBER
-   ================================ */
-
-
-
-
-
 .status-subjudul {
     color: #aaa;
     font-size: 0.88rem;
     margin: 0;
 }
 
-
-
-
-
 .kartu-status-pesanan:hover {
     border-color: #DDEEFF;
 }
-
-
-
-
-
-
-
 
 .kartu-status-pesanan .progress-bar-wrapper {
     border-radius: 0;
@@ -2161,27 +2113,6 @@ body {
     padding: 20px 24px;
     box-shadow: none;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .tombol-detail-status:hover { background-color: #b5d5f5; }
 
@@ -2201,13 +2132,11 @@ body {
 
 .tombol-batalkan-status:hover { background-color: #ffb3b3; }
 
-
 .kartu-status-pesanan .banner-status {
     margin: 0;
     border-radius: 0;
     box-shadow: none;
 }
-
 
 .status-kosong {
     display: flex;
@@ -2233,10 +2162,6 @@ body {
     margin: 0 0 20px;
 }
 
-/* ================================
-   RIWAYAT.PHP
-   ================================ */
-
 .riwayat-section {
     padding: 30px 60px;
     max-width: 900px;
@@ -2255,37 +2180,14 @@ body {
     align-items: center;
 }
 
-
-
 .kartu-riwayat:hover { border-color: #DDEEFF; }
 
 .kartu-riwayat-batal:hover { opacity: 1; }
-
-
-
-
-
-
-
-
-
-
-
-
 
 .riwayat-total {
     color: var(--birutua);
     font-size: 1rem;
 }
-
-/* ================================
-   EDIT-INFO.PHP
-   ================================ */
-
-
-
-
-
 
 .edit-info-nav-item:hover {
     background-color: rgba(255,255,255,0.2);
@@ -2298,20 +2200,6 @@ body {
     font-weight: 700;
     box-shadow: var(--shadow);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .kecamatan-pills {
     display: flex;
@@ -2329,14 +2217,12 @@ body {
     font-weight: 500;
 }
 
-
 .kecamatan-checkboxes {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 8px;
 }
-
 
 .checkbox-kecamatan:hover { background-color: #DDEEFF; }
 
@@ -2347,15 +2233,11 @@ body {
     cursor: pointer;
 }
 
-
 .badge-status-dikonfirmasi { background-color: #8b5cf6; color: white; }
-
 
 .tombol-status-terima:hover { background-color: #3aaf87 !important; }
 
-
 .tombol-status-tolak:hover { background-color: #ffb3b3 !important; }
-
 
 .kartu-alasan {
     display: block;
@@ -2381,11 +2263,6 @@ body {
     background-color: #fff5f5;
 }
 
-
-
-
-
-
 .kartu-alasan:has(input:checked) .kartu-alasan-judul {
     color: #D32F2F;
 }
@@ -2393,7 +2270,6 @@ body {
 .kartu-alasan:has(input:checked) .kartu-alasan-sub {
     color: #f87171;
 }
-
 
 .kartu-alasan {
     display: block;
@@ -2419,23 +2295,14 @@ body {
     background-color: #fff5f5;
 }
 
-
-
-
-
 .kartu-alasan:has(input:checked) .kartu-alasan-judul { color: #D32F2F; }
 .kartu-alasan:has(input:checked) .kartu-alasan-sub   { color: #f87171; }
 
-
 .badge-status-dikonfirmasi { background-color: #8b5cf6; color: white; }
-
 
 .tombol-status-terima:hover { background-color: #3aaf87 !important; }
 
 .tombol-status-tolak:hover { background-color: #ffb3b3 !important; }
-
-
-
 
 .judul-sidebar {
     font-family: "Bricolage Grotesque", sans-serif;
@@ -2444,8 +2311,6 @@ body {
     margin: 0 0 20px 0;
     filter: drop-shadow(var(--shadow));
 }
-
-
 
 .filter-select,
 .filter-input {
@@ -2487,31 +2352,15 @@ body {
     background-color: rgba(255, 255, 255, 0.3);
 }
 
-
-
-
-
 .kartu-ringkasan:hover {
     transform: translateY(-3px);
 }
-
-
-
-
-
-
-
-
 
 #pendapatanChart {
     max-width: 100%;
     background: #fafafa;
     border-radius: 12px;
 }
-
-
-
-
 
 .tabel-filter-btn:hover {
     background-color: #e0e0e0;
@@ -2522,8 +2371,6 @@ body {
     color: #1a4d3a;
     font-weight: 600;
 }
-
-
 
 .tabel-pesanan th,
 .tabel-pesanan td {
@@ -2560,24 +2407,16 @@ body {
     display: inline-block;
 }
 
-
-
-
-
-
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-
 .error-state .error-icon {
     font-size: 3rem;
     margin-bottom: 16px;
 }
-
-
 
 .pagination-btn:hover:not(:disabled) {
     background-color: var(--tealmuda);
@@ -2589,36 +2428,17 @@ body {
     cursor: not-allowed;
 }
 
-
-/* ========================================
-   DATA KOSONG
-   ======================================== */
-
-
 .data-kosong .kosong-icon {
     font-size: 3rem;
     margin-bottom: 16px;
     opacity: 0.5;
 }
 
-/* ============================================
-   MOBILE FRIENDLY & RESPONSIVE STYLES
-   ============================================ */
-
-/* Reset & Base */
 * {
     box-sizing: border-box;
 }
 
-/* Container responsive */
-
-/* ============================================
-   RESPONSIVE BREAKPOINTS
-   ============================================ */
-
-/* Tablet (768px ke bawah) */
 @media (max-width: 768px) {
-    /* Typography */
     .judul-overview-layanan {
         font-size: 1.75rem;
     }
@@ -2627,7 +2447,6 @@ body {
         font-size: 1.5rem;
     }
     
-    /* Form containers */
     .form-pesanan-container,
     .konten-form {
         padding: 24px 20px;
@@ -2635,7 +2454,6 @@ body {
         width: calc(100% - 32px);
     }
     
-    /* Grid layouts */
     .grid-pilih-layanan,
     .grid-opsi-pengantaran {
         flex-direction: column;
@@ -2651,7 +2469,6 @@ body {
         width: 100%;
     }
     
-    /* Detail panels */
     .detail-info-grid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -2666,7 +2483,6 @@ body {
         width: 100%;
     }
     
-    /* Button groups */
     .popup-tombol-group {
         flex-direction: column;
         align-items: stretch;
@@ -2681,14 +2497,11 @@ body {
     .detail-status-section button {
         width: 100%;
     }
-    
-    /* Tables - make scrollable */
-    
+        
     table {
         min-width: 600px;
     }
     
-    /* Sidebar layout untuk admin */
     .halaman-pesanan {
         flex-direction: column;
     }
@@ -2706,7 +2519,6 @@ body {
         padding: 20px;
     }
     
-    /* Filter buttons */
     .grup-filter {
         flex-wrap: wrap;
         gap: 8px;
@@ -2718,7 +2530,6 @@ body {
         text-align: center;
     }
     
-    /* Header navigation */
     .nav-left ul,
     .nav-right ul {
         display: none;
@@ -2728,13 +2539,11 @@ body {
         display: flex;
     }
     
-    /* Hero form section */
     .hero-form {
         padding: 20px;
         min-height: auto;
     }
     
-    /* Cards */
     .kartu-sejarah {
         margin-bottom: 16px;
     }
@@ -2748,9 +2557,7 @@ body {
         gap: 8px;
     }
     
-    /* Dashboard widgets */
     
-    /* Modal popup */
     .popup-konfirmasi,
     .popup-sukses-pesanan {
         width: calc(100% - 40px);
@@ -2764,11 +2571,7 @@ body {
     
 }
 
-/* ============================================
-   MOBILE (480px ke bawah)
-   ============================================ */
 @media (max-width: 480px) {
-    /* Smaller typography */
     h1, .judul-overview-layanan, .judul-form {
         font-size: 1.35rem;
     }
@@ -2777,16 +2580,14 @@ body {
         font-size: 1.2rem;
     }
     
-    /* Form inputs */
     .input-form-login,
     .form-input,
     .form-select,
     .form-textarea {
-        font-size: 16px; /* Prevent zoom on iOS */
+        font-size: 16px; 
         padding: 10px 16px;
     }
     
-    /* Password wrapper adjustment */
     .password-wrapper .input-form-login,
     .password-wrapper .form-input {
         padding-right: 40px;
@@ -2809,14 +2610,12 @@ body {
     opacity: 1;
 }
     
-    /* Cards padding */
     .kartu-sejarah,
     .item-pesanan,
     .item-member {
         padding: 12px;
     }
     
-    /* Detail header */
     .detail-header {
         flex-direction: column;
         align-items: flex-start;
@@ -2827,7 +2626,6 @@ body {
         align-self: flex-start;
     }
     
-    /* Buttons */
     .tombol-submit-form,
     .tombol-aktifkan-member,
     .tombol-nonaktif-member,
@@ -2836,7 +2634,6 @@ body {
         font-size: 0.85rem;
     }
     
-    /* Berat wrapper */
     .berat-wrapper {
         flex-wrap: wrap;
     }
@@ -2845,12 +2642,10 @@ body {
         width: 100%;
     }
     
-    /* Search input */
     .member-search-wrapper .input-form {
         font-size: 16px;
     }
     
-    /* Info kurir wrapper */
     .info-kurir-wrapper {
         padding: 12px;
     }
@@ -2860,9 +2655,6 @@ body {
     }
 }
 
-/* ============================================
-   DESKTOP (769px ke atas)
-   ============================================ */
 @media (min-width: 769px) {
     .hamburger {
         display: none;
@@ -2873,11 +2665,7 @@ body {
     }
 }
 
-/* ============================================
-   TOUCH FRIENDLY ADJUSTMENTS
-   ============================================ */
 @media (hover: none) and (pointer: coarse) {
-    /* Larger touch targets */
     button,
     .tombol-filter,
     .kartu-pilih-layanan,
@@ -2886,15 +2674,13 @@ body {
     .item-member,
     .toggle-password {
         cursor: pointer;
-        min-height: 44px; /* Minimum touch target size */
+        min-height: 44px;
     }
     
-    /* Remove hover effects on touch devices */
     .kartu-pilih-layanan:hover {
         transform: none;
     }
     
-    /* Better spacing for touch */
     .grup-filter {
         gap: 12px;
     }
@@ -2904,25 +2690,17 @@ body {
     }
 }
 
-/* ============================================
-   FLEXIBLE GRID FOR DASHBOARD
-   ============================================ */
-
-/* Responsive charts */
 canvas {
     max-width: 100%;
     height: auto;
 }
 
-/* Responsive images */
 img {
     max-width: 100%;
     height: auto;
 }
 
-/* ============================================
-   SAFE AREA INSETS (Notch phones)
-   ============================================ */
+
 @supports (padding: max(0px)) {
     .header {
         padding-left: max(20px, env(safe-area-inset-left));
@@ -2935,9 +2713,6 @@ img {
     }
 }
 
-/* ============================================
-   ORIENTATION SPECIFIC
-   ============================================ */
 @media (max-width: 768px) and (orientation: landscape) {
     .hero-form {
         min-height: auto;
@@ -2979,9 +2754,6 @@ img {
 
 
 
-        /* ================================
-   FOOTER UTAMA
-   ================================ */
 
 .footer-utama {
     background: linear-gradient(135deg, var(--birutua) 0%, var(--tealtua) 100%);
@@ -3091,9 +2863,6 @@ img {
     margin: 0;
 }
 
-/* ================================
-   RESPONSIVE FOOTER
-   ================================ */
 @media (max-width: 900px) {
     .footer-konten {
         grid-template-columns: 1fr 1fr;
@@ -3325,11 +3094,6 @@ img {
     }
 }
 
-/* ============================================
-   SHOW/HIDE PASSWORD TOGGLE
-   ============================================ */
-
-
 .password-wrapper {
     position: relative;
     width: 100%;
@@ -3519,7 +3283,6 @@ img {
     justify-content: center;
 }
 
-/* Untuk mobile, pastikan tetap full height */
 @media (max-width: 768px) {
     .hero-form {
         min-height: 100vh !important;

@@ -4,11 +4,9 @@ require_once '../config/database.php';
 require_once '../config/functions.php';
 require_once '../includes/admin-check.php'; 
 
-// [POST] ENDPOINT API HANDLER - UNTUK TOGGLE STATUS AKUN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'toggle_status') {
     header('Content-Type: application/json');
     
-    // Karena JS mengirim application/x-www-form-urlencoded, data dibaca via $_POST
     $idMember   = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
     $statusBaru = bersihkan($_POST['status'] ?? '');
 
@@ -19,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 
     try {
 
-        // Pengisian alasan banned otomatis jika di-nonaktifkan
         $alasan = ($statusBaru === 'nonaktif') ? 'Terindikasi melakukan pelanggaran / pesanan fiktif.' : null;
         
         $stmtToggle = $pdo->prepare("
@@ -37,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
 }
 
-// [GET] AMBIL DATA AGREGAT UNTUK TAMPILAN HALAMAN
 
 $stmt = $pdo->prepare("
     SELECT 
@@ -56,7 +52,6 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $members = $stmt->fetchAll() ?: [];
 
-// Mengompilasi 3 riwayat pesanan terakhir untuk setiap member
 $riwayatMap = [];
 $stmtR = $pdo->prepare("
     SELECT p.id_member, p.kode_pesanan, l.nama_layanan, p.total_harga, p.status_pesanan
@@ -78,7 +73,6 @@ foreach ($stmtR->fetchAll() as $r) {
     }
 }
 
-// Mapping data ke dalam format JSON yang siap dikonsumsi JavaScript front-end
 $dataMemberArray = [];
 foreach ($members as $m) {
     $dataMemberArray[$m['id']] = [
@@ -99,7 +93,6 @@ foreach ($members as $m) {
     ];
 }
 
-// Panggil header-admin untuk menyisipkan kerangka HTML dasar pembuka
 include '../includes/header-admin.php';
 ?>
 

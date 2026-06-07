@@ -1,14 +1,11 @@
 <?php
-// 1. Ambil data dari tabel info_website jika koneksi $pdo tersedia
 if (isset($pdo)) {
-    // Jalankan query hanya jika variabel $info_website belum didefinisikan di file utama
     if (!isset($info_website)) {
         $stmtFooter = $pdo->query("SELECT nama_usaha, alamat, no_whatsapp, jam_operasional FROM info_website LIMIT 1");
         $info_website = $stmtFooter->fetch() ?: [];
     }
 }
 
-// 2. Fallback (Cadangan data) jika database kosong agar tampilan tidak rusak/kosong
 $nama_laundry   = !empty($info_website['nama_usaha']) ? htmlspecialchars($info_website['nama_usaha']) : 'Laundry 3J';
 $alamat_laundry = !empty($info_website['alamat']) ? htmlspecialchars($info_website['alamat']) : 'Jl. Clean & Fresh No. 12';
 $wa_laundry     = !empty($info_website['no_whatsapp']) ? htmlspecialchars($info_website['no_whatsapp']) : '';

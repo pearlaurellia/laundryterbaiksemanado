@@ -3,15 +3,12 @@ require_once '../includes/auth-check.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// PERBAIKAN 1: Auto-Fallback agar tidak peduli apakah session kelompokmu bernama id_user atau user_id
 $id_member = $_SESSION['id_user'];
 
-// ── Handler POST: batalkan pesanan oleh member ───────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'batalkan') {
 
     $id_pesanan = (int) ($_POST['id_pesanan'] ?? 0);
 
-    // Validasi: pesanan milik member ini dan masih menunggu konfirmasi
     $stmtCek = $pdo->prepare("
         SELECT id FROM pesanan
         WHERE id = ? AND id_member = ? AND status_pesanan = 'menunggu_konfirmasi'
@@ -20,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $valid = $stmtCek->fetch();
 
     if ($valid) {
-        // UPDATE status pesanan
         $stmtBatal = $pdo->prepare("
             UPDATE pesanan
             SET status_pesanan      = 'dibatalkan',
@@ -31,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         ");
         $stmtBatal->execute([$id_pesanan]);
 
-        // INSERT riwayat_status
         $stmtRiwayat = $pdo->prepare("
             INSERT INTO riwayat_status (
                 id_pesanan, status_lama, status_baru,
@@ -41,12 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmtRiwayat->execute([$id_pesanan]);
     }
 
-    // Redirect dan hentikan script agar tidak bocor ke bawah
     redirect('status.php');
     exit;
 }
 
-// ── Cek notifikasi pesanan dibatalkan admin ──────────────────
 $stmtNotif = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
@@ -68,7 +61,6 @@ if ($notif_batal) {
     $stmtResetNotif->execute([$notif_batal['id']]);
 }
 
-// ── Reset badge: tandai pesanan aktif lainnya sudah dilihat ─────────
 $stmtReset = $pdo->prepare("
     UPDATE pesanan
     SET sudah_dilihat_member = 1
@@ -81,7 +73,6 @@ $stmtReset = $pdo->prepare("
 ");
 $stmtReset->execute([$id_member]);
 
-// ── Query pesanan aktif dari DB ──────────────────────────────
 $stmtAktif = $pdo->prepare("
     SELECT p.*, l.nama_layanan, l.tarif_per_kg, l.satuan
     FROM pesanan p
@@ -93,7 +84,6 @@ $stmtAktif = $pdo->prepare("
 $stmtAktif->execute([$id_member]);
 $pesanan_aktif = $stmtAktif->fetchAll() ?: [];
 
-// Helper badge UI
 $label_status = [
     'menunggu_konfirmasi' => 'Menunggu konfirmasi admin...',
     'dikonfirmasi'        => 'Pesanan dikonfirmasi!',
@@ -129,7 +119,7 @@ $steps_ambil = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Pesanan - Laundry 3J</title>
+    <title>Status Pesanan - CleanCo</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,10 +130,8 @@ $steps_ambil = [
 
     <?php include '../includes/header-member.php'; ?>
 
-    <!-- HERO STATUS - Background Biru Gradient -->
     <section class="preview-pesanan-aktif" style="min-height: 100vh; padding: 40px 100px;">
         
-        <!-- HEADER -->
         <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 2.2rem; color: white; margin: 0 0 8px; filter: drop-shadow(var(--shadow));">
                 Status Pesanan Aktif
@@ -154,7 +142,6 @@ $steps_ambil = [
         </div>
 
         <?php if (empty($pesanan_aktif)): ?>
-            <!-- STATE KOSONG -->
             <div style="text-align:center; padding:80px 20px; color: white;">
                 <div style="font-size: 5rem; margin-bottom: 20px;">🧺</div>
                 <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem; margin-bottom: 12px; filter: drop-shadow(var(--shadow));">Tidak ada pesanan aktif</h2>
@@ -169,10 +156,8 @@ $steps_ambil = [
                 $is_kurir = ($p['opsi_pengantaran'] === 'kurir');
                 $label    = $label_status[$status] ?? $p['status_pesanan'];
             ?>
-                <!-- KARTU PESANAN AKTIF - Model dari index.php -->
                 <div class="kartu-pesanan-aktif" style="margin-bottom: 24px;">
                     
-                    <!-- KIRI - Status & Progress -->
                     <div class="pesanan-aktif-kiri">
                         <div class="grup-keterangan">
                             <span class="badge-hijau"><?= $is_kurir ? 'Antar' : 'Pickup' ?></span>
@@ -189,13 +174,11 @@ $steps_ambil = [
                         </div>
                     </div>
 
-                    <!-- KANAN - Detail & Biaya -->
                     <div class="pesanan-aktif-kanan">
                         <p class="tanggal-atas">
                             <?= date('H:i l, d-m-Y', strtotime($p['created_at'])) ?>
                         </p>
                         
-                        <!-- Rincian Biaya -->
                         <div class="rincian-biaya">
                             <p>Biaya:</p>
                             <?php if ($p['berat_aktual'] > 0): ?>
@@ -210,7 +193,6 @@ $steps_ambil = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Total & Note -->
                         <div class="bawah-kanan">
                             <div class="total-harga">
                                 <p>Total harga:<br>
@@ -221,7 +203,6 @@ $steps_ambil = [
                             </div>
                         </div>
 
-                        <!-- AKSI -->
                         <div style="display: flex; gap: 12px; margin-top: 20px; position: relative; z-index: 2;">
                             <a href="detail-pesanan.php?id=<?= $p['id'] ?>" class="tombol-detail" style="text-decoration: none;">
                                 Detail Pesanan
@@ -235,7 +216,6 @@ $steps_ambil = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Dekorasi Bulat -->
                         <div class="bulat-biru-kecil"></div>
                         <div class="bulat-biru-besar"></div>
                     </div>
@@ -244,7 +224,6 @@ $steps_ambil = [
         <?php endif; ?>
     </section>
 
-    <!-- Popup Konfirmasi Batalkan -->
     <div id="overlayPopup" class="overlay-popup" style="display: none;" onclick="tutupPopupBatal()"></div>
     <div id="popupBatal" class="popup-konfirmasi" style="display: none;">
         <h3 class="popup-judul">Batalkan Pesanan?</h3>
@@ -259,7 +238,6 @@ $steps_ambil = [
         </div>
     </div>
 
-    <!-- Popup Notifikasi Dibatalkan Admin -->
     <?php if ($notif_batal): ?>
     <div id="overlayNotifBatal" class="overlay-popup" style="display: block;"></div>
     <div id="popupNotifBatal" class="popup-konfirmasi" style="display: block; text-align: center;">
@@ -284,7 +262,6 @@ $steps_ambil = [
     <?php endif; ?>
 
     <script>
-    // Popup konfirmasi batalkan pesanan
     function konfirmasiBatal(id, kode, namaLayanan) {
         document.getElementById('popupBatalTeks').innerHTML = 
             'Pesanan <strong>#' + kode + '</strong> (' + namaLayanan + ') akan dibatalkan dan tidak dapat dikembalikan.';
@@ -298,13 +275,11 @@ $steps_ambil = [
         document.getElementById('popupBatal').style.display = 'none';
     }
 
-    // Popup notifikasi pesanan dibatalkan admin
     function tutupNotifBatal() {
         document.getElementById('overlayNotifBatal').style.display = 'none';
         document.getElementById('popupNotifBatal').style.display = 'none';
     }
 
-    // Tutup popup jika klik overlay
     document.addEventListener('DOMContentLoaded', function() {
         var overlay = document.getElementById('overlayPopup');
         if (overlay) {

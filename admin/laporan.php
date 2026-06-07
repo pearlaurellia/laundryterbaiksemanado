@@ -4,12 +4,10 @@ require_once '../config/database.php';
 require_once '../config/functions.php';
 require_once '../includes/admin-check.php';
 
-// Filter Bulan & Tahun (Default: Masa Sekarang)
 $bulanPilihan = $_GET['bulan'] ?? date('m');
 $tahunPilihan = $_GET['tahun'] ?? date('Y');
 
 try {
-    // Query Rekap Omzet per Hari (Hanya pesanan yang Lunas)
     $stmtHarian = $pdo->prepare("
         SELECT DATE(updated_at) AS tanggal,
                COUNT(*) AS jumlah_pesanan,
@@ -24,7 +22,6 @@ try {
     $stmtHarian->execute([$bulanPilihan, $tahunPilihan]);
     $rekapHarian = $stmtHarian->fetchAll();
 
-    // Query Rekap Omzet per Jenis Layanan
     $stmtLayanan = $pdo->prepare("
         SELECT l.nama_layanan,
                COUNT(p.id) AS jumlah,
@@ -40,7 +37,6 @@ try {
     $stmtLayanan->execute([$bulanPilihan, $tahunPilihan]);
     $rekapLayanan = $stmtLayanan->fetchAll();
 
-    // Hitung Akumulasi Total Keseluruhan untuk Kartu Ringkasan
     $totalOmzetKeseluruhan   = 0;
     $totalPesananKeseluruhan = 0;
     $maxOmzetHarian          = 1;
@@ -59,20 +55,17 @@ try {
     die("Gagal memuat laporan finansial: " . $e->getMessage());
 }
 
-// Helper nama bulan
 $namaBulan = [
     '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
     '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
     '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
 ];
 
-// Panggil header-admin
 include '../includes/header-admin.php';
 ?>
 
 <div class="halaman-pesanan" style="min-height: 100vh;">
     
-    <!-- SIDEBAR -->
     <div class="pesanan-sidebar">
         <h2 class="judul-sidebar">Filter Laporan</h2>
         
@@ -113,10 +106,8 @@ include '../includes/header-admin.php';
         </div>
     </div>
 
-    <!-- KONTEN UTAMA -->
     <div class="pesanan-detail" style="padding: 30px 40px; overflow-y: auto;">
         
-        <!-- HEADER -->
         <div style="margin-bottom: 32px;">
             <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem; color: var(--birutua); margin: 0 0 6px;">
                 Laporan Keuangan
@@ -126,7 +117,6 @@ include '../includes/header-admin.php';
             </p>
         </div>
 
-        <!-- KARTU RINGKASAN (REUSE kartu-berat & kartu-biaya) -->
         <div class="detail-berat-biaya" style="margin-bottom: 28px;">
             <div class="kartu-berat" style="flex: 1; background: var(--tealmuda);">
                 <p class="detail-label" style="color: #1a4d3a;">Total Omzet (Lunas)</p>
@@ -151,7 +141,6 @@ include '../includes/header-admin.php';
             </div>
         </div>
 
-        <!-- GRAFIK BATANG (REUSE detail-status-section) -->
         <div class="detail-status-section" style="margin-bottom: 28px;">
             <p class="detail-label" style="margin-bottom: 16px; font-size: 0.9rem;">📊 Visualisasi Tren Pendapatan Harian</p>
             
@@ -178,10 +167,8 @@ include '../includes/header-admin.php';
             <?php endif; ?>
         </div>
 
-        <!-- TABEL (REUSE detail-info-grid) -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             
-            <!-- Tabel Omzet Harian -->
             <div class="detail-info-grid" style="padding: 20px 24px;">
                 <p class="detail-label" style="margin-bottom: 12px;">📅 Rincian Omzet Harian</p>
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
@@ -206,7 +193,6 @@ include '../includes/header-admin.php';
                 </table>
             </div>
 
-            <!-- Tabel Distribusi Layanan -->
             <div class="detail-info-grid" style="padding: 20px 24px;">
                 <p class="detail-label" style="margin-bottom: 12px;">👕 Distribusi per Layanan</p>
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">

@@ -3,7 +3,6 @@ require_once '../includes/auth-check.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// ── Query pesanan arsip (selesai + dibatalkan) ───────────────
 $stmtRiwayat = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
@@ -40,7 +39,6 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
         </div>
 
         <?php if (empty($riwayat)): ?>
-        <!-- Kosong -->
         <div class="status-kosong">
             <div class="status-kosong-ikon">📋</div>
             <h2 class="status-kosong-judul">Belum ada riwayat</h2>
@@ -55,7 +53,6 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
 
         <?php else: ?>
 
-        <!-- Filter tombol -->
         <div class="grup-filter riwayat-filter" style="justify-content:center; margin-bottom:30px;">
             <button class="tombol-filter aktif"
                     onclick="filterRiwayat('semua', this)">
@@ -71,21 +68,18 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
             </button>
         </div>
 
-        <!-- List kartu riwayat -->
         <div class="riwayat-list" id="riwayatList">
             <?php foreach ($riwayat as $r): ?>
             <div class="kartu-sejarah" data-status="<?= $r['status_pesanan'] ?>">
                 <div class="sejarah-body">
 
                     <div class="grup-keterangan">
-                        <!-- Badge status utama -->
                         <?php if ($r['status_pesanan'] === 'selesai'): ?>
                             <span class="badge-biru" style="background:#d1fae5; color:#065f46;">Selesai</span>
                         <?php else: ?>
                             <span class="badge-biru" style="background:#fee2e2; color:#991b1b;">Dibatalkan</span>
                         <?php endif; ?>
 
-                        <!-- Badge dibatalkan oleh admin -->
                         <?php if ($r['status_pesanan'] === 'dibatalkan' && $r['dibatalkan_oleh'] === 'admin'): ?>
                             <span class="badge-biru" style="background:#fef3c7; color:#92400e;">Dibatalkan oleh Admin</span>
                         <?php endif; ?>
@@ -104,12 +98,10 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
                         <?php endif; ?>
                     </div>
 
-                    <!-- Total harga (hanya jika selesai dan sudah ditimbang) -->
                     <?php if ($r['status_pesanan'] === 'selesai' && $r['berat_aktual'] > 0): ?>
                         <p>Total harga: <?= formatRupiah($r['total_harga']) ?></p>
                     <?php endif; ?>
 
-                    <!-- Alasan pembatalan (hanya jika dibatalkan oleh admin) -->
                     <?php if ($r['status_pesanan'] === 'dibatalkan' && $r['dibatalkan_oleh'] === 'admin' && !empty($r['alasan_pembatalan'])): ?>
                         <p style="color:#991b1b; font-size:0.88rem; margin-top:4px;">
                             <strong>Alasan:</strong> <?= htmlspecialchars($r['alasan_pembatalan']) ?>
@@ -128,7 +120,6 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
             <?php endforeach; ?>
         </div>
 
-        <!-- Pesan kosong saat filter tidak ada hasil -->
         <div id="riwayatFilterKosong" style="display:none; text-align:center; padding:40px 20px; color:#aaa;">
             <p style="font-size:2rem;">📭</p>
             <p>Tidak ada pesanan dengan filter ini.</p>
@@ -140,11 +131,9 @@ $riwayat = $stmtRiwayat->fetchAll() ?: [];
 
     <script>
     function filterRiwayat(filter, el) {
-        // Update tombol aktif
         document.querySelectorAll('.tombol-filter').forEach(btn => btn.classList.remove('aktif'));
         el.classList.add('aktif');
 
-        // Filter kartu
         const kartu = document.querySelectorAll('#riwayatList .kartu-sejarah');
         let adaYangTampil = false;
 

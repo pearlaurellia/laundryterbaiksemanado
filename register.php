@@ -3,7 +3,6 @@ require_once 'config/session.php';
 require_once 'config/database.php';
 require_once 'config/functions.php';
 
-// Kalau sudah login, tidak perlu ke halaman register
 if (isset($_SESSION['id_user'])) {
     if ($_SESSION['role'] === 'admin') {
         redirect('admin/dashboard.php');
@@ -22,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $konfirm  = $_POST['konfirmasi_password'] ?? '';
 
-    // Validasi
     if (empty($nama)) {
         $error[] = 'Nama wajib diisi.';
     }
@@ -39,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error[] = 'Konfirmasi password tidak cocok.';
     }
 
-    // Cek email sudah terdaftar
     if (empty($error)) {
         $cek = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $cek->execute([$email]);
@@ -48,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Simpan ke database
     if (empty($error)) {
         $hash = password_hash($password, PASSWORD_BCRYPT);
         $stmt = $pdo->prepare("

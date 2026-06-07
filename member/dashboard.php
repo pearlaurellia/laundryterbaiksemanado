@@ -5,7 +5,6 @@ require_once '../config/functions.php';
 
 $id_member = $_SESSION['id_user'];
 
-// ── Query COUNT pesanan aktif ────────────────────────────────
 $stmtCount = $pdo->prepare("
     SELECT COUNT(*) FROM pesanan
     WHERE id_member = ?
@@ -14,7 +13,6 @@ $stmtCount = $pdo->prepare("
 $stmtCount->execute([$id_member]);
 $jumlah_aktif = $stmtCount->fetchColumn();
 
-// ── Pesanan aktif terbaru (untuk kartu preview) ─────────────
 $stmtAktif = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
@@ -27,7 +25,6 @@ $stmtAktif = $pdo->prepare("
 $stmtAktif->execute([$id_member]);
 $pesanan_aktif = $stmtAktif->fetch();
 
-// ── 3 pesanan terbaru (apapun statusnya) ────────────────────
 $stmtTerbaru = $pdo->prepare("
     SELECT p.*, l.nama_layanan
     FROM pesanan p
@@ -39,14 +36,12 @@ $stmtTerbaru = $pdo->prepare("
 $stmtTerbaru->execute([$id_member]);
 $pesanan_terbaru = $stmtTerbaru->fetchAll() ?: [];
 
-// ── Info website untuk kontak ───────────────────────────────
 $stmtInfo = $pdo->query("SELECT * FROM info_website LIMIT 1");
 $info = $stmtInfo->fetch();
 ?>
 
     <?php include '../includes/header-member.php'; ?>
 
-    <!-- HERO -->
     <section class="hero">
         <div class="konten-hero">
             <div class="teks-hero">
@@ -63,7 +58,6 @@ $info = $stmtInfo->fetch();
         <div class="bulat-besar"><h2>Laundry 3J</h2></div>
     </section>
 
-    <!-- LAYANAN OVERVIEW — dari database -->
     <section class="layanan-overview">
         <h3 class="judul-overview-layanan">Berikut layanan-layanan yang tersedia</h3>
         <p class="teks-overview-layanan">Layanan tersedia dari reguler sampai dry cleaning</p>
@@ -88,7 +82,6 @@ $info = $stmtInfo->fetch();
         </div>
     </section>
 
-    <!-- PESANAN AKTIF -->
     <section class="preview-pesanan-aktif">
         <h3 class="judul-overview-layanan-biru">Pesanan Aktif</h3>
         <?php if ($pesanan_aktif): ?>
@@ -156,7 +149,6 @@ $info = $stmtInfo->fetch();
         <?php endif; ?>
     </section>
 
-    <!-- PREVIEW 3 PESANAN TERBARU -->
     <section class="sejarah-pesanan">
         <h3 class="judul-overview-layanan">Riwayat Pesanan</h3>
         <div class="kartu-sejarah-container">
@@ -204,7 +196,6 @@ $info = $stmtInfo->fetch();
         </div>
     </section>
 
-    <!-- KONTAK — dari database -->
     <section class="kontak-preview">
         <div class="kontak-preview-kiri">
             <h1>Informasi Kontak dan <br>Media Sosial Kami</h1>

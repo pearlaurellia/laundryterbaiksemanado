@@ -1,26 +1,12 @@
-/**
- * ============================================================
- * profil-member.js — CleanCo Laundry
- * Digunakan di: member/profil.php
- * Murni Native JavaScript (Tanpa Library/Framework)
- *
- * Mengelola interaksi halaman data diri pelanggan, validasi
- * real-time kekuatan kata sandi, serta pembaruan data secara
- * asynchronous (AJAX Fetch POST) bebas reload halaman.
- * ============================================================
- */
-
 'use strict';
 
 let modeEditProfil = false;
 let nilaiAsli = {};
 
-// ── INIT EVENT LISTENERS FOR LIVE REACTIVE VALIDATION ───────
 document.addEventListener('DOMContentLoaded', () => {
     const inputPassBaru = document.getElementById('inputPasswordBaru');
     const inputKonfirm = document.getElementById('inputKonfirmasiPassword');
 
-    // Pengikat Otomatis: Deteksi kekuatan password secara real-time saat diketik
     if (inputPassBaru) {
         inputPassBaru.addEventListener('input', function() {
             cekKuatPassword(this.value);
@@ -30,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Pengikat Otomatis: Deteksi kecocokan konfirmasi password saat diketik
     if (inputKonfirm) {
         inputKonfirm.addEventListener('input', () => {
             cekKonfirmasi();
@@ -39,13 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ── TOGGLE EDIT PROFIL DATA DIRI ───────────────────────────
 function toggleEditProfil() {
     modeEditProfil = !modeEditProfil;
     const inputs = ['inputNamaProfil', 'inputNoHP'];
     const tombolEdit = document.getElementById('tombolEditProfil');
     const tombolSimpan = document.getElementById('tombolSimpanProfil');
-    const tombolBatal = document.getElementById('tombolBatalProfil'); // Tombol penunjang jika ada di HTML
+    const tombolBatal = document.getElementById('tombolBatalProfil');
 
     if (modeEditProfil) {
         inputs.forEach(id => {
@@ -54,7 +38,7 @@ function toggleEditProfil() {
                 nilaiAsli[id] = el.value;
                 el.removeAttribute('readonly');
                 el.classList.add('input-editable');
-                el.style.borderColor = '#0d3f8a'; // Beri highlight border biru tanda aktif
+                el.style.borderColor = '#0d3f8a';
             }
         });
         
@@ -73,7 +57,7 @@ function batalEditProfil() {
             el.value = nilaiAsli[id];
             el.setAttribute('readonly', true);
             el.classList.remove('input-editable');
-            el.style.borderColor = ''; // Kembalikan warna border semula
+            el.style.borderColor = '';
         }
     });
     
@@ -89,7 +73,6 @@ function batalEditProfil() {
 }
 
 
-// ── UPDATE DATA PROFIL (AJAX FETCH POST) ────────────────────
 async function simpanProfil() {
     const namaEl = document.getElementById('inputNamaProfil');
     const noHPEl = document.getElementById('inputNoHP');
@@ -99,7 +82,6 @@ async function simpanProfil() {
     const nama = namaEl.value.trim();
     const noHP = noHPEl.value.trim();
 
-    // Validasi Sisi Klien
     if (!nama) { alert('Nama lengkap tidak boleh dibiarkan kosong.'); return; }
     if (!/^[0-9]{10,13}$/.test(noHP)) {
         alert('Nomor WhatsApp wajib berupa angka numerik sepanjang 10–13 digit.');
@@ -107,7 +89,6 @@ async function simpanProfil() {
     }
 
     try {
-        // PERBAIKAN ROUTING: Mengubah rute /api menjadi parameter query string file lokal
         const res = await fetch('profil.php?action=update_profil', {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -131,7 +112,6 @@ async function simpanProfil() {
 }
 
 
-// ── REAL-TIME PASSWORD STRENGTH MONITOR ─────────────────────
 function cekKuatPassword(val) {
     const wrapperEl = document.getElementById('kuatPasswordWrapper');
     const isiEl     = document.getElementById('kuatPasswordIsi');
@@ -142,10 +122,10 @@ function cekKuatPassword(val) {
     if (val.length === 0) return;
 
     let skor = 0;
-    if (val.length >= 8)           skor++; // Syarat panjang minimum
-    if (/[A-Z]/.test(val))        skor++; // Syarat huruf besar
-    if (/[0-9]/.test(val))        skor++; // Syarat angka
-    if (/[^A-Za-z0-9]/.test(val)) skor++; // Syarat simbol karakter khusus
+    if (val.length >= 8)           skor++;
+    if (/[A-Z]/.test(val))        skor++; 
+    if (/[0-9]/.test(val))        skor++; 
+    if (/[^A-Za-z0-9]/.test(val)) skor++;
 
     const level = ['', 'Lemah sekali', 'Cukup Aman', 'Sangat Kuat', 'Sempurna'][skor];
     const warna = ['', '#ef4444', '#f59e0b', '#10b981', '#0d3f8a'][skor];
@@ -158,7 +138,6 @@ function cekKuatPassword(val) {
 }
 
 
-// ── REAL-TIME PASSWORDS MATCH CHECKER ───────────────────────
 function cekKonfirmasi() {
     const baru = document.getElementById('inputPasswordBaru')?.value || '';
     const konfirm = document.getElementById('inputKonfirmasiPassword')?.value || '';
@@ -177,7 +156,6 @@ function cekKonfirmasi() {
 }
 
 
-// ── GANTI PASSWORD AKUN (AJAX FETCH POST) ───────────────────
 async function gantiPassword() {
     const lamaEl = document.getElementById('inputPasswordLama');
     const baruEl = document.getElementById('inputPasswordBaru');
@@ -194,7 +172,6 @@ async function gantiPassword() {
     if (baru !== konfirm) { alert('Proses dibatalkan, konfirmasi kata sandi baru belum cocok.'); return; }
 
     try {
-        // PERBAIKAN ROUTING: Mengubah rute /api menjadi parameter query string file lokal
         const res = await fetch('profil.php?action=update_password', {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -213,7 +190,6 @@ async function gantiPassword() {
         return;
     }
 
-    // Sterilisasi massal kolom inputan password pasca pembaruan data sukses
     lamaEl.value = '';
     baruEl.value = '';
     konfirmEl.value = '';
@@ -231,7 +207,6 @@ async function gantiPassword() {
 }
 
 
-// ── SYSTEM MODAL POPUP DISPLAY MANAGEMENT ───────────────────
 function tampilPopupBerhasil(judul, teks) {
     const jdlEl = document.getElementById('popupBerhasilJudul');
     const txtEl = document.getElementById('popupBerhasilTeks');

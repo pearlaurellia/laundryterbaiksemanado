@@ -1,23 +1,17 @@
 <?php
-// 1. Inisialisasi Keamanan & Koneksi Database
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
-require_once '../includes/admin-check.php'; // Proteksi halaman admin
+require_once '../includes/admin-check.php';
 
-// ============================================================
-// [POST] LOGIKA BACKEND HANDLER - MERESPONS AJAX DARI JS
-// ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     header('Content-Type: application/json');
     
-    // Membaca kiriman JSON raw body dari fetch JavaScript
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);
     $action = $_GET['action'];
 
     try {
-        // --- AKSI: TAMBAH LAYANAN ---
         if ($action === 'tambah') {
             $nama      = bersihkan($input['nama_layanan'] ?? '');
             $tarif     = filter_var($input['tarif_per_kg'] ?? 0, FILTER_VALIDATE_INT);
@@ -37,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
             exit;
         }
 
-        // --- AKSI: EDIT LAYANAN ---
         if ($action === 'edit' && isset($_GET['id'])) {
             $id        = filter_var($_GET['id'], FILTER_VALIDATE_INT);
             $nama      = bersihkan($input['nama_layanan'] ?? '');
@@ -58,11 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
             exit;
         }
 
-        // --- AKSI: HAPUS (SOFT DELETE) ---
         if ($action === 'hapus' && isset($_GET['id'])) {
             $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 
-            // Batasan Alur Kerja: Cek apakah layanan masih digunakan di pesanan aktif
             $cekPesanan = $pdo->prepare("SELECT COUNT(*) FROM pesanan WHERE id_layanan = ? AND status_pesanan NOT IN ('selesai', 'dibatalkan')");
             $cekPesanan->execute([$id]);
             if ($cekPesanan->fetchColumn() > 0) {
@@ -70,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
                 exit;
             }
 
-            // Soft-delete: Cukup ubah status menjadi nonaktif
             $stmt = $pdo->prepare("UPDATE layanan SET status = 'nonaktif' WHERE id = ?");
             $stmt->execute([$id]);
             
@@ -84,21 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
     }
 }
 
-// ============================================================
-// [GET] LOGIKA TAMPILAN - MENGAMBIL DATA UNTUK RENDER HALAMAN
-// ============================================================
-// Admin dapat melihat seluruh layanan (baik yang aktif maupun nonaktif)
 $stmt = $pdo->prepare("SELECT * FROM layanan ORDER BY status ASC, id ASC");
 $stmt->execute();
 $allLayanan = $stmt->fetchAll();
 
-// Panggil header-admin (Menangani kerangka HTML awal, CSS, dan open body)
 include '../includes/header-admin.php';
 ?>
 
     <section class="halaman-pesanan">
 
-        <!-- SIDEBAR - Tema sama dengan pesanan.php -->
         <div class="pesanan-sidebar">
             <h2 class="judul-sidebar" id="judulFormLayanan">Tambah Layanan</h2>
 
@@ -143,7 +127,6 @@ include '../includes/header-admin.php';
             </div>
         </div>
 
-        <!-- KANAN - Daftar Layanan -->
         <div class="layanan-kanan">
             <div class="layanan-kanan-header">
                 <h2 class="judul-layanan-kanan">Daftar Layanan</h2>
@@ -209,6 +192,5 @@ include '../includes/header-admin.php';
     <script src="../assets/js/layanan-admin.js"></script>
 
 <?php 
-// Panggil footer untuk menutup tag body dan html secara valid
 include '../includes/footer.php'; 
 ?>

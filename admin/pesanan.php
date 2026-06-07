@@ -4,9 +4,6 @@ require_once '../config/database.php';
 require_once '../config/functions.php';
 require_once '../includes/admin-check.php';
 
-// =========================================================================
-// [BACKEND API HANDLER] - Menangani AJAX Fetch Request (POST & GET)
-// =========================================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -77,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handler GET Requests
 if (isset($_GET['action'])) {
     header('Content-Type: application/json');
 
@@ -128,7 +124,6 @@ if (isset($_GET['action'])) {
     }
 }
 
-// Helper badge status
 $label_status = [
     'menunggu_konfirmasi' => 'Menunggu',
     'dikonfirmasi'        => 'Dikonfirmasi',
@@ -153,11 +148,9 @@ $badge_class = [
 
 <section class="halaman-pesanan" id="viewList">
     
-    <!-- SIDEBAR - Tema Gradient -->
     <div class="pesanan-sidebar">
         <h2 class="judul-sidebar">Daftar Pesanan</h2>
         
-        <!-- FILTER -->
         <div class="grup-filter" style="margin-bottom: 16px;">
             <button class="tombol-filter aktif" onclick="filterPesanan('semua', this)">Semua</button>
             <button class="tombol-filter" onclick="filterPesanan('menunggu_konfirmasi', this)">Menunggu</button>
@@ -166,26 +159,20 @@ $badge_class = [
             <button class="tombol-filter" onclick="filterPesanan('selesai', this)">Selesai</button>
         </div>
 
-        <!-- LIST PESANAN (Item Sidebar) -->
         <div class="list-pesanan" id="listPesanan">
-            <!-- Akan diisi oleh JavaScript -->
             <p style="color: rgba(255,255,255,0.6); padding: 20px; text-align: center;">Memuat data...</p>
         </div>
     </div>
 
-    <!-- KANAN - Detail Pesanan -->
     <div class="layanan-kanan" id="pesananDetail">
         
-        <!-- STATE KOSONG -->
         <div id="detailKosong" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <p style="color: #aaa; font-size: 1rem;">Pilih pesanan untuk melihat detail</p>
         </div>
 
-        <!-- DETAIL ISI -->
         <div id="detailIsi" style="display: none;">
             <button class="tombol-kembali" onclick="kembaliKeList()" style="display: inline-block; margin-bottom: 20px;">← Kembali ke Daftar</button>
 
-            <!-- Header Detail -->
             <div class="detail-header">
                 <div>
                     <h2 class="detail-nama" id="detailNama">—</h2>
@@ -194,10 +181,8 @@ $badge_class = [
                 <div class="detail-waktu-badge" id="detailWaktu">—</div>
             </div>
 
-            <!-- Tags -->
             <div class="grup-keterangan" id="detailTags" style="margin-bottom: 20px; flex-wrap: wrap; display: flex; gap: 8px;"></div>
 
-            <!-- Info Grid -->
             <div class="detail-info-grid">
                 <div class="detail-info-blok"><p class="detail-label">Nama Lengkap</p><p class="detail-nilai" id="detailNamaLengkap">—</p></div>
                 <div class="detail-info-blok"><p class="detail-label">Nomor Telepon</p><p class="detail-nilai" id="detailTelpon">—</p></div>
@@ -207,13 +192,11 @@ $badge_class = [
                 <div class="detail-info-blok"><p class="detail-label">Pengiriman</p><p class="detail-nilai" id="detailPengiriman">—</p></div>
             </div>
 
-            <!-- Catatan -->
             <div class="detail-catatan-wrapper">
                 <p class="detail-label">Catatan dari Member</p>
                 <p class="detail-catatan-isi" id="detailNote">—</p>
             </div>
 
-            <!-- Berat & Biaya -->
             <div class="detail-berat-biaya">
                 <div class="kartu-berat" id="blokInputBerat" style="display: none;">
                     <p class="detail-label">Input Berat Aktual Cucian</p>
@@ -231,7 +214,6 @@ $badge_class = [
                 </div>
             </div>
 
-            <!-- Aksi -->
             <div class="detail-status-section">
                 <p class="detail-label" style="margin-bottom: 12px;">Aksi Pesanan</p>
                 <div id="grupAksiAdmin" class="tombol-status-group"></div>
@@ -248,7 +230,6 @@ $badge_class = [
                 </div>
             </div>
 
-            <!-- Timeline -->
             <div class="detail-status-section" style="margin-top: 16px;">
                 <p class="detail-label" style="margin-bottom: 12px;">Timeline Riwayat Status</p>
                 <div id="timelineKonten" style="font-size: 0.85rem; line-height: 1.6; color: #555;"></div>
@@ -256,7 +237,6 @@ $badge_class = [
         </div>
     </div>
 
-    <!-- POPUP BATALKAN -->
     <div id="overlayBatalAdmin" class="overlay-popup" style="display: none;" onclick="tutupPopupBatalAdmin()"></div>
     <div id="popupBatalAdmin" class="popup-konfirmasi" style="display: none; width: 440px; max-width: 92vw;">
         <h3 class="popup-judul">Batalkan Pesanan?</h3>
