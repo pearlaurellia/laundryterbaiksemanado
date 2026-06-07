@@ -87,8 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="input-form-login" 
                                    required 
                                    placeholder="Minimal 6 Karakter">
-                            <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
-                        </div>
+                            <img src="assets/images/eye-close.png" 
+                            class="toggle-password" 
+                            onclick="togglePassword(this)"
+                            data-open="assets/images/eye-close.png"
+                            data-close="assets/images/eye-open.png"
+                            width="20">                        </div>
                     </div>
 
                     <div class="grup-input-form-login">
@@ -100,12 +104,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="input-form-login" 
                                    required 
                                    placeholder="Ketik Ulang Password">
-                            <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
+                            <img src="assets/images/eye-close.png" 
+                            class="toggle-password" 
+                            onclick="togglePassword(this)"
+                            data-open="assets/images/eye-close.png"
+                            data-close="assets/images/eye-open.png"
+                            width="20">
                         </div>
                     </div>
 
                     <button type="submit" class="tombol-submit-form">
-                        💾 Simpan Perubahan Kata Sandi
+                        Simpan Perubahan Kata Sandi
                     </button>
                 </form>
             <?php endif; ?>
@@ -123,10 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.textContent = '🙈';
+            element.src = element.dataset.close;
         } else {
             input.type = 'password';
-            element.textContent = '👁️';
+            element.src = element.dataset.open;
         }
     }
     </script>

@@ -12,7 +12,7 @@ $dataLayanan = $stmt->fetchAll();
 include 'includes/header.php'; 
 ?>
 
-    <section class="halaman-layanan">
+    <section class="halaman-pesanan">
         <div class="layanan-kanan">
 
             <div class="layanan-kanan-header">

@@ -85,7 +85,7 @@ include '../includes/header-admin.php';
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
-                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">📞 Kontak</h2>
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;"> Kontak</h2>
                     <p style="color: #888; font-size: 0.82rem; margin: 0;">Nomor WhatsApp yang tampil di halaman publik</p>
                 </div>
                 <button type="button" id="btnEditKontak" onclick="bukaEdit('kontak')" 
@@ -122,7 +122,7 @@ include '../includes/header-admin.php';
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
-                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">🕐 Jam Operasional</h2>
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">Jam Operasional</h2>
                     <p style="color: #888; font-size: 0.82rem; margin: 0;">Tampil di halaman beranda dan info kontak</p>
                 </div>
                 <button type="button" id="btnEditJam" onclick="bukaEdit('jam')" 
@@ -154,7 +154,7 @@ include '../includes/header-admin.php';
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
-                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">📍 Nama Usaha & Alamat</h2>
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">Nama Usaha & Alamat</h2>
                     <p style="color: #888; font-size: 0.82rem; margin: 0;">Tampil di footer dan halaman kontak</p>
                 </div>
                 <button type="button" id="btnEditAlamat" onclick="bukaEdit('alamat')" 
@@ -200,7 +200,7 @@ include '../includes/header-admin.php';
         <div style="background: white; border-radius: 0 20px 20px 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
                 <div>
-                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">🗺️ Kecamatan yang Dilayani</h2>
+                    <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.2rem; color: var(--birutua); margin: 0 0 4px;">Kecamatan yang Dilayani</h2>
                     <p style="color: #888; font-size: 0.82rem; margin: 0;">Menentukan pilihan kecamatan di form pemesanan kurir</p>
                 </div>
                 <button type="button" id="btnEditKecamatan" onclick="bukaEdit('kecamatan')" 

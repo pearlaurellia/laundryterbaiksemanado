@@ -96,7 +96,7 @@ $allLayanan = $stmt->fetchAll();
 include '../includes/header-admin.php';
 ?>
 
-    <section class="halaman-layanan">
+    <section class="halaman-pesanan">
 
         <!-- SIDEBAR - Tema sama dengan pesanan.php -->
         <div class="pesanan-sidebar">
@@ -174,7 +174,7 @@ include '../includes/header-admin.php';
                         </div>
 
                         <div class="kartu-layanan-admin-body">
-                            <p class="kartu-layanan-admin-deskripsi"><?= htmlspecialchars($l['deskripsi'] ?: '—') ?></p>
+                            <p class="kartu-layanan-admin-deskripsi"><?= htmlspecialchars($l['deskripsi'] ?: '-') ?></p>
                             <div class="kartu-layanan-admin-detail">
                                 <?php if ($l['satuan'] === 'kg'): ?>
                                     <span class="badge-hijau">Cuci</span>
@@ -184,7 +184,7 @@ include '../includes/header-admin.php';
                                     <span class="badge-hijau">Dry Clean</span>
                                 <?php endif; ?>
                                 <span class="badge-biru">
-                                    <?= htmlspecialchars($l['durasi'] ?: '—') ?>
+                                    <?= htmlspecialchars($l['durasi'] ?: '-') ?>
                                 </span>
                             </div>
                         </div>

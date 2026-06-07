@@ -106,7 +106,12 @@ include 'includes/header.php';
                                 class="input-form-login" 
                                 placeholder="Masukkan password" 
                                 required>
-                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
+                        <img src="assets/images/eye-open.png"
+                        class="toggle-password"
+                        onclick="togglePassword(this)"
+                        data-open="assets/images/eye-open.png"
+                        data-close="assets/images/eye-close.png"
+                        width="20">
                     </div>
                     <a href="lupa-password.php" class="lupa-password">Lupa password?</a>
                 </div>
@@ -131,10 +136,10 @@ include 'includes/header.php';
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.textContent = '🙈';
+            element.src = element.dataset.close;
         } else {
             input.type = 'password';
-            element.textContent = '👁️';
+            element.src = element.dataset.open;
         }
     }
     </script>

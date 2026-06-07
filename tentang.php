@@ -13,7 +13,7 @@
 <body>
     <?php include 'includes/header.php'; ?>
 
-    <section class="hero-form" style="min-height: auto; padding-top: 160px; padding-bottom: 140px;">
+    <section class="hero-form" style="min-height: auto; padding-bottom: 140px;">
         <div class="bulat-atas-form"></div>
         <div class="bulat-ditengah-form"></div>
         <div class="bulat-besar-form"></div>

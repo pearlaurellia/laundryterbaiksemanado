@@ -119,23 +119,28 @@ foreach ($data_rekap as $row) {
             <?php if (empty($sejarah_pesanan)): ?>
                 <p style="color:#aaa; padding: 20px;">Belum ada pesanan selesai.</p>
             <?php else: ?>
-                <?php foreach ($sejarah_pesanan as $p): ?>
-                    <div class="kartu-sejarah" style="min-height:150px;">
-                        <div class="sejarah-body">
-                            <div class="grup-keterangan">
-                                <span class="badge-biru"><?= date('H:i l, d-m-Y', strtotime($p['created_at'])) ?></span>
-                                <span class="badge-biru"><?= htmlspecialchars($p['nama_layanan']) ?></span>
-                                <span class="badge-biru"><?= htmlspecialchars($p['opsi_pengantaran']) ?></span>
-                                <span class="badge-biru"><?= number_format($p['berat_aktual'], 1) ?>kg</span>
-                            </div>
-                            <p>Pesanan selesai: <?= date('H:i l, d-m-Y', strtotime($p['updated_at'])) ?></p>
-                            <p>Total harga: Rp <?= number_format($p['total_harga'], 0, ',', '.') ?></p>
-                            <a href="pesanan.php?id=<?= $p['id'] ?>" class="tombol-detail">Detail Pesanan</a>
-                            <div class="bulat-kecil"></div>
-                            <div class="bulat-harga"></div>
-                        </div>
+            <?php foreach ($sejarah_pesanan as $p): ?>
+            <div class="kartu-sejarah" style="min-height:150px; position: relative; overflow: hidden;">
+                <div class="kartu-header">
+                    <?= htmlspecialchars($p['nama_pelanggan']) ?>
+                </div>
+                <div class="sejarah-body">
+                    <div class="grup-keterangan">
+                        <span class="badge-biru"><?= date('H:i, d-m-Y', strtotime($p['created_at'])) ?></span>
+                        <span class="badge-biru"><?= htmlspecialchars($p['nama_layanan']) ?></span>
+                        <span class="badge-hijau">
+                            <?= $p['opsi_pengantaran'] === 'kurir' ? 'Kurir' : 'Ambil Sendiri' ?>
+                        </span>
+                        <span class="badge-biru"><?= number_format($p['berat_aktual'], 1) ?> kg</span>
                     </div>
-                <?php endforeach; ?>
+                    <p class="status-teks">Selesai: <?= date('H:i, d-m-Y', strtotime($p['updated_at'])) ?></p>
+                    <p class="status-teks">Total: <strong>Rp <?= number_format($p['total_harga'], 0, ',', '.') ?></strong></p>
+                    <a href="pesanan.php?id=<?= $p['id'] ?>" class="tombol-detail">Detail Pesanan</a>
+                </div>
+                <div class="bulat-kecil"></div>
+                <div class="bulat-harga"></div>
+            </div>
+            <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </section>

@@ -141,7 +141,7 @@ $steps_ambil = [
     <?php include '../includes/header-member.php'; ?>
 
     <!-- HERO STATUS - Background Biru Gradient -->
-    <section class="preview-pesanan-aktif" style="min-height: 100vh; padding: 120px 80px 80px;">
+    <section class="preview-pesanan-aktif" style="min-height: 100vh; padding: 40px 100px;">
         
         <!-- HEADER -->
         <div style="text-align: center; margin-bottom: 40px;">
@@ -203,7 +203,7 @@ $steps_ambil = [
                                    Rp <?= number_format($p['total_harga'] - $p['biaya_kurir'], 0, ',', '.') ?>
                                 </p>
                             <?php else: ?>
-                                <p>⚖️ Berat belum ditimbang</p>
+                                <p>Berat belum ditimbang</p>
                             <?php endif; ?>
                             <?php if ($p['biaya_kurir'] > 0): ?>
                                 <p>Antar : Rp <?= number_format($p['biaya_kurir'], 0, ',', '.') ?></p>
@@ -217,7 +217,7 @@ $steps_ambil = [
                                 Rp <?= number_format($p['total_harga'], 0, ',', '.') ?></p>
                             </div>
                             <div class="note-area">
-                                <p>Note: <?= htmlspecialchars($p['catatan_khusus'] ?? '—') ?></p>
+                                <p>Note: <?= htmlspecialchars($p['catatan_khusus'] ?? '-') ?></p>
                             </div>
                         </div>
 

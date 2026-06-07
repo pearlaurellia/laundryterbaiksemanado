@@ -151,7 +151,7 @@ $badge_class = [
 ?>
 <?php include '../includes/header-admin.php'; ?>
 
-<section class="halaman-layanan" id="viewList">
+<section class="halaman-pesanan" id="viewList">
     
     <!-- SIDEBAR - Tema Gradient -->
     <div class="pesanan-sidebar">
@@ -178,7 +178,6 @@ $badge_class = [
         
         <!-- STATE KOSONG -->
         <div id="detailKosong" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(13,63,138,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">📋</div>
             <p style="color: #aaa; font-size: 1rem;">Pilih pesanan untuk melihat detail</p>
         </div>
 
