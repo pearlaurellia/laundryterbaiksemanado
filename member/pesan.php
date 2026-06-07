@@ -198,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $total_layanan = count($layanan_list);
                             $id_default = '';
                             foreach ($layanan_list as $i => $l):
-                                $dipilih = ($total_layanan >= 2) ? ($i === 1) : ($i === 0);
+                                $dipilih = ($i === 0);
                                 if ($dipilih) { $id_default = $l['id']; }
                             ?>
                                 <div class="kartu-pilih-layanan <?= $dipilih ? 'dipilih' : '' ?>"
@@ -206,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                      data-id="<?= $l['id'] ?>"
                                      data-nama="<?= htmlspecialchars($l['nama_layanan']) ?>"
                                      data-tarif="<?= $l['tarif_per_kg'] ?>"
-                                     data-satuan="kg"
+                                     data-satuan="<?= htmlspecialchars($l['satuan']) ?>"
                                      onclick="pilihLayanan(this)"
                                      style="cursor: pointer;">
                                     <div class="kartu-pilih-header <?= $dipilih ? 'kartu-pilih-header-biru' : '' ?>">
@@ -289,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    placeholder="0" min="0" step="0.1" value=""
                                    class="form-input-berat"
                                    oninput="hitungEstimasiHarga()">
-                            <span class="berat-satuan">kg</span>
+                            <span class="berat-satuan" id="labelSatuan">kg</span>
                         </div>
                     </div>
 
@@ -366,14 +366,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
     let tarifPerKg = 0;
     let biayaKurir = 0;
+    window.satuanAktif = 'kg';
 
     function updateTarifLayanan() {
         const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
         if (selectedCard) {
             tarifPerKg = parseInt(selectedCard.dataset.tarif) || 0;
-        }
-        hitungEstimasiHarga();
+            window.satuanAktif = selectedCard.dataset.satuan || 'kg';
+         }
+         const labelSatuan = document.getElementById('labelSatuan');
+         if (labelSatuan) labelSatuan.textContent = window.satuanAktif;
+         hitungEstimasiHarga();
     }
+
 
     function updateBiayaKurir() {
         const selectedOpsi = document.querySelector('input[name="opsi_pengantaran"]:checked');
@@ -406,7 +411,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         let estimasiText = `Estimasi harga: ${formatter.format(total)}<br>`;
         estimasiText += `<small style="font-size: 0.75rem; color: #888;">`;
-        estimasiText += `(${berat} kg × Rp ${tarifPerKg.toLocaleString('id-ID')} / kg)`;
+        estimasiText += `(${berat} ${window.satuanAktif} × Rp ${tarifPerKg.toLocaleString('id-ID')} / ${window.satuanAktif})`;
         if (biayaKurir > 0) {
             estimasiText += ` + biaya kurir Rp ${biayaKurir.toLocaleString('id-ID')}`;
         }
@@ -418,8 +423,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const originalPilihLayanan = window.pilihLayanan;
     window.pilihLayanan = function(element) {
         if (originalPilihLayanan) originalPilihLayanan(element);
+        window.satuanAktif = element.dataset.satuan || 'kg';
         updateTarifLayanan();
     };
+
+
 
     const originalGantiOpsi = window.gantiOpsiPengantaran;
     window.gantiOpsiPengantaran = function(opsi) {
@@ -428,15 +436,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     };
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Ambil satuan dari kartu yang sudah dipilih saat halaman pertama load
+        const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
+        if (selectedCard) {
+            window.satuanAktif = selectedCard.dataset.satuan || 'kg';
+        }
+
         updateTarifLayanan();
         updateBiayaKurir();
-        
+    
         const beratInput = document.getElementById('inputEstimasiBerat');
         if (beratInput) {
             beratInput.addEventListener('input', hitungEstimasiHarga);
         }
     });
+
     </script>
+     <script>
+     window.satuanAktif = 'kg';
+     </script>
 
     <script src="../assets/js/kalkulasi-harga.js"></script>
     <script src="../assets/js/form-validation.js"></script>

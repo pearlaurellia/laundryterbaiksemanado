@@ -58,6 +58,16 @@ document.addEventListener('DOMContentLoaded', () => {
             hitungEstimasi();
         });
     }
+    const selectedCard = document.querySelector('.kartu-pilih-layanan.dipilih');
+    if (selectedCard) {
+        tarifAktif = parseFloat(selectedCard.dataset.tarif) || 0;
+        namaLayananAktif = selectedCard.dataset.nama || '';
+        window.satuanAktif = selectedCard.dataset.satuan || 'kg';
+        const labelSatuan = document.getElementById('labelSatuan');
+        if (labelSatuan) labelSatuan.textContent = window.satuanAktif;
+    }
+
+
 });
 
 function hitungEstimasi() {
@@ -94,7 +104,7 @@ function hitungEstimasi() {
     teksEstimasiHarga.innerHTML = `
         <div style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #1e293b; line-height: 1.6;">
             <strong style="color: #16a34a; font-size: 1rem; display: block; margin-bottom: 6px;">📋 Ringkasan Estimasi Biaya</strong>
-            <span>Layanan: <strong>${namaLayananAktif}</strong> (${berat} kg × ${fmt(tarifAktif)}) = <strong>${fmt(biayaLayanan)}</strong></span><br>
+            <span>Layanan: <strong>${namaLayananAktif}</strong> (${berat} ${window.satuanAktif || 'kg'} × ${fmt(tarifAktif)}) = <strong>${fmt(biayaLayanan)}</strong></span><br>
             ${biayaKurir > 0 ? `<span>Biaya Kurir Antar-Jemput = <strong>${fmt(biayaKurir)}</strong></span><br>` : ''}
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cdcde0; font-size: 1.05rem;">
                 <strong>Total Pembayaran: <span style="color: #0d3f8a;">${fmt(totalHargaEstimasi)}</span></strong>

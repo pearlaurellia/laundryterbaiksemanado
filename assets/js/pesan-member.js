@@ -13,7 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (kartuAktif) {
         window.tarifAktif = parseFloat(kartuAktif.dataset.tarif) || 0;
         window.namaLayananAktif = kartuAktif.dataset.nama || '';
+        window.satuanAktif = kartuAktif.dataset.satuan || 'kg';
+        const labelSatuan = document.getElementById('labelSatuan');
+        if (labelSatuan) labelSatuan.textContent = window.satuanAktif;
     }
+
 
     const radioOpsi = document.querySelector('input[name="opsi_pengantaran"]:checked');
     if (radioOpsi) {
@@ -113,8 +117,12 @@ function pilihLayanan(el) {
 
     window.tarifAktif = parseFloat(el.dataset.tarif) || 0;
     window.namaLayananAktif = el.dataset.nama || '';
+    window.satuanAktif = el.dataset.satuan || 'kg';
+    const labelSatuan = document.getElementById('labelSatuan');
+    if (labelSatuan) labelSatuan.textContent = window.satuanAktif;
     if (typeof hitungEstimasi === 'function') hitungEstimasi();
 }
+
 
 function gantiOpsiPengantaran(opsi) {
     document.querySelectorAll('.kartu-opsi-pengantaran').forEach(lbl => lbl.classList.remove('dipilih-opsi'));

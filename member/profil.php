@@ -3,14 +3,12 @@ require_once '../includes/auth-check.php';
 require_once '../config/database.php';
 require_once '../config/functions.php';
 
-// ── Baca dan hapus session sukses (PRG pattern) ──────────────
 $suksesMsg = '';
 if (isset($_SESSION['sukses_profil'])) {
     $suksesMsg = $_SESSION['sukses_profil'];
     unset($_SESSION['sukses_profil']);
 }
 
-// ── Query data user ──────────────────────────────────────────
 $stmtUser = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmtUser->execute([$_SESSION['id_user']]);
 $user = $stmtUser->fetch();
@@ -19,7 +17,6 @@ if (!$user) {
     redirect('../login.php');
 }
 
-// ── Query statistik pesanan ──────────────────────────────────
 $stmtStat = $pdo->prepare("
     SELECT
         COUNT(*)                                          AS total_pesanan,
@@ -32,7 +29,6 @@ $stmtStat = $pdo->prepare("
 $stmtStat->execute([$_SESSION['id_user']]);
 $stat = $stmtStat->fetch();
 
-// ── Alamat tersimpan dari pesanan kurir terakhir ─────────────
 $stmtAlamat = $pdo->prepare("
     SELECT kecamatan, alamat_pengantaran
     FROM pesanan
@@ -45,17 +41,14 @@ $stmtAlamat = $pdo->prepare("
 $stmtAlamat->execute([$_SESSION['id_user']]);
 $alamatTersimpan = $stmtAlamat->fetch();
 
-// ── Handler POST ─────────────────────────────────────────────
 $errorProfil   = '';
 $errorPassword = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // ── POST: edit profil ────────────────────────────────────
     if ($action === 'edit_profil') {
         $nama  = trim($_POST['nama']  ?? '');
-        // Strip non-digit lalu validasi panjang
         $no_hp = preg_replace('/\D/', '', $_POST['no_hp'] ?? '');
 
         if ($nama === '') {
@@ -75,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ── POST: ganti password ─────────────────────────────────
     if ($action === 'ganti_password') {
         $passwordLama       = $_POST['password_lama']       ?? '';
         $passwordBaru       = $_POST['password_baru']       ?? '';
@@ -101,13 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── Inisial avatar dari nama ─────────────────────────────────
 $inisial = strtoupper(mb_substr($user['nama'], 0, 1));
 
-// ── Display name dari email (bagian sebelum @) ───────────────
 $displayName = htmlspecialchars(strstr($user['email'], '@', true));
 
-// ── Format total belanja ─────────────────────────────────────
 $totalBelanja = (int)$stat['total_belanja'];
 if ($totalBelanja >= 1000000) {
     $totalBelanjaFmt = number_format($totalBelanja / 1000000, 1, ',', '.') . 'jt';
@@ -117,7 +106,6 @@ if ($totalBelanja >= 1000000) {
     $totalBelanjaFmt = 'Rp ' . $totalBelanja;
 }
 
-// ── Format tanggal bergabung ─────────────────────────────────
 $bergabung = date('F Y', strtotime($user['created_at']));
 ?>
 <!DOCTYPE html>
@@ -138,7 +126,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
 
     <section class="profil-section">
 
-        <!-- ── HEADER PROFIL ── -->
         <div class="profil-hero">
             <div class="profil-avatar">
                 <?= htmlspecialchars($inisial) ?>
@@ -149,7 +136,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                 <p class="profil-bergabung">Member sejak <?= $bergabung ?></p>
             </div>
 
-            <!-- Stat singkat -->
             <div class="profil-stat-group">
                 <div class="profil-stat">
                     <span class="profil-stat-angka"><?= (int)$stat['total_pesanan'] ?></span>
@@ -166,10 +152,8 @@ $bergabung = date('F Y', strtotime($user['created_at']));
             </div>
         </div>
 
-        <!-- ── KONTEN BAWAH ── -->
         <div class="profil-konten">
 
-            <!-- KOLOM KIRI: Form edit info -->
             <div class="profil-kolom">
                 <div class="profil-kartu">
                     <div class="profil-kartu-header">
@@ -192,7 +176,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
 
                         <div class="grup-input-form" style="margin-top:4px;">
                             <label class="label-profil">Email</label>
-                            <!-- Email tidak bisa diubah (identitas login) -->
                             <input type="email" class="input-profil input-readonly"
                                    value="<?= htmlspecialchars($user['email']) ?>" readonly>
                         </div>
@@ -215,7 +198,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                                    readonly>
                         </div>
 
-                        <!-- Tombol simpan (tersembunyi saat tidak edit) -->
                         <div id="tombolSimpanProfil" style="display:none;">
                             <button type="submit" class="tombol-submit-form">
                                 Simpan Perubahan
@@ -231,7 +213,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                 </div>
             </div>
 
-            <!-- KOLOM KANAN: Ganti password + Alamat -->
             <div class="profil-kolom">
                 <div class="profil-kartu">
                     <div class="profil-kartu-header">
@@ -261,7 +242,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
                                    name="password_baru"
                                    placeholder="Min. 8 karakter"
                                    oninput="cekKuatPassword(this.value)">
-                            <!-- Indikator kuat password -->
                             <div class="kuat-password-wrapper" id="kuatPasswordWrapper"
                                  style="display:none;">
                                 <div class="kuat-password-bar">
@@ -288,7 +268,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
 
                 </div>
 
-                <!-- Alamat tersimpan (readonly) -->
                 <div class="profil-kartu" style="margin-top:20px;">
                     <div class="profil-kartu-header">
                         <h3 class="profil-kartu-judul">Alamat Tersimpan</h3>
@@ -319,7 +298,6 @@ $bergabung = date('F Y', strtotime($user['created_at']));
 
     </section>
 
-    <!-- Pop-up berhasil -->
     <div class="overlay-popup" id="overlayPopup" style="display:none;"></div>
     <div class="popup-konfirmasi" id="popupBerhasil" style="display:none;">
         <h3 class="popup-judul" id="popupBerhasilJudul">Berhasil!</h3>

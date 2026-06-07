@@ -201,7 +201,7 @@ $labelTimeline = [
                         <p class="detail-label">Estimasi Berat</p>
                         <p class="detail-nilai">
                             <?php if (!empty($p['estimasi_berat']) && $p['estimasi_berat'] > 0): ?>
-                                <?= htmlspecialchars($p['estimasi_berat']) ?> kg (estimasi)
+                                <?= htmlspecialchars($p['estimasi_berat']) ?> <?= htmlspecialchars($p['satuan']) ?> (estimasi)
                             <?php else: ?>
                                 Tidak diisi
                             <?php endif; ?>
