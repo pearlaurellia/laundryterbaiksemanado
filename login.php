@@ -72,8 +72,6 @@ include 'includes/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CleanCo</title>
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -108,9 +106,9 @@ include 'includes/header.php';
                                 class="input-form-login" 
                                 placeholder="Masukkan password" 
                                 required>
-                        <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                     </div>
-                    <a href="lupa-password.php" class="lupa-password" style="font-family: 'DM Sans', sans-serif;">Lupa password?</a>
+                    <a href="lupa-password.php" class="lupa-password">Lupa password?</a>
                 </div>
                 
                 <button type="submit" class="tombol-submit-form">Masuk</button>
@@ -133,12 +131,10 @@ include 'includes/header.php';
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.classList.remove('fa-eye-slash');
-            element.classList.add('fa-eye');
+            element.textContent = '🙈';
         } else {
             input.type = 'password';
-            element.classList.remove('fa-eye');
-            element.classList.add('fa-eye-slash');
+            element.textContent = '👁️';
         }
     }
     </script>

@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include 'includes/header.php'; 
 ?>
-
     <section class="hero-form">
         <div class="konten-form">
             <h1 class="judul-form">Daftar Akun CleanCo</h1>
@@ -76,7 +75,7 @@ include 'includes/header.php';
             <?php endif; ?>
 
             <form method="POST" action="register.php" id="formRegister">
-                <div class="grup-input-form-login">
+                <div class="grup-input-form-login" style="width: 400px">
                     <label for="nama" class="label-form-login">Nama Lengkap</label>
                     <input type="text" 
                            id="nama" 
@@ -87,7 +86,7 @@ include 'includes/header.php';
                            required>
                 </div>
 
-                <div class="grup-input-form-login" style="width:400px">
+                <div class="grup-input-form-login">
                     <label for="no_hp" class="label-form-login">Nomor WhatsApp</label>
                     <input type="tel" 
                            id="no_hp" 
@@ -111,7 +110,7 @@ include 'includes/header.php';
 
                 <div class="grup-input-form-login">
                     <label for="password" class="label-form-login">Password</label>
-                    <div class="password-wrapper" style="position: relative;">
+                    <div class="password-wrapper">
                         <input type="password" 
                                id="password" 
                                name="password" 
@@ -119,15 +118,13 @@ include 'includes/header.php';
                                placeholder="Minimal 6 karakter" 
                                required
                                style="padding-right: 45px;">
-                        <i class="fas fa-eye-slash" 
-                           style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888;"
-                           onclick="togglePassword(this)"></i>
+                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                     </div>
                 </div>
 
                 <div class="grup-input-form-login">
                     <label for="konfirmasi_password" class="label-form-login">Verifikasi Password</label>
-                    <div class="password-wrapper" style="position: relative;">
+                    <div class="password-wrapper">
                         <input type="password" 
                                id="konfirmasi_password" 
                                name="konfirmasi_password" 
@@ -135,9 +132,7 @@ include 'includes/header.php';
                                placeholder="Ulangi password" 
                                required
                                style="padding-right: 45px;">
-                        <i class="fas fa-eye-slash" 
-                           style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888;"
-                           onclick="togglePassword(this)"></i>
+                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                     </div>
                 </div>
 
@@ -159,16 +154,16 @@ include 'includes/header.php';
     <div class="overlay-popup" id="overlayPopup" style="display: block;"></div>
     <div class="popup-sukses-pesanan" id="popupSukses" style="display: block;">
         <div class="popup-sukses-atas">
+            <div class="popup-sukses-ikon">✅</div>
             <h3 class="popup-sukses-judul">Pendaftaran Berhasil!</h3>
             <p class="popup-sukses-sub">Akun kamu sudah dibuat. Silakan masuk untuk mulai memesan.</p>
         </div>
         <div class="popup-tombol-group" style="justify-content: center;">
-            <a href="login.php" class="popup-tombol-konfirm" style="display: inline-block; padding: 10px 28px; background: #38bdf8; color: #0f172a; text-decoration: none; border-radius: 30px; font-weight: 600;">Masuk Sekarang</a>
+            <a href="login.php" style="display: inline-block; padding: 10px 28px; background: #38bdf8; color: #0f172a; text-decoration: none; border-radius: 30px; font-weight: 600;">Masuk Sekarang</a>
         </div>
     </div>
     <?php endif; ?>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script>
     function togglePassword(element) {
         const wrapper = element.parentElement;
@@ -176,12 +171,10 @@ include 'includes/header.php';
         
         if (input.type === 'password') {
             input.type = 'text';
-            element.classList.remove('fa-eye-slash');
-            element.classList.add('fa-eye');
+            element.textContent = '🙈';
         } else {
             input.type = 'password';
-            element.classList.remove('fa-eye');
-            element.classList.add('fa-eye-slash');
+            element.textContent = '👁️';
         }
     }
     </script>
