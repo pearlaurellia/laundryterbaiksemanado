@@ -106,11 +106,11 @@ include 'includes/header.php';
                                 class="input-form-login" 
                                 placeholder="Masukkan password" 
                                 required>
-                        <img src="assets/images/eye-open.png"
+                        <img src="assets/images/eye-close.png"
                         class="toggle-password"
                         onclick="togglePassword(this)"
-                        data-open="assets/images/eye-open.png"
-                        data-close="assets/images/eye-close.png"
+                        data-open="assets/images/eye-close.png"
+                        data-close="assets/images/eye-open.png"
                         width="20">
                     </div>
                     <a href="lupa-password.php" class="lupa-password">Lupa password?</a>
